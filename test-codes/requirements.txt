@@ -1,0 +1,13 @@
+numpy
+pandas
+flask 
+flask-cors
+seaborn
+plotly
+trame
+trame-vtk
+trame-vuetify
+trame-components
+vtk-module
+vtk
+pathlib

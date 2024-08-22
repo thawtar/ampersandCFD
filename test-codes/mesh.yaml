@@ -1,0 +1,61 @@
+domain:
+  - name: domain1
+    type: cartesian
+    minx: 0
+    maxx: 1
+    miny: 0
+    maxy: 1
+    minz: 0
+    maxz: 1
+    nx: 10
+    ny: 10
+    nz: 1
+
+
+vertices:
+  - name: lowerLeft
+    number: 0
+    coordinates: [{{ domain[0].minx }}, {{ domain[0].miny }}, {{ domain[0].minz }}]
+  - name: lowerRight
+    number: 1
+    coordinates: [{{ domain[0].maxx }}, {{ domain[0].miny }}, {{ domain[0].minz }}]
+  - name: upperRight
+    number: 2
+    coordinates: [{{ domain[0].maxx }}, {{ domain[0].maxy }}, {{ domain[0].minz }}]
+  - name: upperLeft
+    number: 3
+    coordinates: [{{ domain[0].minx }}, {{ domain[0].maxy }}, {{ domain[0].minz }}]
+  - name: lowerFrontLeft
+    number: 4
+    coordinates: [{{ domain[0].minx }}, {{ domain[0].miny }}, {{ domain[0].maxz }}]
+  - name: lowerFrontRight
+    number: 5
+    coordinates: [{{ domain[0].maxx }}, {{ domain[0].miny }}, {{ domain[0].maxz }}]
+  - name: upperFrontRight
+    number: 6
+    coordinates: [{{ domain[0].maxx }}, {{ domain[0].maxy }}, {{ domain[0].maxz }}]
+  - name: upperFrontLeft
+    number: 7
+    coordinates: [{{ domain[0].minx }}, {{ domain[0].maxy }}, {{ domain[0].maxz }}]
+
+blocks:
+  - name: block1
+    type: hex
+    vertices: [0, 1, 2, 3, 4, 5, 6, 7]
+    grading: [1, 1, 1]
+    simpleGrading: [1, 1, 1]
+    n: [nx, ny, nz]
+
+boundary:
+  - name: left
+    type: patch
+    faces: [0,4,7,3]
+  - name: right
+    type: patch
+    faces: [1,5,6,2]
+  - name: front
+    type: wall
+    faces: [4,5,6,7]
+  - name: back
+    type: wall
+    faces: [0,1,2,3]
