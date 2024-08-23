@@ -43,8 +43,8 @@ class gui:
         self.ui = self._build_ui()
 
         # Set state variable
-        self.state.trame__title = "AmpersandCFD"
-        self.state.resolution = 6
+        self.state.trame_title = "AmpersandCFD"
+        #self.state.resolution = 6
 
     def _build_ui(self):
         return SinglePageWithDrawerLayout(
