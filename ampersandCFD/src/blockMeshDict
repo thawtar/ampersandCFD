@@ -31,7 +31,7 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-convertToMeters 1.0;
+scale 1.0;
 
 vertices
 (
@@ -54,33 +54,57 @@ edges
 (
 );
 
-patches
+boundary
 (
-    patch inlet
-    (
-        (0 1 5 4)
-    );
-    patch outlet
-    (
-        (2 3 7 6)
-    );
-    patch bottom
-    (
-        (0 3 7 4)
-    );
-    patch top
-    (
-        (1 2 6 5)
-    );
-    patch front
-    (
-        (0 1 2 3)
-    );
-    patch back
-    (
-        (4 5 6 7)
-    );
-);
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (0 1 5 4)
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (2 3 7 6)
+        );
+    }
+    bottom
+    {
+        type patch;
+        faces
+        (
+            (0 3 7 4)
+        );
+    }
+    top
+    {
+        type patch;
+        faces
+        (
+            (1 2 6 5)
+        );
+    }
+    front
+    {
+        type patch;
+        faces
+        (
+            (0 1 2 3)
+        );
+    }
+    back
+    {
+        type patch;
+        faces
+        (
+            (4 5 6 7)
+        );
+    }   
+)
 
 mergePatchPairs
 (
