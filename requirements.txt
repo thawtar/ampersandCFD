@@ -1,3 +1,4 @@
+pyyaml
 numpy
 pandas
 flask 

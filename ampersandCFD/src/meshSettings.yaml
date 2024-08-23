@@ -1,0 +1,78 @@
+name: meshSettings
+domain:
+  minx: 0
+  maxx: 1
+  miny: 0
+  maxy: 1
+  minz: 0
+  maxz: 1
+  nx: 10
+  ny: 10
+  nz: 10
+patches:
+- left: inlet
+  type: patch
+- right: outlet
+  type: patch
+- front: front
+  type: wall
+- back: back
+  type: wall
+- bottom: bottom
+  type: wall
+- top: top
+  type: wall
+locationInMesh:
+  x: 0.5
+  y: 0.5
+  z: 0.5
+snappyHexSteps:
+  castellatedMesh: true
+  snap: true
+  addLayers: true
+stl_entries:
+- name: stl1.stl
+  refineMin: 1
+  refineMax: 3
+  featureEdges: true
+  nLayers: 3
+castellatedMeshControls:
+  maxLocalCells: 1000000
+  maxGlobalCells: 2000000
+  minRefinementCells: 10
+  maxLoadUnbalance: 0.1
+  nCellsBetweenLevels: 3
+  features: []
+  refinementSurfaces: []
+  resolveFeatureAngle: 30
+  refinementRegions: []
+  locationInMesh:
+  - 0
+  - 0
+  - 0
+  allowFreeStandingZoneFaces: true
+snapControls:
+  nSmoothPatch: 3
+  tolerance: 2.0
+  nSolveIter: 30
+  nRelaxIter: 5
+  nFeatureSnapIter: 10
+  implicitFeatureSnap: false
+  explicitFeatureSnap: true
+  multiRegionFeatureSnap: false
+addLayersControls:
+  relativeSizes: true
+  expansionRatio: 1.3
+  finalLayerThickness: 0.3
+  minThickness: 0.1
+  nGrow: 0
+  featureAngle: 60
+  nRelaxIter: 5
+  nSmoothSurfaceNormals: 1
+  nSmoothNormals: 3
+  nSmoothThickness: 10
+  maxFaceThicknessRatio: 0.5
+  maxThicknessToMedialRatio: 0.3
+  minMedianAxisAngle: 90
+  nBufferCellsNoExtrude: 0
+  nLayerIter: 50
