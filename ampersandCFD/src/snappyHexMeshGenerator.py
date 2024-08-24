@@ -1,6 +1,6 @@
 from constants import meshSettings
 from primitives import ampersandPrimitives
-def create_snappyHexMeshDict(meshSettings):
+def generate_snappyHexMeshDict(meshSettings):
     """
     Create a snappyHexMeshDict for OpenFOAM.
 
@@ -12,146 +12,144 @@ def create_snappyHexMeshDict(meshSettings):
     Returns:
     str: The content of the snappyHexMeshDict file as a string.
     """
-
+    snappyHexMeshDict = f""
     trueFalse = {True: "true", False: "false"}
     header = ampersandPrimitives.createFoamHeader(className="dictionary", objectName="snappyHexMeshDict")
 
-    steps = f"""castellatedMesh {trueFalse[meshSettings['snappyHexSteps']['castellatedMesh']]};
-    snap            {trueFalse[meshSettings['snappyHexSteps']['snap']]};
-    addLayers       {trueFalse[meshSettings['snappyHexSteps']['addLayers']]};"""
-    
-    geometry = f"geometry"
+    steps = f"""
+castellatedMesh {trueFalse[meshSettings['snappyHexSteps']['castellatedMesh']]};
+snap            {trueFalse[meshSettings['snappyHexSteps']['snap']]};
+addLayers       {trueFalse[meshSettings['snappyHexSteps']['addLayers']]};"""
+
+    features = ""
+    refinementSurfaces = ""
+
+    geometry = f"""\ngeometry\n{{"""
     for an_entry in meshSettings['geometry']:
-        geometry += f"""
-    
+        # For STL surfaces, featureEdges and refinementSurfaces are added
+        if(an_entry['type'] == 'triSurfaceMesh'):
+            added_geo = f"""
     {an_entry['name']}
     {{
         type {an_entry['type']};
         name {an_entry['name'][:-4]};
-        
-    }}
-    ;"""
+    }}"""
+            # Add features and refinement surfaces
+            if(an_entry['featureEdges']):
+                features += f"""{{
+            file \"{an_entry['name'][:-4]}.eMesh\";
+            level {an_entry['featureLevel']};
+            }}"""
+            refinementSurfaces+= f"""{an_entry['name'][:-4]}
+        {{
+            level ({an_entry['refineMin']} {an_entry['refineMax']});
+        }}""" 
 
-    print(header+steps)
-    exit(0)
-    snappyHexMeshDict = header+f"""/*--------------------------------*- C++ -*----------------------------------*\\
+        # For searchable boxes, min and max are added
+        elif(an_entry['type'] == 'searchableBox'):
+            added_geo = f"""
+    {an_entry['name']}
+    {{
+        type {an_entry['type']};
+        min ({an_entry['min'][0]} {an_entry['min'][1]} {an_entry['min'][2]});
+        max ({an_entry['max'][0]} {an_entry['max'][1]} {an_entry['max'][2]});
+    }}"""
+        geometry += added_geo
+    geometry += f"""\n}}"""
 
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-castellatedMesh {meshSettings['castellatedMesh']};
-snap            {meshSettings['snap']};
-addLayers       {meshSettings['addLayers']};
-
-geometry
-(
-{stl_entries}
-);
-
-castellatedMeshControls
+    
+    castellatedMeshControls = f"""\ncastellatedMeshControls
 {{
-    maxLocalCells {meshSettings['maxLocalCells']};
-    maxGlobalCells {meshSettings['maxGlobalCells']};
-    minRefinementCells {meshSettings['minRefinementCells']};
-    maxLoadUnbalance {meshSettings['maxLoadUnbalance']};
-    nCellsBetweenLevels {meshSettings['nCellsBetweenLevels']};
-
+    maxLocalCells {meshSettings['castellatedMeshControls']['maxLocalCells']};
+    maxGlobalCells {meshSettings['castellatedMeshControls']['maxGlobalCells']};
+    minRefinementCells {meshSettings['castellatedMeshControls']['minRefinementCells']};
+    maxLoadUnbalance {meshSettings['castellatedMeshControls']['maxLoadUnbalance']};
+    nCellsBetweenLevels {meshSettings['castellatedMeshControls']['nCellsBetweenLevels']};
     features
     (
-        // no features specified
+        {features}
     );
-
     refinementSurfaces
-    (
-{refinement_surfaces_entries}
-    );
-
-    resolveFeatureAngle {meshSettings['resolveFeatureAngle']};
-
+    {{
+        {refinementSurfaces}
+    }}
+    resolveFeatureAngle {meshSettings['castellatedMeshControls']['resolveFeatureAngle']};
     refinementRegions
     {{
         // no regions specified
     }};
-
-    locationInMesh (0 0 0);
-
-    allowFreeStandingZoneFaces {meshSettings['allowFreeStandingZoneFaces']};
-}}
-
-snapControls
+    locationInMesh ({meshSettings['castellatedMeshControls']['locationInMesh'][0]} {meshSettings['castellatedMeshControls']['locationInMesh'][1]} {meshSettings['castellatedMeshControls']['locationInMesh'][2]});
+    allowFreeStandingZoneFaces {trueFalse[meshSettings['castellatedMeshControls']['allowFreeStandingZoneFaces']]};
+}}"""
+    
+    snapControls = f"""\nsnapControls
 {{
-    nSmoothPatch {meshSettings['nSmoothPatch']};
-    tolerance {meshSettings['tolerance']};
-    nSolveIter {meshSettings['nSolveIter']};
-    nRelaxIter {meshSettings['nRelaxIter']};
-    nFeatureSnapIter {meshSettings['nFeatureSnapIter']};
-    implicitFeatureSnap {meshSettings['implicitFeatureSnap']};
-    explicitFeatureSnap {meshSettings['explicitFeatureSnap']};
-    multiRegionFeatureSnap {meshSettings['multiRegionFeatureSnap']};
-}}
-
-addLayersControls
+    nSmoothPatch {meshSettings['snapControls']['nSmoothPatch']};
+    tolerance {meshSettings['snapControls']['tolerance']};
+    nSolveIter {meshSettings['snapControls']['nSolveIter']};
+    nRelaxIter {meshSettings['snapControls']['nRelaxIter']};
+    nFeatureSnapIter {meshSettings['snapControls']['nFeatureSnapIter']};
+    implicitFeatureSnap {trueFalse[meshSettings['snapControls']['implicitFeatureSnap']]};
+    explicitFeatureSnap {trueFalse[meshSettings['snapControls']['explicitFeatureSnap']]};
+    multiRegionFeatureSnap {trueFalse[meshSettings['snapControls']['multiRegionFeatureSnap']]};
+}}"""
+    layerControls = f"""\naddLayersControls
 {{
-    relativeSizes {meshSettings['relativeSizes']};
+    relativeSizes {trueFalse[meshSettings['addLayersControls']['relativeSizes']]};
     layers
-    {{
-{layers_entries}
+    {{"""
+    for an_entry in meshSettings['geometry']:
+        if(an_entry['type'] == 'triSurfaceMesh'):
+            layerControls += f"""
+        {an_entry['name'][:-4]}
+        {{
+            nSurfaceLayers {an_entry['nLayers']};
+        }}"""
+    layerControls += f"""
     }};
-
-    expansionRatio {meshSettings['expansionRatio']};
-    finalLayerThickness {meshSettings['finalLayerThickness']};
-    minThickness {meshSettings['minThickness']};
-    nGrow {meshSettings['nGrow']};
-    featureAngle {meshSettings['featureAngle']};
-    nRelaxIter {meshSettings['nRelaxIter']};
-    nSmoothSurfaceNormals {meshSettings['nSmoothSurfaceNormals']};
-    nSmoothNormals {meshSettings['nSmoothNormals']};
-    nSmoothThickness {meshSettings['nSmoothThickness']};
-    maxFaceThicknessRatio {meshSettings['maxFaceThicknessRatio']};
-    maxThicknessToMedialRatio {meshSettings['maxThicknessToMedialRatio']};
-    minMedianAxisAngle {meshSettings['minMedianAxisAngle']};
-    nBufferCellsNoExtrude {meshSettings['nBufferCellsNoExtrude']};
-    nLayerIter {meshSettings['nLayerIter']};
-}}
-
-meshQualityControls
+    expansionRatio {meshSettings['addLayersControls']['expansionRatio']};
+    finalLayerThickness {meshSettings['addLayersControls']['finalLayerThickness']};
+    minThickness {meshSettings['addLayersControls']['minThickness']};
+    nGrow {meshSettings['addLayersControls']['nGrow']};
+    featureAngle {meshSettings['addLayersControls']['featureAngle']};
+    nRelaxIter {meshSettings['addLayersControls']['nRelaxIter']};
+    nSmoothSurfaceNormals {meshSettings['addLayersControls']['nSmoothSurfaceNormals']};
+    nSmoothNormals {meshSettings['addLayersControls']['nSmoothNormals']};
+    nSmoothThickness {meshSettings['addLayersControls']['nSmoothThickness']};
+    maxFaceThicknessRatio {meshSettings['addLayersControls']['maxFaceThicknessRatio']};
+    maxThicknessToMedialRatio {meshSettings['addLayersControls']['maxThicknessToMedialRatio']};
+    minMedianAxisAngle {meshSettings['addLayersControls']['minMedianAxisAngle']};
+    nBufferCellsNoExtrude {meshSettings['addLayersControls']['nBufferCellsNoExtrude']};
+    nLayerIter {meshSettings['addLayersControls']['nLayerIter']};
+}}"""
+    meshQualityControls = f"""\nmeshQualityControls
 {{
-    maxNonOrtho {meshSettings['maxNonOrtho']};
-    maxBoundarySkewness {meshSettings['maxBoundarySkewness']};
-    maxInternalSkewness {meshSettings['maxInternalSkewness']};
-    maxConcave {meshSettings['maxConcave']};
-    minVol {meshSettings['minVol']};
-    minTetQuality {meshSettings['minTetQuality']};
-    minArea {meshSettings['minArea']};
-    minTwist {meshSettings['minTwist']};
-    minDeterminant {meshSettings['minDeterminant']};
-    minFaceWeight {meshSettings['minFaceWeight']};
-    minVolRatio {meshSettings['minVolRatio']};
-    minTriangleTwist {meshSettings['minTriangleTwist']};
-
-    nSmoothScale {meshSettings['nSmoothScale']};
-    errorReduction {meshSettings['errorReduction']};
-}}
-
-debug {meshSettings['debug']};
-mergeTolerance {meshSettings['mergeTolerance']};
-
-// ************************************************************************* //
-"""
-
+    maxNonOrtho {meshSettings['meshQualityControls']['maxNonOrtho']};
+    maxBoundarySkewness {meshSettings['meshQualityControls']['maxBoundarySkewness']};
+    maxInternalSkewness {meshSettings['meshQualityControls']['maxInternalSkewness']};
+    maxConcave {meshSettings['meshQualityControls']['maxConcave']};
+    minVol {meshSettings['meshQualityControls']['minVol']};
+    minTetQuality {meshSettings['meshQualityControls']['minTetQuality']};
+    minArea {meshSettings['meshQualityControls']['minArea']};
+    minTwist {meshSettings['meshQualityControls']['minTwist']};
+    minDeterminant {meshSettings['meshQualityControls']['minDeterminant']};
+    minFaceWeight {meshSettings['meshQualityControls']['minFaceWeight']};
+    minVolRatio {meshSettings['meshQualityControls']['minVolRatio']};
+    minTriangleTwist {meshSettings['meshQualityControls']['minTriangleTwist']};
+    nSmoothScale {meshSettings['meshQualityControls']['nSmoothScale']};
+    errorReduction {meshSettings['meshQualityControls']['errorReduction']};
+}}"""
+    debug = f"""\ndebug {meshSettings['debug']};
+mergeTolerance {meshSettings['mergeTolerance']};"""
+    snappyHexMeshDict += header+steps+geometry+castellatedMeshControls+snapControls+layerControls+meshQualityControls+debug
+    #print(snappyHexMeshDict)
     return snappyHexMeshDict
-# aaa
+   
 # Example usage
-stl_files = ["geometry1.stl", "geometry2.stl"]
-refinement_levels = {
-    "geometry1.stl": 3,
-    "geometry2.stl": 4
-}
-layer_counts = {
-    "geometry1.stl": 3,
-    "geometry2.stl": 2
-}
-
-snappy_hex_mesh_dict_content = create_snappyHexMeshDict(meshSettings)
+meshSettings = ampersandPrimitives.yaml_to_dict("meshSettings.yaml")
 
 
+snappy_hex_mesh_dict_content = generate_snappyHexMeshDict(meshSettings)
+with open("snappyHexMeshDict", "w") as f:
+    f.write(snappy_hex_mesh_dict_content)
+print("snappyHexMeshDict file created.")

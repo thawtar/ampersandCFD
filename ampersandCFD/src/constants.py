@@ -25,7 +25,8 @@ meshSettings = {
                         'addLayers': True},
 
     'geometry': [{'name': 'stl1.stl','type':'triSurfaceMesh', 'refineMin': 1, 'refineMax': 3, 
-                     'featureEdges':True,'nLayers':3},],
+                     'featureEdges':True,'featureLevel':3,'nLayers':3},
+                {'name': 'box','type':'searchableBox', 'min': [0, 0, 0], 'max': [1, 1, 1]}],
 
     'castellatedMeshControls': {'maxLocalCells': 2_000_000,
                                 'maxGlobalCells': 5_000_000,
@@ -76,7 +77,11 @@ meshSettings = {
                             'minDeterminant': 0.001,
                             'minFaceWeight': 0.01,
                             'minVolRatio': 0.01,
-                            'minTriangleTwist': -1},
+                            'minTriangleTwist': -1,
+                            'nSmoothScale': 4,
+                            'errorReduction': 0.75},
+    'mergeTolerance': 1e-6,
+    'debug': 0,
 }
 
 
