@@ -119,6 +119,7 @@ addLayers       {trueFalse[meshSettings['snappyHexSteps']['addLayers']]};"""
     maxFaceThicknessRatio {meshSettings['addLayersControls']['maxFaceThicknessRatio']};
     maxThicknessToMedialRatio {meshSettings['addLayersControls']['maxThicknessToMedialRatio']};
     minMedianAxisAngle {meshSettings['addLayersControls']['minMedianAxisAngle']};
+    minMedialAxisAngle {meshSettings['addLayersControls']['minMedianAxisAngle']};
     nBufferCellsNoExtrude {meshSettings['addLayersControls']['nBufferCellsNoExtrude']};
     nLayerIter {meshSettings['addLayersControls']['nLayerIter']};
 }}"""

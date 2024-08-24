@@ -93,6 +93,7 @@ addLayersControls
     maxFaceThicknessRatio 0.5;
     maxThicknessToMedialRatio 0.3;
     minMedianAxisAngle 90;
+    minMedialAxisAngle 90;
     nBufferCellsNoExtrude 0;
     nLayerIter 10;
 }
@@ -103,7 +104,7 @@ meshQualityControls
     maxInternalSkewness 4;
     maxConcave 180;
     minVol 1e-30;
-    minTetQuality 0.5;
+    minTetQuality 1e-30;
     minArea 1e-30;
     minTwist 0.001;
     minDeterminant 0.001;

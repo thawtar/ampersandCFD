@@ -1,199 +1,355 @@
-def create_boundary_conditions(case_directory, boundary_conditions):
+import yaml
+from primitives import ampersandPrimitives
+from constants import meshSettings, boundaryConditions, inletValues
+
+
+
+def tuple_to_string(t):
+    return f"({t[0]} {t[1]} {t[2]})"
+
+def create_u_file(meshSettings,boundaryConditions):
+    header = ampersandPrimitives.createFoamHeader(className="volVectorField", objectName="U")
+    dims = ampersandPrimitives.createDimensions(M=0,L=1,T=-1)
+    internalField = ampersandPrimitives.createInternalFieldVector(type="uniform", value=(0,0,0))
+    U_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
+{"""
+    # Loop through patches for each boundary condition
+    for patch in meshSettings['patches']:
+        print(patch)
+        U_file += f"""
+    {patch['name']}"""
+        if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+            U_file += f"""
+    {{
+        type {boundaryConditions['velocityInlet']['u_type']};
+        value uniform {tuple_to_string(boundaryConditions['velocityInlet']['u_value'])};
+    }}
+    """
+        if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
+            U_file += f"""
+    {{
+        type {boundaryConditions['pressureOutlet']['u_type']};
+        inletValue uniform {tuple_to_string(boundaryConditions['pressureOutlet']['u_value'])};
+        value uniform {tuple_to_string(boundaryConditions['pressureOutlet']['u_value'])};
+    }}
+    """
+        if(patch['type'] == 'wall'):
+            U_file += f"""
+    {{
+        type {boundaryConditions['wall']['u_type']};
+        value uniform {tuple_to_string(boundaryConditions['wall']['u_value'])};
+    }}
+    """
+        if(patch['type'] == 'movingWall'):
+            U_file += f"""
+    {{
+        type {boundaryConditions['movingWall']['u_type']};
+        value uniform {tuple_to_string(boundaryConditions['movingWall']['u_value'])};
+    }}
+    """
+    for patch in meshSettings['geometry']:
+        if(patch['type'] == 'triSurfaceMesh'):
+            U_file += f"""
+    {patch['name'][:-4]}
+    {{
+        type {boundaryConditions['wall']['u_type']};
+        value uniform {tuple_to_string(boundaryConditions['wall']['u_value'])};
+    }}
+    """
+    U_file += """
+}"""
+    return U_file
+
+def create_p_file(meshSettings,boundaryConditions):
+    header = ampersandPrimitives.createFoamHeader(className="volScalarField", objectName="p")
+    dims = ampersandPrimitives.createDimensions(M=0,L=2,T=-2)
+    internalField = ampersandPrimitives.createInternalFieldScalar(type="uniform", value=0)
+    p_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
+{"""
+    # Loop through patches for each boundary condition
+    for patch in meshSettings['patches']:
+        print(patch)
+        p_file += f"""
+    {patch['name']}"""
+        if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+            p_file += f"""
+    {{
+        type {boundaryConditions['velocityInlet']['p_type']};
+        value uniform {boundaryConditions['velocityInlet']['p_value']};
+    }}
+    """
+        if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
+            p_file += f"""
+    {{
+        type {boundaryConditions['pressureOutlet']['p_type']};
+        value uniform {boundaryConditions['pressureOutlet']['p_value']};
+    }}
+    """
+        if(patch['type'] == 'wall'):
+            p_file += f"""
+    {{
+        type {boundaryConditions['wall']['p_type']};
+        value uniform {boundaryConditions['wall']['p_value']};
+    }}
+    """
+        if(patch['type'] == 'movingWall'):
+            p_file += f"""
+    {{
+        type {boundaryConditions['movingWall']['p_type']};
+        value uniform {boundaryConditions['movingWall']['p_value']};
+    }}
+    """
+    for patch in meshSettings['geometry']:
+        if(patch['type'] == 'triSurfaceMesh'):
+            p_file += f"""
+    {patch['name'][:-4]}
+    {{
+        type {boundaryConditions['wall']['p_type']};
+        value uniform {boundaryConditions['wall']['p_value']};
+    }}
+    """
+    p_file += """
+}"""
+    return p_file
+
+def create_k_file(meshSettings,boundaryConditions):
+    header = ampersandPrimitives.createFoamHeader(className="volScalarField", objectName="k")
+    dims = ampersandPrimitives.createDimensions(M=0,L=2,T=-2)
+    internalField = ampersandPrimitives.createInternalFieldScalar(type="uniform", value=1.0e-6)
+    k_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
+{"""
+    # Loop through patches for each boundary condition
+    for patch in meshSettings['patches']:
+        print(patch)
+        k_file += f"""
+    {patch['name']}"""
+        if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+            k_file += f"""
+    {{
+        type {boundaryConditions['velocityInlet']['k_type']};
+        value uniform {boundaryConditions['velocityInlet']['k_value']};
+    }}
+    """
+        if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
+            k_file += f"""
+    {{
+        type {boundaryConditions['pressureOutlet']['k_type']};
+        value uniform {boundaryConditions['pressureOutlet']['k_value']};
+    }}
+    """
+        if(patch['type'] == 'wall'):
+            k_file += f"""
+    {{
+        type {boundaryConditions['wall']['k_type']};
+        value  {boundaryConditions['wall']['k_value']};
+    }}
+    """
+        if(patch['type'] == 'movingWall'):
+            k_file += f"""
+    {{
+        type {boundaryConditions['movingWall']['k_type']};
+        value  {boundaryConditions['movingWall']['k_value']};
+    }}
+    """
+    for patch in meshSettings['geometry']:
+        if(patch['type'] == 'triSurfaceMesh'):
+            k_file += f"""
+    {patch['name'][:-4]}
+    {{
+        type {boundaryConditions['wall']['k_type']};
+        value  {boundaryConditions['wall']['k_value']};
+    }}
+    """
+    k_file += """
+}"""
+    return k_file
+
+def create_omega_file(meshSettings,boundaryConditions):
+    header = ampersandPrimitives.createFoamHeader(className="volScalarField", objectName="omega")
+    dims = ampersandPrimitives.createDimensions(M=0,L=0,T=-1)
+    internalField = ampersandPrimitives.createInternalFieldScalar(type="uniform", value=1.0e-6)
+    omega_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
+{"""
+    # Loop through patches for each boundary condition
+    for patch in meshSettings['patches']:
+        print(patch)
+        omega_file += f"""
+    {patch['name']}"""
+        if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+            omega_file += f"""
+    {{
+        type {boundaryConditions['velocityInlet']['omega_type']};
+        value uniform {boundaryConditions['velocityInlet']['omega_value']};
+    }}
+    """
+        if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
+            omega_file += f"""
+    {{
+        type {boundaryConditions['pressureOutlet']['omega_type']};
+        value uniform {boundaryConditions['pressureOutlet']['omega_value']};
+    }}
+    """
+        if(patch['type'] == 'wall'):
+            omega_file += f"""
+    {{
+        type {boundaryConditions['wall']['omega_type']};
+        value  {boundaryConditions['wall']['omega_value']};
+    }}
+    """
+        if(patch['type'] == 'movingWall'):
+            omega_file += f"""
+    {{
+        type {boundaryConditions['movingWall']['omega_type']};
+        value  {boundaryConditions['movingWall']['omega_value']};
+    }}
+    """
+    for patch in meshSettings['geometry']:
+        if(patch['type'] == 'triSurfaceMesh'):
+            omega_file += f"""
+    {patch['name'][:-4]}
+    {{
+        type {boundaryConditions['wall']['omega_type']};
+        value  {boundaryConditions['wall']['omega_value']};
+    }}
+    """
+    omega_file += """
+}"""
+    return omega_file
+
+def create_epsilon_file(meshSettings,boundaryConditions):
+    header = ampersandPrimitives.createFoamHeader(className="volScalarField", objectName="epsilon")
+    dims = ampersandPrimitives.createDimensions(M=2,L=2,T=-3)
+    internalField = ampersandPrimitives.createInternalFieldScalar(type="uniform", value=1.0e-6)
+    epsilon_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
+{"""
+    # Loop through patches for each boundary condition
+    for patch in meshSettings['patches']:
+        print(patch)
+        epsilon_file += f"""
+    {patch['name']}"""
+        if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+            epsilon_file += f"""
+    {{
+        type {boundaryConditions['velocityInlet']['epsilon_type']};
+        value uniform {boundaryConditions['velocityInlet']['epsilon_value']};
+    }}
+    """
+        if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
+            epsilon_file += f"""
+    {{
+        type {boundaryConditions['pressureOutlet']['epsilon_type']};
+        value uniform {boundaryConditions['pressureOutlet']['epsilon_value']};
+    }}
+    """
+        if(patch['type'] == 'wall'):
+            epsilon_file += f"""
+    {{
+        type {boundaryConditions['wall']['epsilon_type']};
+        value  {boundaryConditions['wall']['epsilon_value']};
+    }}
+    """
+        if(patch['type'] == 'movingWall'):
+            epsilon_file += f"""
+    {{
+        type {boundaryConditions['movingWall']['epsilon_type']};
+        value  {boundaryConditions['movingWall']['epsilon_value']};
+    }}
+    """
+    for patch in meshSettings['geometry']:
+        if(patch['type'] == 'triSurfaceMesh'):
+            epsilon_file += f"""
+    {patch['name'][:-4]}
+    {{
+        type {boundaryConditions['wall']['epsilon_type']};
+        value  {boundaryConditions['wall']['epsilon_value']};
+    }}
+    """
+    epsilon_file += """
+}"""
+    return epsilon_file
+
+def create_nut_file(meshSettings,boundaryConditions):
+    header = ampersandPrimitives.createFoamHeader(className="volScalarField", objectName="nut")
+    dims = ampersandPrimitives.createDimensions(M=0,L=2,T=-1)
+    internalField = ampersandPrimitives.createInternalFieldScalar(type="uniform", value=0)
+    nut_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
+{"""
+    # Loop through patches for each boundary condition
+    for patch in meshSettings['patches']:
+        print(patch)
+        nut_file += f"""
+    {patch['name']}"""
+        if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+            nut_file += f"""
+    {{
+        type {boundaryConditions['velocityInlet']['nut_type']};
+        value uniform {boundaryConditions['velocityInlet']['nut_value']};
+    }}
+    """
+        if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
+            nut_file += f"""
+    {{
+        type {boundaryConditions['pressureOutlet']['nut_type']};
+        value uniform {boundaryConditions['pressureOutlet']['nut_value']};
+    }}
+    """
+        if(patch['type'] == 'wall'):
+            nut_file += f"""
+    {{
+        type {boundaryConditions['wall']['nut_type']};
+        value  {boundaryConditions['wall']['nut_value']};
+    }}
+    """
+        if(patch['type'] == 'movingWall'):
+            nut_file += f"""
+    {{
+        type {boundaryConditions['movingWall']['nut_type']};
+        value  {boundaryConditions['movingWall']['nut_value']};
+    }}
+    """
+    for patch in meshSettings['geometry']:
+        if(patch['type'] == 'triSurfaceMesh'):
+            nut_file += f"""
+    {patch['name'][:-4]}
+    {{
+        type {boundaryConditions['wall']['nut_type']};
+        value  {boundaryConditions['wall']['nut_value']};
+    }}
+    """
+    nut_file += """
+}"""
+    return nut_file
+
+
+def create_boundary_conditions(meshSettings, boundaryConditions, inletValues):
     """
     Create boundary condition files for an OpenFOAM pimpleFoam simulation.
 
     Parameters:
-    case_directory (str): Path to the case directory.
-    boundary_conditions (dict): Dictionary specifying boundary conditions for U, p, k, and omega.
+    meshSettings (dict): Dictionary specifying mesh settings.
+    boundaryConditions (dict): Dictionary specifying boundary conditions for U, p, k, and omega.
+    inletValues (dict): Dictionary specifying inlet values for U, p, k, and omega.
     """
-    # Create directory for time step 0
-    import os
+    u_file = create_u_file(meshSettings, boundaryConditions)
+    p_file = create_p_file(meshSettings, boundaryConditions)
+    k_file = create_k_file(meshSettings, boundaryConditions)
+    omega_file = create_omega_file(meshSettings, boundaryConditions)
+    epsilon_file = create_epsilon_file(meshSettings, boundaryConditions)
+    nut_file = create_nut_file(meshSettings, boundaryConditions)
+    print(p_file)
+    #print(u_file)
+    ampersandPrimitives.write_to_file("U", u_file)
+    ampersandPrimitives.write_to_file("p", p_file)
+    ampersandPrimitives.write_to_file("k", k_file)
+    ampersandPrimitives.write_to_file("omega", omega_file)
+    ampersandPrimitives.write_to_file("epsilon", epsilon_file)
+    ampersandPrimitives.write_to_file("nut", nut_file)
 
-    time_step_0_dir = os.path.join(case_directory, "0")
-    os.makedirs(time_step_0_dir, exist_ok=True)
 
-    def write_file(file_path, content):
-        with open(file_path, "w") as f:
-            f.write(content)
 
-    def generate_U_file(bc):
-        return f"""/*--------------------------------*- C++ -*----------------------------------*\\
-| =========                 |                                                 |
-| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\\\    /   O peration     | Version:  v2012                                 |
-|   \\\\  /    A nd           | Web:      www.OpenFOAM.com                      |
-|    \\\\/     M anipulation  |                                                 |
-\\*---------------------------------------------------------------------------*/
-/*  This file is part of OpenFOAM.                                            *
- *                                                                            *
- *  OpenFOAM is free software: you can redistribute it and/or modify it       *
- *  under the terms of the GNU General Public License as published by the     *
- *  Free Software Foundation, either version 3 of the License, or             *
- *  (at your option) any later version.                                       *
- *                                                                            *
- *  OpenFOAM is distributed in the hope that it will be useful, but WITHOUT   *
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or     *
- *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License     *
- *  for more details.                                                         *
- *                                                                            *
- *  You should have received a copy of the GNU General Public License         *
- *  along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.         *
-\\*---------------------------------------------------------------------------*/
+if __name__ == '__main__':
+    meshSettings = ampersandPrimitives.yaml_to_dict("meshSettings.yaml")
+    create_boundary_conditions(meshSettings, boundaryConditions, inletValues)
 
-FoamFile
-{{
-    version     2.0;
-    format      ascii;
-    class       volVectorField;
-    location    "0";
-    object      U;
-}}
-
-dimensions      [0 1 -1 0 0 0 0];
-
-internalField   uniform (0 0 0);
-
-boundaryField
-{{
-    {bc['U']}
-}}
-
-// ************************************************************************* //
-"""
-
-    def generate_p_file(bc):
-        return f"""/*--------------------------------*- C++ -*----------------------------------*\\
-| =========                 |                                                 |
-| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\\\    /   O peration     | Version:  v2012                                 |
-|   \\\\  /    A nd           | Web:      www.OpenFOAM.com                      |
-|    \\\\/     M anipulation  |                                                 |
-\\*---------------------------------------------------------------------------*/
-/*  This file is part of OpenFOAM.                                            *
- *                                                                            *
- *  OpenFOAM is free software: you can redistribute it and/or modify it       *
- *  under the terms of the GNU General Public License as published by the     *
- *  Free Software Foundation, either version 3 of the License, or             *
- *  (at your option) any later version.                                       *
- *                                                                            *
- *  OpenFOAM is distributed in the hope that it will be useful, but WITHOUT   *
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or     *
- *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License     *
- *  for more details.                                                         *
- *                                                                            *
- *  You should have received a copy of the GNU General Public License         *
- *  along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.         *
-\\*---------------------------------------------------------------------------*/
-
-FoamFile
-{{
-    version     2.0;
-    format      ascii;
-    class       volScalarField;
-    location    "0";
-    object      p;
-}}
-
-dimensions      [0 2 -2 0 0 0 0];
-
-internalField   uniform 0;
-
-boundaryField
-{{
-    {bc['p']}
-}}
-
-// ************************************************************************* //
-"""
-
-    def generate_k_file(bc):
-        return f"""/*--------------------------------*- C++ -*----------------------------------*\\
-| =========                 |                                                 |
-| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\\\    /   O peration     | Version:  v2012                                 |
-|   \\\\  /    A nd           | Web:      www.OpenFOAM.com                      |
-|    \\\\/     M anipulation  |                                                 |
-\\*---------------------------------------------------------------------------*/
-/*  This file is part of OpenFOAM.                                            *
- *                                                                            *
- *  OpenFOAM is free software: you can redistribute it and/or modify it       *
- *  under the terms of the GNU General Public License as published by the     *
- *  Free Software Foundation, either version 3 of the License, or             *
- *  (at your option) any later version.                                       *
- *                                                                            *
- *  OpenFOAM is distributed in the hope that it will be useful, but WITHOUT   *
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or     *
- *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License     *
- *  for more details.                                                         *
- *                                                                            *
- *  You should have received a copy of the GNU General Public License         *
- *  along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.         *
-\\*---------------------------------------------------------------------------*/
-
-FoamFile
-{{
-    version     2.0;
-    format      ascii;
-    class       volScalarField;
-    location    "0";
-    object      k;
-}}
-
-dimensions      [0 2 -2 0 0 0 0];
-
-internalField   uniform 0.1;
-
-boundaryField
-{{
-    {bc['k']}
-}}
-
-// ************************************************************************* //
-"""
-
-    def generate_omega_file(bc):
-        return f"""/*--------------------------------*- C++ -*----------------------------------*\\
-| =========                 |                                                 |
-| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\\\    /   O peration     | Version:  v2012                                 |
-|   \\\\  /    A nd           | Web:      www.OpenFOAM.com                      |
-|    \\\\/     M anipulation  |                                                 |
-\\*---------------------------------------------------------------------------*/
-/*  This file is part of OpenFOAM.                                            *
- *                                                                            *
- *  OpenFOAM is free software: you can redistribute it and/or modify it       *
- *  under the terms of the GNU General Public License as published by the     *
- *  Free Software Foundation, either version 3 of the License, or             *
- *  (at your option) any later version.                                       *
- *                                                                            *
- *  OpenFOAM is distributed in the hope that it will be useful, but WITHOUT   *
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or     *
- *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License     *
- *  for more details.                                                         *
- *                                                                            *
- *  You should have received a copy of the GNU General Public License         *
- *  along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.         *
-\\*---------------------------------------------------------------------------*/
-
-FoamFile
-{{
-    version     2.0;
-    format      ascii;
-    class       volScalarField;
-    location    "0";
-    object      omega;
-}}
-
-dimensions      [0 0 -1 0 0 0 0];
-
-internalField   uniform 1;
-
-boundaryField
-{{
-    {bc['omega']}
-}}
-
-// ************************************************************************* //
-"""
 
    

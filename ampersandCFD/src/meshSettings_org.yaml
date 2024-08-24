@@ -1,44 +1,51 @@
 name: meshSettings
 scale: 1.0
 domain:
-  minx: 0.0
-  maxx: 10.0
-  miny: 0.0
-  maxy: 10.0
+  minx: -3.0
+  maxx: 8.0
+  miny: -3.0
+  maxy: 3.0
   minz: 0.0
-  maxz: 1.0
-  nx: 20
+  maxz: 5.0
+  nx: 40
   ny: 20
-  nz: 1
+  nz: 20
 patches:
 - left: inlet
   type: patch
-  faces: [0, 1, 5, 4]
+  faces: [0, 4, 7, 3]
 - right: outlet
   type: patch
-  faces: [2, 3, 7, 6]
+  faces: [1, 5, 6, 2]
 - front: front
   type: wall
-  faces: [0, 1, 2, 3]
+  faces: [0, 1, 5, 4]
 - back: back
   type: wall
-  faces: [4, 5, 6, 7]
+  faces: [2, 3, 7, 6]
 - bottom: bottom
   type: wall
-  faces: [0, 4, 7, 3]
+  faces: [0, 1, 2, 3]
 - top: top
   type: wall
-  faces: [1, 5, 6, 2]
+  faces: [4, 5, 6, 7]
+
 snappyHexSteps:
   castellatedMesh: true
   snap: true
   addLayers: true
-stl_entries:
-- name: stl1.stl
+geometry:
+- name: ahmed.stl
+  type: triSurfaceMesh
   refineMin: 1
   refineMax: 3
   featureEdges: true
+  featureLevel: 3
   nLayers: 3
+- name: box
+  type: searchableBox
+  min: [-0.5, -0.5, -0.5]
+  max: [1, 1, 1]
 castellatedMeshControls:
   maxLocalCells: 2000000
   maxGlobalCells: 5000000
@@ -47,13 +54,13 @@ castellatedMeshControls:
   nCellsBetweenLevels: 5
   features: []
   refinementSurfaces: []
-  resolveFeatureAngle: 30
+  resolveFeatureAngle: 20
   refinementRegions: []
   locationInMesh:
   - 0
   - 0
   - 0
-  allowFreeStandingZoneFaces: true
+  allowFreeStandingZoneFaces: false
 snapControls:
   nSmoothPatch: 3
   tolerance: 2.0
@@ -84,7 +91,7 @@ meshQualityControls:
   maxBoundarySkewness: 4
   maxInternalSkewness: 4
   maxConcave: 180
-  minTetQuality: 0.5
+  minTetQuality: 1.0e-30
   minVol: 1.0e-30
   minArea: 1.0e-30
   minTwist: 0.001
@@ -92,3 +99,7 @@ meshQualityControls:
   minFaceWeight: 0.01
   minVolRatio: 0.01
   minTriangleTwist: -1
+  nSmoothScale: 4
+  errorReduction: 0.75
+mergeTolerance: 1.0e-6
+debug: 0

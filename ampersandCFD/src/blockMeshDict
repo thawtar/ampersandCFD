@@ -32,8 +32,8 @@ edges
  
 boundary
 (
-    inlet
 
+    inlet
     {
         type patch;
         faces
@@ -41,8 +41,8 @@ boundary
             (0 4 7 3)
         );
     }
-    outlet
 
+    outlet
     {
         type patch;
         faces
@@ -50,8 +50,8 @@ boundary
             (1 5 6 2)
         );
     }
-    front
 
+    front
     {
         type wall;
         faces
@@ -59,8 +59,8 @@ boundary
             (0 1 5 4)
         );
     }
-    back
 
+    back
     {
         type wall;
         faces
@@ -68,8 +68,8 @@ boundary
             (2 3 7 6)
         );
     }
-    bottom
 
+    bottom
     {
         type wall;
         faces
@@ -77,8 +77,8 @@ boundary
             (0 1 2 3)
         );
     }
-    top
 
+    top
     {
         type wall;
         faces

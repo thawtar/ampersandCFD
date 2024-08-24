@@ -38,8 +38,8 @@ class ampersandPrimitives:
     # This file contains the basic primitives used in the generation of OpenFOAM casefiles
     def createFoamHeader(className="dictionary",objectName="blockMeshDict"):
         header = f"""/*----------------------------*- AmpersandCFD -*------------------------------*\ 
-/*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
+/*--------------------------------*- C++ -*----------------------------------*\         
+| ========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
 |  \\    /   O peration     | Version:  v2312                                 |
 |   \\  /    A nd           | Website:  www.openfoam.com                      |
@@ -58,8 +58,20 @@ FoamFile
 
     @staticmethod
     def createDimensions(M=1,L=1,T=1):
-        return f"dimensions      [{M} {L} {T} 0 0 0 0];"
+        return f"\ndimensions      [{M} {L} {T} 0 0 0 0];"
+    
+    @staticmethod
+    def createInternalFieldScalar(type="uniform",value=0):
+        return f"""\ninternalField   {type} {value};"""
+    
+    @staticmethod
+    def createInternalFieldVector(type="uniform",value=(0,0,0)):
+        return f"""\ninternalField   {type} ({value[0]} {value[1]} {value[2]});"""
 
+    @staticmethod
+    def write_to_file(filename, content):
+        with open(filename, 'w') as f:
+            f.write(content)
     @staticmethod
     def createScalarFixedValue(patch_name="inlet",value=0):
         return f"""\n{patch_name}

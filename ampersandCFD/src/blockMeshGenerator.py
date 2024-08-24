@@ -38,7 +38,7 @@ boundary
 (
 """
     for patch in meshSettings['patches']:
-        blockMeshDict += f"""    {patch[list(patch.keys())[0]]}\n
+        blockMeshDict += f"""\n    {patch[list(patch.keys())[0]]}
     {{
         type {patch['type']};
         faces

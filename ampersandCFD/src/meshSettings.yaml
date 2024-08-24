@@ -11,22 +11,22 @@ domain:
   ny: 20
   nz: 20
 patches:
-- left: inlet
+- name: inlet
   type: patch
   faces: [0, 4, 7, 3]
-- right: outlet
+- name: outlet
   type: patch
   faces: [1, 5, 6, 2]
-- front: front
+- name: front
   type: wall
   faces: [0, 1, 5, 4]
-- back: back
+- name: back
   type: wall
   faces: [2, 3, 7, 6]
-- bottom: bottom
+- name: bottom
   type: wall
   faces: [0, 1, 2, 3]
-- top: top
+- name: top
   type: wall
   faces: [4, 5, 6, 7]
 
@@ -91,7 +91,7 @@ meshQualityControls:
   maxBoundarySkewness: 4
   maxInternalSkewness: 4
   maxConcave: 180
-  minTetQuality: 0.5
+  minTetQuality: 1.0e-30
   minVol: 1.0e-30
   minArea: 1.0e-30
   minTwist: 0.001

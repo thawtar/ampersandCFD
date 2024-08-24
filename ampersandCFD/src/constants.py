@@ -13,12 +13,12 @@ meshSettings = {
         'nz': 1},
     
     'patches': [
-        {'left': 'inlet', 'type': 'patch','faces': [0, 1, 5, 4]},
-        {'right': 'outlet', 'type': 'patch','faces': [2, 3, 7, 6]},
-        {'front': 'front', 'type': 'wall','faces': [0, 3, 7, 4]},
-        {'back': 'back', 'type': 'wall','faces': [1, 2, 6, 5]},
-        {'bottom': 'bottom', 'type': 'wall','faces': [0, 1, 2, 3]},
-        {'top': 'top', 'type': 'wall','faces': [4, 5, 6, 7]},
+        {'name': 'inlet', 'type': 'patch','faces': [0, 4, 7, 3]},
+        {'name': 'outlet', 'type': 'patch','faces': [1, 5, 6, 2]},
+        {'name': 'front', 'type': 'wall','faces': [0, 1, 5, 4]},
+        {'name': 'back', 'type': 'wall','faces': [2, 3, 7, 6]},
+        {'name': 'bottom', 'type': 'wall','faces': [0, 1, 2, 3]},
+        {'name': 'top', 'type': 'wall','faces': [4, 5, 6, 7]},
     ],
     'snappyHexSteps': {'castellatedMesh': True,
                        'snap': True,
@@ -70,7 +70,7 @@ meshSettings = {
                             'maxBoundarySkewness': 4,
                             'maxInternalSkewness': 4,
                             'maxConcave': 180,
-                            'minTetQuality': 0.5,
+                            'minTetQuality': 1.0e-30,
                             'minVol': 1e-30,
                             'minArea': 1e-30,
                             'minTwist': 0.001,
@@ -85,4 +85,77 @@ meshSettings = {
 }
 
 
+physicalProperties = {
+    'name': 'physicalProperties',
+    'rho': 1.0,
+    'nu': 1.0e-6,
+    'g': [0, 0, -9.81],
+    'pRef': 0,
+    'Cp': 1000,
+    'thermo': 'hPolynomial',
+    'Pr': 0.7,
+    'TRef': 300,
+    'turbulenceModel': 'kOmegaSST',
+}
+
+numericalSettings = {
+    'ddtScheme': 'Euler',
+    'gradSchemes': {'default': 'Gauss linear',
+                    'grad(p)': 'Gauss linear',
+                    'grad(U)': 'faceMDLimited Gauss linear 0.5',},
+    'divSchemes': {'default': 'Gauss linear',
+                   'div(phi,U)': 'Gauss linearUpwind grad(U)',
+                   'div(phi,k)': 'Gauss upwind',
+                   'div(phi,omega)': 'Gauss upwind',
+                   'div(phi,epsilon)': 'Gauss upwind',
+                   },
+    'laplacianSchemes': {'default': 'Gauss linear limited 0.5',},
+    'interpolationSchemes': {'default': 'linear'},
+    'snGradSchemes': {'default': 'limited 0.5',},
+    'fluxRequired': {'default': 'no'},
+    'wallDist': 'meshWave',
+}
+
+inletValues = {
+    'U': (1, 0, 0),
+    'p': 0,
+    'k': 0.1,
+    'omega': 1,
+    'epsilon': 0.1,
+    'nut': 0,
+}
+
+boundaryConditions = {
+    'velocityInlet': 
+    {'u_type': 'fixedValue','u_value': inletValues['U'],
+     'p_type': 'zeroGradient','p_value': inletValues['p'],
+     'k_type': 'fixedValue','k_value': inletValues['k'],
+     'omega_type': 'fixedValue','omega_value': inletValues['omega'],
+     'epsilon_type': 'fixedValue','epsilon_value': inletValues['epsilon'],
+     'nut_type': 'calculated','nut_value': inletValues['nut']},
+    
+    'pressureOutlet':
+    {'u_type': 'inletOutlet','u_value': (0, 0, 0),
+     'p_type': 'fixedValue','p_value': 0,
+     'k_type': 'zeroGradient','k_value': 1.0e-6,
+     'omega_type': 'zeroGradient','omega_value': 1.0e-6,
+     'epsilon_type': 'zeroGradient','epsilon_value': 1.0e-6,
+     'nut_type': 'calculated','nut_value': 0},
+
+    'wall':
+    {'u_type': 'noSlip','u_value': (0, 0, 0),
+     'p_type': 'zeroGradient','p_value': 0,
+     'k_type': 'kqRWallFunction','k_value': '$internalField',
+     'omega_type': 'omegaWallFunction','omega_value': '$internalField',
+     'epsilon_type': 'epsilonWallFunction','epsilon_value': '$internalField',
+     'nut_type': 'nutkWallFunction','nut_value': '$internalField'},
+
+    'movingWall':
+    {'u_type': 'movingWallVelocity','u_value': (0, 0, 0),
+     'p_type': 'zeroGradient','p_value': 0,
+     'k_type': 'kqRWallFunction','k_value': '$internalField',
+     'omega_type': 'omegaWallFunction','omega_value': '$internalField',
+     'epsilon_type': 'epsilonWallFunction','epsilon_value': '$internalField',
+     'nut_type': 'nutkWallFunction','nut_value': '$internalField'},
+}
 
