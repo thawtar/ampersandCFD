@@ -1,0 +1,166 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+/*  This file is part of OpenFOAM.                                            *
+ *                                                                            *
+ *  OpenFOAM is free software: you can redistribute it and/or modify it       *
+ *  under the terms of the GNU General Public License as published by the     *
+ *  Free Software Foundation, either version 3 of the License, or             *
+ *  (at your option) any later version.                                       *
+ *                                                                            *
+ *  OpenFOAM is distributed in the hope that it will be useful, but WITHOUT   *
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or     *
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License     *
+ *  for more details.                                                         *
+ *                                                                            *
+ *  You should have received a copy of the GNU General Public License         *
+ *  along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.         *
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+castellatedMesh true;
+snap            true;
+addLayers       true;
+
+geometry
+(
+
+        geometry1.stl
+        {
+            type triSurfaceMesh;
+            name geometry1;
+        }
+        
+
+        geometry2.stl
+        {
+            type triSurfaceMesh;
+            name geometry2;
+        }
+        
+);
+
+castellatedMeshControls
+{
+    maxLocalCells 1000000;
+    maxGlobalCells 2000000;
+    minRefinementCells 10;
+    maxLoadUnbalance 0.10;
+    nCellsBetweenLevels 3;
+
+    features
+    (
+        // no features specified
+    );
+
+    refinementSurfaces
+    (
+
+        geometry1
+        {
+            level (3 3);
+        }
+        
+
+        geometry2
+        {
+            level (4 4);
+        }
+        
+    );
+
+    resolveFeatureAngle 30;
+
+    refinementRegions
+    {
+        // no regions specified
+    };
+
+    locationInMesh (0 0 0);
+
+    allowFreeStandingZoneFaces true;
+}
+
+snapControls
+{
+    nSmoothPatch 3;
+    tolerance 2.0;
+    nSolveIter 30;
+    nRelaxIter 5;
+    nFeatureSnapIter 10;
+    implicitFeatureSnap false;
+    explicitFeatureSnap true;
+    multiRegionFeatureSnap false;
+}
+
+addLayersControls
+{
+    relativeSizes true;
+    layers
+    {
+
+        geometry1
+        {
+            nSurfaceLayers 3;
+        }
+        
+
+        geometry2
+        {
+            nSurfaceLayers 2;
+        }
+        
+    };
+
+    expansionRatio 1.0;
+    finalLayerThickness 0.3;
+    minThickness 0.1;
+    nGrow 0;
+    featureAngle 30;
+    nRelaxIter 5;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals 3;
+    nSmoothThickness 10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedianAxisAngle 90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter 50;
+}
+
+meshQualityControls
+{
+    maxNonOrtho 65;
+    maxBoundarySkewness 20;
+    maxInternalSkewness 4;
+    maxConcave 80;
+    minVol 1e-13;
+    minTetQuality 1e-30;
+    minArea -1;
+    minTwist 0.02;
+    minDeterminant 0.001;
+    minFaceWeight 0.05;
+    minVolRatio 0.01;
+    minTriangleTwist -1;
+
+    nSmoothScale 4;
+    errorReduction 0.75;
+}
+
+debug 0;
+mergeTolerance 1e-6;
+
+// ************************************************************************* //

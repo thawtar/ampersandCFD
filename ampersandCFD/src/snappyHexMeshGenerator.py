@@ -1,4 +1,6 @@
-def create_snappyHexMeshDict(stl_files, refinement_levels, layer_counts):
+from constants import meshSettings
+from primitives import ampersandPrimitives
+def create_snappyHexMeshDict(meshSettings):
     """
     Create a snappyHexMeshDict for OpenFOAM.
 
@@ -10,70 +12,36 @@ def create_snappyHexMeshDict(stl_files, refinement_levels, layer_counts):
     Returns:
     str: The content of the snappyHexMeshDict file as a string.
     """
-    stl_entries = "\n".join([
-        f"""
-        {stl_file}
-        {{
-            type triSurfaceMesh;
-            name {stl_file.split('.')[0]};
-        }}
-        """ for stl_file in stl_files
-    ])
 
-    refinement_surfaces_entries = "\n".join([
-        f"""
-        {stl_file.split('.')[0]}
-        {{
-            level ({refinement_levels[stl_file]} {refinement_levels[stl_file]});
-        }}
-        """ for stl_file in stl_files
-    ])
+    trueFalse = {True: "true", False: "false"}
+    header = ampersandPrimitives.createFoamHeader(className="dictionary", objectName="snappyHexMeshDict")
 
-    layers_entries = "\n".join([
-        f"""
-        {stl_file.split('.')[0]}
-        {{
-            nSurfaceLayers {layer_counts[stl_file]};
-        }}
-        """ for stl_file in stl_files
-    ])
+    steps = f"""castellatedMesh {trueFalse[meshSettings['snappyHexSteps']['castellatedMesh']]};
+    snap            {trueFalse[meshSettings['snappyHexSteps']['snap']]};
+    addLayers       {trueFalse[meshSettings['snappyHexSteps']['addLayers']]};"""
+    
+    geometry = f"geometry"
+    for an_entry in meshSettings['geometry']:
+        geometry += f"""
+    
+    {an_entry['name']}
+    {{
+        type {an_entry['type']};
+        name {an_entry['name'][:-4]};
+        
+    }}
+    ;"""
 
-    snappyHexMeshDict = f"""/*--------------------------------*- C++ -*----------------------------------*\\
-| =========                 |                                                 |
-| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\\\    /   O peration     | Version:  v2012                                 |
-|   \\\\  /    A nd           | Web:      www.OpenFOAM.com                      |
-|    \\\\/     M anipulation  |                                                 |
-\\*---------------------------------------------------------------------------*/
-/*  This file is part of OpenFOAM.                                            *
- *                                                                            *
- *  OpenFOAM is free software: you can redistribute it and/or modify it       *
- *  under the terms of the GNU General Public License as published by the     *
- *  Free Software Foundation, either version 3 of the License, or             *
- *  (at your option) any later version.                                       *
- *                                                                            *
- *  OpenFOAM is distributed in the hope that it will be useful, but WITHOUT   *
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or     *
- *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License     *
- *  for more details.                                                         *
- *                                                                            *
- *  You should have received a copy of the GNU General Public License         *
- *  along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.         *
-\\*---------------------------------------------------------------------------*/
+    print(header+steps)
+    exit(0)
+    snappyHexMeshDict = header+f"""/*--------------------------------*- C++ -*----------------------------------*\\
 
-FoamFile
-{{
-    version     2.0;
-    format      ascii;
-    class       dictionary;
-    object      snappyHexMeshDict;
-}}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-castellatedMesh true;
-snap            true;
-addLayers       true;
+castellatedMesh {meshSettings['castellatedMesh']};
+snap            {meshSettings['snap']};
+addLayers       {meshSettings['addLayers']};
 
 geometry
 (
@@ -82,11 +50,11 @@ geometry
 
 castellatedMeshControls
 {{
-    maxLocalCells 1000000;
-    maxGlobalCells 2000000;
-    minRefinementCells 10;
-    maxLoadUnbalance 0.10;
-    nCellsBetweenLevels 3;
+    maxLocalCells {meshSettings['maxLocalCells']};
+    maxGlobalCells {meshSettings['maxGlobalCells']};
+    minRefinementCells {meshSettings['minRefinementCells']};
+    maxLoadUnbalance {meshSettings['maxLoadUnbalance']};
+    nCellsBetweenLevels {meshSettings['nCellsBetweenLevels']};
 
     features
     (
@@ -98,7 +66,7 @@ castellatedMeshControls
 {refinement_surfaces_entries}
     );
 
-    resolveFeatureAngle 30;
+    resolveFeatureAngle {meshSettings['resolveFeatureAngle']};
 
     refinementRegions
     {{
@@ -107,72 +75,72 @@ castellatedMeshControls
 
     locationInMesh (0 0 0);
 
-    allowFreeStandingZoneFaces true;
+    allowFreeStandingZoneFaces {meshSettings['allowFreeStandingZoneFaces']};
 }}
 
 snapControls
 {{
-    nSmoothPatch 3;
-    tolerance 2.0;
-    nSolveIter 30;
-    nRelaxIter 5;
-    nFeatureSnapIter 10;
-    implicitFeatureSnap false;
-    explicitFeatureSnap true;
-    multiRegionFeatureSnap false;
+    nSmoothPatch {meshSettings['nSmoothPatch']};
+    tolerance {meshSettings['tolerance']};
+    nSolveIter {meshSettings['nSolveIter']};
+    nRelaxIter {meshSettings['nRelaxIter']};
+    nFeatureSnapIter {meshSettings['nFeatureSnapIter']};
+    implicitFeatureSnap {meshSettings['implicitFeatureSnap']};
+    explicitFeatureSnap {meshSettings['explicitFeatureSnap']};
+    multiRegionFeatureSnap {meshSettings['multiRegionFeatureSnap']};
 }}
 
 addLayersControls
 {{
-    relativeSizes true;
+    relativeSizes {meshSettings['relativeSizes']};
     layers
     {{
 {layers_entries}
     }};
 
-    expansionRatio 1.0;
-    finalLayerThickness 0.3;
-    minThickness 0.1;
-    nGrow 0;
-    featureAngle 30;
-    nRelaxIter 5;
-    nSmoothSurfaceNormals 1;
-    nSmoothNormals 3;
-    nSmoothThickness 10;
-    maxFaceThicknessRatio 0.5;
-    maxThicknessToMedialRatio 0.3;
-    minMedianAxisAngle 90;
-    nBufferCellsNoExtrude 0;
-    nLayerIter 50;
+    expansionRatio {meshSettings['expansionRatio']};
+    finalLayerThickness {meshSettings['finalLayerThickness']};
+    minThickness {meshSettings['minThickness']};
+    nGrow {meshSettings['nGrow']};
+    featureAngle {meshSettings['featureAngle']};
+    nRelaxIter {meshSettings['nRelaxIter']};
+    nSmoothSurfaceNormals {meshSettings['nSmoothSurfaceNormals']};
+    nSmoothNormals {meshSettings['nSmoothNormals']};
+    nSmoothThickness {meshSettings['nSmoothThickness']};
+    maxFaceThicknessRatio {meshSettings['maxFaceThicknessRatio']};
+    maxThicknessToMedialRatio {meshSettings['maxThicknessToMedialRatio']};
+    minMedianAxisAngle {meshSettings['minMedianAxisAngle']};
+    nBufferCellsNoExtrude {meshSettings['nBufferCellsNoExtrude']};
+    nLayerIter {meshSettings['nLayerIter']};
 }}
 
 meshQualityControls
 {{
-    maxNonOrtho 65;
-    maxBoundarySkewness 20;
-    maxInternalSkewness 4;
-    maxConcave 80;
-    minVol 1e-13;
-    minTetQuality 1e-30;
-    minArea -1;
-    minTwist 0.02;
-    minDeterminant 0.001;
-    minFaceWeight 0.05;
-    minVolRatio 0.01;
-    minTriangleTwist -1;
+    maxNonOrtho {meshSettings['maxNonOrtho']};
+    maxBoundarySkewness {meshSettings['maxBoundarySkewness']};
+    maxInternalSkewness {meshSettings['maxInternalSkewness']};
+    maxConcave {meshSettings['maxConcave']};
+    minVol {meshSettings['minVol']};
+    minTetQuality {meshSettings['minTetQuality']};
+    minArea {meshSettings['minArea']};
+    minTwist {meshSettings['minTwist']};
+    minDeterminant {meshSettings['minDeterminant']};
+    minFaceWeight {meshSettings['minFaceWeight']};
+    minVolRatio {meshSettings['minVolRatio']};
+    minTriangleTwist {meshSettings['minTriangleTwist']};
 
-    nSmoothScale 4;
-    errorReduction 0.75;
+    nSmoothScale {meshSettings['nSmoothScale']};
+    errorReduction {meshSettings['errorReduction']};
 }}
 
-debug 0;
-mergeTolerance 1e-6;
+debug {meshSettings['debug']};
+mergeTolerance {meshSettings['mergeTolerance']};
 
 // ************************************************************************* //
 """
 
     return snappyHexMeshDict
-
+# aaa
 # Example usage
 stl_files = ["geometry1.stl", "geometry2.stl"]
 refinement_levels = {
@@ -184,10 +152,6 @@ layer_counts = {
     "geometry2.stl": 2
 }
 
-snappy_hex_mesh_dict_content = create_snappyHexMeshDict(stl_files, refinement_levels, layer_counts)
+snappy_hex_mesh_dict_content = create_snappyHexMeshDict(meshSettings)
 
-# Save to file
-with open("snappyHexMeshDict", "w") as f:
-    f.write(snappy_hex_mesh_dict_content)
 
-print("snappyHexMeshDict file created.")

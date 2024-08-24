@@ -4,39 +4,37 @@ domain:
   minx: 0.0
   maxx: 10.0
   miny: 0.0
-  maxy: 1.0
+  maxy: 10.0
   minz: 0.0
-  maxz: 10.0
+  maxz: 1.0
   nx: 20
-  ny: 1
-  nz: 20
+  ny: 20
+  nz: 1
 patches:
 - left: inlet
   type: patch
-  faces: [0, 4, 7, 3]
+  faces: [0, 1, 5, 4]
 - right: outlet
   type: patch
-  faces: [1, 5, 6, 2]
+  faces: [2, 3, 7, 6]
 - front: front
   type: wall
-  faces: [0, 1, 5, 4]
+  faces: [0, 1, 2, 3]
 - back: back
   type: wall
-  faces: [2, 3, 7, 6]
+  faces: [4, 5, 6, 7]
 - bottom: bottom
   type: wall
-  faces: [0, 1, 2, 3]
+  faces: [0, 4, 7, 3]
 - top: top
   type: wall
-  faces: [4, 5, 6, 7]
-
+  faces: [1, 5, 6, 2]
 snappyHexSteps:
   castellatedMesh: true
   snap: true
   addLayers: true
-geometry:
+stl_entries:
 - name: stl1.stl
-  type: triSurfaceMesh
   refineMin: 1
   refineMax: 3
   featureEdges: true
