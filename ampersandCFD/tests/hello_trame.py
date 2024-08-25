@@ -11,7 +11,7 @@ from vtkmodules.vtkRenderingCore import (
     vtkPolyDataMapper,
 )
 
-
+from events import events
 # ---------------------------------------------------------
 # This is a test file for the Trame application
 # ---------------------------------------------------------
@@ -19,6 +19,7 @@ from vtkmodules.vtkRenderingCore import (
 def main():
     # Create the Trame application
     server = get_server(client_type="vue2")
+    events = events()
     state, ctrl = server.state, server.controller
     field = vuetify.VTextField(
         label="Weight",
@@ -27,15 +28,22 @@ def main():
     )
     with SinglePageLayout(server) as layout:
         layout.title.set_text("Hello trame")
+        
         with layout.content:
-            with vuetify.VContainer(
+            """with vuetify.VContainer(
                 fluid=True,
                 classes="pa-0 fill-height",
-            ):
-                view = vtk.VtkLocalView(renderWindow)
-                ctrl.view_reset_camera = view.reset_camera
-
+            ):"""
+            vuetify.VBtn(
+                color="primary",
+                click="openDialog",
+                children="Open dialog",
+            )
+                #view = vtk.VtkLocalView(renderWindow)
+                #ctrl.view_reset_camera = view.reset_camera
+    server.start()
 
 
     # Start the application
-    
+if __name__ == "__main__":
+    main()   
