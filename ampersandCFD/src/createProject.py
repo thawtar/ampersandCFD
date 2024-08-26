@@ -1,13 +1,14 @@
 import os
 from primitives import ampersandPrimitives
 from constants import meshSettings, physicalProperties, numericalSettings, inletValues
-from constants import boundaryConditions
+from constants import boundaryConditions, simulationSettings
 from blockMeshGenerator import generate_blockMeshDict
 from snappyHexMeshGenerator import generate_snappyHexMeshDict
 from surfaceExtractor import create_surfaceFeatureExtractDict
 from transportAndTurbulence import create_transportPropertiesDict, create_turbulencePropertiesDict
+from transportAndTurbulence import write_transportPropertiesDict, write_turbulencePropertiesDict
 from boundaryConditionsGenerator import create_boundary_conditions
-
+from controlDictGenerator import createControlDict, writeControlDict
 # this file contains the functions to generate Case Directory for OpenFOAM
 run_settings = {
     'mesh': True,
@@ -86,15 +87,25 @@ def create_project_files(caseSettings):
     # go inside the constant directory
     os.chdir("constant")
     # create transportProperties file
-    create_transportPropertiesDict(physicalProperties)
+    tranP = create_transportPropertiesDict(physicalProperties)
     # create turbulenceProperties file
-    create_turbulencePropertiesDict(physicalProperties)
+    turbP = create_turbulencePropertiesDict(physicalProperties)
+    write_transportPropertiesDict(tranP)
+    write_turbulencePropertiesDict(turbP)
     # go back to the main directory
     os.chdir("..")
     # go inside the 0 directory
     os.chdir("0")
     # create the initial conditions file
     create_boundary_conditions(meshSettings, boundaryConditions, inletValues)    
+    # go back to the main directory 
+    os.chdir("..")
+    # go inside the system directory
+    os.chdir("system")
+    # create the controlDict file
+    controlDict = createControlDict(simulationSettings)
+    writeControlDict(controlDict)
+    
 
 
 def create_run(run_settings):
@@ -120,4 +131,5 @@ runParallel renumberMesh -overwrite
 
 if __name__ == '__main__':
     create_project("sloshing","user1")
-    print(create_run(run_settings))
+    caseSettings=(meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)
+    create_project_files(caseSettings)

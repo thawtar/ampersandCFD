@@ -159,3 +159,27 @@ boundaryConditions = {
      'nut_type': 'nutkWallFunction','nut_value': '$internalField'},
 }
 
+simulationSettings = {
+    'application': 'simpleFoam',
+    'startTime': 0,
+    'endTime': 1,
+    'deltaT': 0.001,
+    'startFrom': 'startTime',
+    'stopAt': 'endTime',
+    'writeControl': 'timeStep',
+    'writeInterval': 100,
+    'purgeWrite': 0,
+    'writeFormat': 'binary',
+    'writePrecision': 6,
+    'writeCompression': 'off',
+    'timeFormat': 'general',
+    'timePrecision': 6,
+    'runTimeModifiable': True,
+    'adjustTimeStep': 'yes',
+    'maxCo': 0.5,
+    'functions': [],
+    'libs': [],
+    'allowSystemOperations': True,
+    'runTimeControl': 'adjustableRunTime',
+}
+
