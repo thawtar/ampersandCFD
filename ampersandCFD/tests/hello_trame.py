@@ -11,36 +11,87 @@ from vtkmodules.vtkRenderingCore import (
     vtkPolyDataMapper,
 )
 
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderer,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+)
+
+# Required for interactor initialization
+from vtkmodules.vtkInteractionStyle import vtkInteractorStyleSwitch  # noqa
+
+
 from events import events
 # ---------------------------------------------------------
 # This is a test file for the Trame application
 # ---------------------------------------------------------
 
 def main():
+    renderer = vtkRenderer()
+    renderWindow = vtkRenderWindow()
+    renderWindow.AddRenderer(renderer)
+
+    renderWindowInteractor = vtkRenderWindowInteractor()
+    renderWindowInteractor.SetRenderWindow(renderWindow)
+    renderWindowInteractor.GetInteractorStyle().SetCurrentStyleToTrackballCamera()
+
+    cone_source = vtkConeSource()
+    mapper = vtkPolyDataMapper()
+    mapper.SetInputConnection(cone_source.GetOutputPort())
+    actor = vtkActor()
+    actor.SetMapper(mapper)
+
+    renderer.AddActor(actor)
+    renderer.ResetCamera()
+    
     # Create the Trame application
     server = get_server(client_type="vue2")
-    events = events()
+    evs = events()
     state, ctrl = server.state, server.controller
-    field = vuetify.VTextField(
-        label="Weight",
-        v_model=("myWeight",28),
-        suffix=("currentSuffix","lbs"),
-    )
-    with SinglePageLayout(server) as layout:
+    
+
+    with SinglePageWithDrawerLayout(server) as layout:
         layout.title.set_text("Hello trame")
         
+        
+        """
         with layout.content:
-            """with vuetify.VContainer(
+            with vuetify.VContainer(fluid=True):
+                with vuetify.VRow():
+                    # First Content Area
+                    with vuetify.VCol(cols=12):
+                        with vuetify.VContainer(
+                            fluid=True,
+                            classes="pa-0 fill-height",
+                        ):
+                            view = vtk.VtkLocalView(renderWindow)
+                            ctrl.view_reset_camera = view.reset_camera
+        """
+        with layout.content:
+            with vuetify.VContainer(
                 fluid=True,
                 classes="pa-0 fill-height",
-            ):"""
-            vuetify.VBtn(
-                color="primary",
-                click="openDialog",
-                children="Open dialog",
-            )
-                #view = vtk.VtkLocalView(renderWindow)
-                #ctrl.view_reset_camera = view.reset_camera
+            ):
+                view = vtk.VtkLocalView(renderWindow)
+                ctrl.view_reset_camera = view.reset_camera
+
+                
+                       
+
+                # Second Content Area
+                """
+                with vuetify.VRow(rows=1):
+                    with vuetify.VCol(cols=12):
+                        vuetify.VBtn(
+                            color="primary",
+                            click=evs.openBtn,
+                            children="Close dialog",
+                        )
+                """  
+                       
     server.start()
 
 
