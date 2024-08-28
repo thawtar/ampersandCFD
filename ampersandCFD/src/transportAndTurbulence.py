@@ -28,6 +28,14 @@ RAS
     turbulencePropertiesDict += turbulenceProperties_
     return turbulencePropertiesDict
 
+def write_transportPropertiesDict(transportPropertiesDict):
+    with open('transportProperties', 'w') as file:
+        file.write(transportPropertiesDict)
+
+def write_turbulencePropertiesDict(turbulencePropertiesDict):
+    with open('turbulenceProperties', 'w') as file:
+        file.write(turbulencePropertiesDict)
+
 if __name__ == "__main__":
     transportPropertiesDict = create_transportPropertiesDict(physicalProperties)
     with open('transportProperties', 'w') as file:
