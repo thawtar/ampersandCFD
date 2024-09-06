@@ -55,46 +55,45 @@ def main():
 
     with SinglePageWithDrawerLayout(server) as layout:
         layout.title.set_text("Hello trame")
-        
-        
-        """
         with layout.content:
-            with vuetify.VContainer(fluid=True):
-                with vuetify.VRow():
-                    # First Content Area
-                    with vuetify.VCol(cols=12):
-                        with vuetify.VContainer(
-                            fluid=True,
-                            classes="pa-0 fill-height",
-                        ):
-                            view = vtk.VtkLocalView(renderWindow)
-                            ctrl.view_reset_camera = view.reset_camera
-        """
-        with layout.content:
-            with vuetify.VContainer(
-                fluid=True,
-                classes="pa-0 fill-height",
-            ):
-                view = vtk.VtkLocalView(renderWindow)
-                ctrl.view_reset_camera = view.reset_camera
-
+            # Second Content Area
+            with vuetify.VRow(rows=12):
                 
-                       
-
-                # Second Content Area
-                """
-                with vuetify.VRow(rows=1):
-                    with vuetify.VCol(cols=12):
-                        vuetify.VBtn(
-                            color="primary",
-                            click=evs.openBtn,
-                            children="Close dialog",
-                        )
-                """  
+                with vuetify.VCol(cols=12,md=8):
+                    
+                    with vuetify.VContainer(
+                        fluid=True,
+                        classes="pa-0 fill-height", #"pa-0 fill-height",
+                        style="height: 80vh;",
+                    ):
+                        view = vtk.VtkLocalView(renderWindow)
+                        ctrl.view_reset_camera = view.reset_camera
+            
+            with vuetify.VRow():
+                with vuetify.VCol():
+                
+                    vuetify.VBtn(
+                        color="primary",
+                        click=evs.openBtn,
+                        children="Close dialog",
+                    )
+                    vuetify.VBtn(
+                        color="primary",
+                        click=evs.openBtn,
+                        children="Open dialog",
+                    )
+                    vuetify.VBtn(
+                        color="primary",
+                        click=evs.openBtn,
+                        children="Save",
+                    )
+            
                        
     server.start()
 
 
+
     # Start the application
 if __name__ == "__main__":
+    print("Hello Trame")
     main()   
