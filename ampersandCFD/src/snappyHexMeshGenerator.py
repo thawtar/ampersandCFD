@@ -17,9 +17,9 @@ def generate_snappyHexMeshDict(meshSettings):
     header = ampersandPrimitives.createFoamHeader(className="dictionary", objectName="snappyHexMeshDict")
 
     steps = f"""
-castellatedMesh {trueFalse[meshSettings['snappyHexSteps']['castellatedMesh']]};
-snap            {trueFalse[meshSettings['snappyHexSteps']['snap']]};
-addLayers       {trueFalse[meshSettings['snappyHexSteps']['addLayers']]};"""
+castellatedMesh {meshSettings['snappyHexSteps']['castellatedMesh']};
+snap            {meshSettings['snappyHexSteps']['snap']};
+addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
 
     features = ""
     refinementSurfaces = ""
@@ -79,7 +79,7 @@ addLayers       {trueFalse[meshSettings['snappyHexSteps']['addLayers']]};"""
         // no regions specified
     }};
     locationInMesh ({meshSettings['castellatedMeshControls']['locationInMesh'][0]} {meshSettings['castellatedMeshControls']['locationInMesh'][1]} {meshSettings['castellatedMeshControls']['locationInMesh'][2]});
-    allowFreeStandingZoneFaces {trueFalse[meshSettings['castellatedMeshControls']['allowFreeStandingZoneFaces']]};
+    allowFreeStandingZoneFaces {meshSettings['castellatedMeshControls']['allowFreeStandingZoneFaces']};
 }}"""
     
     snapControls = f"""\nsnapControls
@@ -89,13 +89,13 @@ addLayers       {trueFalse[meshSettings['snappyHexSteps']['addLayers']]};"""
     nSolveIter {meshSettings['snapControls']['nSolveIter']};
     nRelaxIter {meshSettings['snapControls']['nRelaxIter']};
     nFeatureSnapIter {meshSettings['snapControls']['nFeatureSnapIter']};
-    implicitFeatureSnap {trueFalse[meshSettings['snapControls']['implicitFeatureSnap']]};
-    explicitFeatureSnap {trueFalse[meshSettings['snapControls']['explicitFeatureSnap']]};
-    multiRegionFeatureSnap {trueFalse[meshSettings['snapControls']['multiRegionFeatureSnap']]};
+    implicitFeatureSnap {meshSettings['snapControls']['implicitFeatureSnap']};
+    explicitFeatureSnap {meshSettings['snapControls']['explicitFeatureSnap']};
+    multiRegionFeatureSnap {meshSettings['snapControls']['multiRegionFeatureSnap']};
 }}"""
     layerControls = f"""\naddLayersControls
 {{
-    relativeSizes {trueFalse[meshSettings['addLayersControls']['relativeSizes']]};
+    relativeSizes {meshSettings['addLayersControls']['relativeSizes']};
     layers
     {{"""
     for an_entry in meshSettings['geometry']:

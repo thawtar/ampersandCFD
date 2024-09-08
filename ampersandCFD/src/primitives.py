@@ -1,9 +1,17 @@
 import os
 import yaml
+from tkinter import filedialog, Tk
 
 class ampersandPrimitives:
     def __init__(self):
         pass
+
+    @staticmethod
+    def ask_for_directory():
+        root = Tk()
+        root.withdraw()  # Hide the main window
+        directory = filedialog.askdirectory(title="Select Project Directory")
+        return directory if directory else None
 
     @staticmethod
     def dict_to_yaml(data, output_file):

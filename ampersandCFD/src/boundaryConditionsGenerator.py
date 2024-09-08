@@ -15,7 +15,6 @@ def create_u_file(meshSettings,boundaryConditions):
 {"""
     # Loop through patches for each boundary condition
     for patch in meshSettings['patches']:
-        print(patch)
         U_file += f"""
     {patch['name']}"""
         if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
@@ -68,7 +67,7 @@ def create_p_file(meshSettings,boundaryConditions):
 {"""
     # Loop through patches for each boundary condition
     for patch in meshSettings['patches']:
-        print(patch)
+        #print(patch)
         p_file += f"""
     {patch['name']}"""
         if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
@@ -120,7 +119,7 @@ def create_k_file(meshSettings,boundaryConditions):
 {"""
     # Loop through patches for each boundary condition
     for patch in meshSettings['patches']:
-        print(patch)
+        #print(patch)
         k_file += f"""
     {patch['name']}"""
         if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
@@ -172,7 +171,7 @@ def create_omega_file(meshSettings,boundaryConditions):
 {"""
     # Loop through patches for each boundary condition
     for patch in meshSettings['patches']:
-        print(patch)
+        #print(patch)
         omega_file += f"""
     {patch['name']}"""
         if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
@@ -224,7 +223,7 @@ def create_epsilon_file(meshSettings,boundaryConditions):
 {"""
     # Loop through patches for each boundary condition
     for patch in meshSettings['patches']:
-        print(patch)
+        #print(patch)
         epsilon_file += f"""
     {patch['name']}"""
         if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
@@ -276,7 +275,7 @@ def create_nut_file(meshSettings,boundaryConditions):
 {"""
     # Loop through patches for each boundary condition
     for patch in meshSettings['patches']:
-        print(patch)
+        #print(patch)
         nut_file += f"""
     {patch['name']}"""
         if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
