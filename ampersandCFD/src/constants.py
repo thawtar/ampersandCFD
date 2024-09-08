@@ -117,7 +117,7 @@ numericalSettings = {
 }
 
 inletValues = {
-    'U': (1, 0, 0),
+    'U': [1, 0, 0],
     'p': 0,
     'k': 0.1,
     'omega': 1,
@@ -135,7 +135,7 @@ boundaryConditions = {
      'nut_type': 'calculated','nut_value': inletValues['nut']},
     
     'pressureOutlet':
-    {'u_type': 'inletOutlet','u_value': (0, 0, 0),
+    {'u_type': 'inletOutlet','u_value': [0, 0, 0],
      'p_type': 'fixedValue','p_value': 0,
      'k_type': 'zeroGradient','k_value': 1.0e-6,
      'omega_type': 'zeroGradient','omega_value': 1.0e-6,
@@ -143,7 +143,7 @@ boundaryConditions = {
      'nut_type': 'calculated','nut_value': 0},
 
     'wall':
-    {'u_type': 'noSlip','u_value': (0, 0, 0),
+    {'u_type': 'noSlip','u_value': [0, 0, 0],
      'p_type': 'zeroGradient','p_value': 0,
      'k_type': 'kqRWallFunction','k_value': '$internalField',
      'omega_type': 'omegaWallFunction','omega_value': '$internalField',
@@ -151,7 +151,7 @@ boundaryConditions = {
      'nut_type': 'nutkWallFunction','nut_value': '$internalField'},
 
     'movingWall':
-    {'u_type': 'movingWallVelocity','u_value': (0, 0, 0),
+    {'u_type': 'movingWallVelocity','u_value': [0, 0, 0],
      'p_type': 'zeroGradient','p_value': 0,
      'k_type': 'kqRWallFunction','k_value': '$internalField',
      'omega_type': 'omegaWallFunction','omega_value': '$internalField',

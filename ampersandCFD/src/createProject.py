@@ -6,9 +6,10 @@ from blockMeshGenerator import generate_blockMeshDict
 from snappyHexMeshGenerator import generate_snappyHexMeshDict
 from surfaceExtractor import create_surfaceFeatureExtractDict
 from transportAndTurbulence import create_transportPropertiesDict, create_turbulencePropertiesDict
-from transportAndTurbulence import write_transportPropertiesDict, write_turbulencePropertiesDict
+#from transportAndTurbulence import write_transportPropertiesDict, write_turbulencePropertiesDict
 from boundaryConditionsGenerator import create_boundary_conditions
-from controlDictGenerator import createControlDict, writeControlDict
+from controlDictGenerator import createControlDict
+from tkinter import filedialog, Tk
 # this file contains the functions to generate Case Directory for OpenFOAM
 run_settings = {
     'mesh': True,
@@ -25,34 +26,38 @@ meshing_settings = {
     'topoSet':True
 }
 
-def write_settings():
-    # write meshSettings to file
-    ampersandPrimitives.dict_to_yaml(meshSettings, 'meshSettings.yaml')
-    # write physicalProperties to file
-    ampersandPrimitives.dict_to_yaml(physicalProperties, 'physicalProperties.yaml')
-    # write numericalSettings to file
-    ampersandPrimitives.dict_to_yaml(numericalSettings, 'numericalSettings.yaml')
-    # write inletValues to file
-    ampersandPrimitives.dict_to_yaml(inletValues, 'inletValues.yaml')
-    # write boundaryConditions to file
-    ampersandPrimitives.dict_to_yaml(boundaryConditions, 'boundaryConditions.yaml')
+def ask_for_directory():
+    root = Tk()
+    root.withdraw()  # Hide the main window
+    directory = filedialog.askdirectory(title="Select Project Directory")
+    return directory if directory else None
 
-def load_settings():
-    meshSettings = ampersandPrimitives.yaml_to_dict('meshSettings.yaml')
-    physicalProperties = ampersandPrimitives.yaml_to_dict('physicalProperties.yaml')
-    numericalSettings = ampersandPrimitives.yaml_to_dict('numericalSettings.yaml')
-    inletValues = ampersandPrimitives.yaml_to_dict('inletValues.yaml')
-    boundaryConditions = ampersandPrimitives.yaml_to_dict('boundaryConditions.yaml')
-    caseSettings = (meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)
-    return caseSettings
+def create_project_path_user(proj_path,project_name="testProject", user_name="user1"):
+    
+    if not proj_path:
+        print("No directory selected. Aborting project creation.")
+        return -1
 
-def create_project(project_name="testProject",user_name="user1"):
-    print(f"Creating Project: {project_name} for {user_name}")
-    # create directory at the /$HOME/user_name/project_name
-    default_path = r"C:\Users\Ridwa\Desktop\CFD\ampersandTests"
-    project_path = os.path.join(default_path,user_name,project_name)
+    project_path = os.path.join(proj_path, user_name, project_name)
     print(project_path)
-    # check whether the path already exists. If not, create the path
+    return project_path
+
+def create_project_path(proj_path,project_name="testProject"):
+    #print(f"Creating Project: {project_name} ")
+    
+    # Ask for directory using the new function
+    #default_path = ask_for_directory()
+    
+    if not proj_path:
+        print("No directory selected. Aborting project creation.")
+        return -1
+
+    project_path = os.path.join(proj_path, project_name)
+    print(project_path)
+    return project_path
+
+
+def create_project_directory(project_path):
     if os.path.exists(project_path):
         print("Directory exists")
     else:
@@ -79,19 +84,38 @@ def create_project(project_name="testProject",user_name="user1"):
         return -1
     return 0 # return 0 if the project is created successfully 
 
+def write_settings():
+    settings = {
+        'meshSettings': meshSettings,
+        'physicalProperties': physicalProperties,
+        'numericalSettings': numericalSettings,
+        'inletValues': inletValues,
+        'boundaryConditions': boundaryConditions
+    }
+    ampersandPrimitives.dict_to_yaml(settings, 'project_settings.yaml')
+
+def load_settings():
+    settings = ampersandPrimitives.yaml_to_dict('project_settings.yaml')
+    meshSettings = settings['meshSettings']
+    physicalProperties = settings['physicalProperties']
+    numericalSettings = settings['numericalSettings']
+    inletValues = settings['inletValues']
+    boundaryConditions = settings['boundaryConditions']
+    caseSettings = (meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)
+    return caseSettings
 
 
 def create_project_files(caseSettings):
     (meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)=caseSettings
-
+    
     # go inside the constant directory
     os.chdir("constant")
     # create transportProperties file
     tranP = create_transportPropertiesDict(physicalProperties)
     # create turbulenceProperties file
     turbP = create_turbulencePropertiesDict(physicalProperties)
-    write_transportPropertiesDict(tranP)
-    write_turbulencePropertiesDict(turbP)
+    ampersandPrimitives.write_dict_to_file("transportProperties", tranP)
+    ampersandPrimitives.write_dict_to_file("turbulenceProperties", turbP)
     # go back to the main directory
     os.chdir("..")
     # go inside the 0 directory
@@ -104,9 +128,26 @@ def create_project_files(caseSettings):
     os.chdir("system")
     # create the controlDict file
     controlDict = createControlDict(simulationSettings)
-    writeControlDict(controlDict)
+    ampersandPrimitives.write_dict_to_file("controlDict", controlDict)
+    blockMeshDict = generate_blockMeshDict(meshSettings)
+    ampersandPrimitives.write_dict_to_file("blockMeshDict", blockMeshDict)
+    snappyHexMeshDict = generate_snappyHexMeshDict(meshSettings)
+    ampersandPrimitives.write_dict_to_file("snappyHexMeshDict", snappyHexMeshDict)
+    surfaceFeatureExtractDict = create_surfaceFeatureExtractDict(meshSettings)
+    ampersandPrimitives.write_dict_to_file("surfaceFeatureExtractDict", surfaceFeatureExtractDict)
     
-
+def main():
+    project_path = ask_for_directory()
+    if project_path is None:
+        print("No directory selected. Aborting project creation.")
+        return -1
+    project_path = create_project_path(project_path)
+    create_project_directory(project_path)
+    write_settings()
+    caseSettings=load_settings()
+    #caseSettings=(meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)
+    
+    create_project_files(caseSettings)
 
 def create_run(run_settings):
     cmdFlow = f"""
@@ -130,6 +171,4 @@ runParallel renumberMesh -overwrite
     return cmdFlow
 
 if __name__ == '__main__':
-    create_project("sloshing","user1")
-    caseSettings=(meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)
-    create_project_files(caseSettings)
+    main()

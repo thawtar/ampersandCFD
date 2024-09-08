@@ -57,16 +57,18 @@ mergePatchPairs
 
     return blockMeshDict
 
+
 # Generate blockMeshDict
 # read in data to meshSettings from meshSettings.yaml
-meshSettings = ampersandPrimitives.yaml_to_dict("meshSettings.yaml")
-blockMeshDict = generate_blockMeshDict(meshSettings)
+if __name__ == "__main__":
+    meshSettings = ampersandPrimitives.yaml_to_dict("meshSettings.yaml")
+    blockMeshDict = generate_blockMeshDict(meshSettings)
 
-# Save to file
-with open("blockMeshDict", "w") as f:
-    f.write(blockMeshDict)
+    # Save to file
+    with open("blockMeshDict", "w") as f:
+        f.write(blockMeshDict)
 
 
-#print(blockMeshDict)
+    #print(blockMeshDict)
 
-print("blockMeshDict file created.")
+    print("blockMeshDict file created.")

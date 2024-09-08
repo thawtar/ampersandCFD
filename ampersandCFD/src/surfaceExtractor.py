@@ -23,6 +23,8 @@ def create_surfaceFeatureExtractDict(meshSettings):
     
 
     return surfaceFeatureExtractDict
+
+
 if __name__ == "__main__":
     meshSettings = ampersandPrimitives.yaml_to_dict('meshSettings.yaml')
     surfaceFeatureExtractDict = create_surfaceFeatureExtractDict(meshSettings)

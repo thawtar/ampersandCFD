@@ -1,0 +1,245 @@
+meshSettings:
+  scale: 1.0
+  domain:
+    minx: 0.0
+    maxx: 1.0
+    miny: 0.0
+    maxy: 1.0
+    minz: 0.0
+    maxz: 1.0
+    nx: 20
+    ny: 20
+    nz: 1
+  patches:
+  - name: inlet
+    type: patch
+    faces:
+    - 0
+    - 4
+    - 7
+    - 3
+  - name: outlet
+    type: patch
+    faces:
+    - 1
+    - 5
+    - 6
+    - 2
+  - name: front
+    type: wall
+    faces:
+    - 0
+    - 1
+    - 5
+    - 4
+  - name: back
+    type: wall
+    faces:
+    - 2
+    - 3
+    - 7
+    - 6
+  - name: bottom
+    type: wall
+    faces:
+    - 0
+    - 1
+    - 2
+    - 3
+  - name: top
+    type: wall
+    faces:
+    - 4
+    - 5
+    - 6
+    - 7
+  snappyHexSteps:
+    castellatedMesh: true
+    snap: true
+    addLayers: true
+  geometry:
+  - name: stl1.stl
+    type: triSurfaceMesh
+    refineMin: 1
+    refineMax: 3
+    featureEdges: true
+    featureLevel: 3
+    nLayers: 3
+  - name: box
+    type: searchableBox
+    min:
+    - 0
+    - 0
+    - 0
+    max:
+    - 1
+    - 1
+    - 1
+  castellatedMeshControls:
+    maxLocalCells: 2000000
+    maxGlobalCells: 5000000
+    minRefinementCells: 5
+    maxLoadUnbalance: 0.1
+    nCellsBetweenLevels: 5
+    features: []
+    refinementSurfaces: []
+    resolveFeatureAngle: 30
+    refinementRegions: []
+    locationInMesh:
+    - 0
+    - 0
+    - 0
+    allowFreeStandingZoneFaces: true
+  snapControls:
+    nSmoothPatch: 3
+    tolerance: 2.0
+    nSolveIter: 100
+    nRelaxIter: 8
+    nFeatureSnapIter: 10
+    implicitFeatureSnap: false
+    explicitFeatureSnap: true
+    multiRegionFeatureSnap: false
+  addLayersControls:
+    relativeSizes: true
+    expansionRatio: 1.2
+    finalLayerThickness: 0.3
+    minThickness: 0.001
+    nGrow: 0
+    featureAngle: 180
+    nRelaxIter: 5
+    nSmoothSurfaceNormals: 1
+    nSmoothNormals: 3
+    nSmoothThickness: 10
+    maxFaceThicknessRatio: 0.5
+    maxThicknessToMedialRatio: 0.3
+    minMedianAxisAngle: 90
+    nBufferCellsNoExtrude: 0
+    nLayerIter: 10
+  meshQualityControls:
+    maxNonOrtho: 75
+    maxBoundarySkewness: 4
+    maxInternalSkewness: 4
+    maxConcave: 180
+    minTetQuality: 1.0e-30
+    minVol: 1.0e-30
+    minArea: 1.0e-30
+    minTwist: 0.001
+    minDeterminant: 0.001
+    minFaceWeight: 0.01
+    minVolRatio: 0.01
+    minTriangleTwist: -1
+    nSmoothScale: 4
+    errorReduction: 0.75
+  mergeTolerance: 1.0e-06
+  debug: 0
+boundaryConditions:
+  velocityInlet:
+    u_type: fixedValue
+    u_value:
+    - 1
+    - 0
+    - 0
+    p_type: zeroGradient
+    p_value: 0
+    k_type: fixedValue
+    k_value: 0.1
+    omega_type: fixedValue
+    omega_value: 1
+    epsilon_type: fixedValue
+    epsilon_value: 0.1
+    nut_type: calculated
+    nut_value: 0
+  pressureOutlet:
+    u_type: inletOutlet
+    u_value:
+    - 0
+    - 0
+    - 0
+    p_type: fixedValue
+    p_value: 0
+    k_type: zeroGradient
+    k_value: 1.0e-06
+    omega_type: zeroGradient
+    omega_value: 1.0e-06
+    epsilon_type: zeroGradient
+    epsilon_value: 1.0e-06
+    nut_type: calculated
+    nut_value: 0
+  wall:
+    u_type: noSlip
+    u_value:
+    - 0
+    - 0
+    - 0
+    p_type: zeroGradient
+    p_value: 0
+    k_type: kqRWallFunction
+    k_value: $internalField
+    omega_type: omegaWallFunction
+    omega_value: $internalField
+    epsilon_type: epsilonWallFunction
+    epsilon_value: $internalField
+    nut_type: nutkWallFunction
+    nut_value: $internalField
+  movingWall:
+    u_type: movingWallVelocity
+    u_value:
+    - 0
+    - 0
+    - 0
+    p_type: zeroGradient
+    p_value: 0
+    k_type: kqRWallFunction
+    k_value: $internalField
+    omega_type: omegaWallFunction
+    omega_value: $internalField
+    epsilon_type: epsilonWallFunction
+    epsilon_value: $internalField
+    nut_type: nutkWallFunction
+    nut_value: $internalField
+inletValues:
+  U:
+  - 1
+  - 0
+  - 0
+  p: 0
+  k: 0.1
+  omega: 1
+  epsilon: 0.1
+  nut: 0
+
+physicalProperties:
+  rho: 1.0
+  nu: 1.0e-06
+  g:
+  - 0
+  - 0
+  - -9.81
+  pRef: 0
+  Cp: 1000
+  thermo: hPolynomial
+  Pr: 0.7
+  TRef: 300
+  turbulenceModel: kOmegaSST
+
+numericalSettings:
+  ddtScheme: Euler
+  gradSchemes:
+    default: Gauss linear
+    grad(p): Gauss linear
+    grad(U): faceMDLimited Gauss linear 0.5
+  divSchemes:
+    default: Gauss linear
+    div(phi,U): Gauss linearUpwind grad(U)
+    div(phi,k): Gauss upwind
+    div(phi,omega): Gauss upwind
+    div(phi,epsilon): Gauss upwind
+  laplacianSchemes:
+    default: Gauss linear limited 0.5
+  interpolationSchemes:
+    default: linear
+  snGradSchemes:
+    default: limited 0.5
+  fluxRequired:
+    default: 'no'
+  wallDist: meshWave

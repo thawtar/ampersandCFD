@@ -31,9 +31,6 @@ libs
 """
     return controlDict
 
-def writeControlDict(controlDict):
-    with open('controlDict', 'w') as file:
-        file.write(controlDict)
 
 # Generate controlDict
 if __name__ == '__main__':

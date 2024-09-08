@@ -145,12 +145,17 @@ mergeTolerance {meshSettings['mergeTolerance']};"""
     snappyHexMeshDict += header+steps+geometry+castellatedMeshControls+snapControls+layerControls+meshQualityControls+debug
     #print(snappyHexMeshDict)
     return snappyHexMeshDict
+
+def write_snappyHexMeshDict(snappyHexMeshDict):
+    with open('snappyHexMeshDict', 'w') as file:
+        file.write(snappyHexMeshDict)
    
 # Example usage
-meshSettings = ampersandPrimitives.yaml_to_dict("meshSettings.yaml")
+if __name__ == "__main__":
+    meshSettings = ampersandPrimitives.yaml_to_dict("meshSettings.yaml")
 
 
-snappy_hex_mesh_dict_content = generate_snappyHexMeshDict(meshSettings)
-with open("snappyHexMeshDict", "w") as f:
-    f.write(snappy_hex_mesh_dict_content)
-print("snappyHexMeshDict file created.")
+    snappy_hex_mesh_dict_content = generate_snappyHexMeshDict(meshSettings)
+    with open("snappyHexMeshDict", "w") as f:
+        f.write(snappy_hex_mesh_dict_content)
+    print("snappyHexMeshDict file created.")
