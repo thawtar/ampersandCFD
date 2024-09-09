@@ -1,4 +1,5 @@
 # backend module for the ampersandCFD project
+from primitives import ampersandPrimitives
 # Description: This file contains the code for managing project structure and
 # generate OpenFOAM files
 
@@ -7,7 +8,7 @@ import yaml
 import os
 from primitives import ampersandPrimitives
 from constants import meshSettings, physicalProperties, numericalSettings, inletValues
-from constants import boundaryConditions, simulationSettings
+from constants import solverSettings, boundaryConditions, simulationSettings
 from blockMeshGenerator import generate_blockMeshDict
 from snappyHexMeshGenerator import generate_snappyHexMeshDict
 from surfaceExtractor import create_surfaceFeatureExtractDict
@@ -15,6 +16,7 @@ from transportAndTurbulence import create_transportPropertiesDict, create_turbul
 #from transportAndTurbulence import write_transportPropertiesDict, write_turbulencePropertiesDict
 from boundaryConditionsGenerator import create_boundary_conditions
 from controlDictGenerator import createControlDict
+from numericalSettingsGenerator import create_fvSchemesDict, create_fvSolutionDict
 
 #from ../constants/constants import meshSettings
 
@@ -30,6 +32,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.meshSettings = None
         self.physicalProperties = None
         self.numericalSettings = None
+        self.simulationSettings = None
+        self.solverSettings = None
         self.inletValues = None
         self.boundaryConditions = None
         self.simulationSettings = None
@@ -117,7 +121,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             'physicalProperties': self.physicalProperties,
             'numericalSettings': self.numericalSettings,
             'inletValues': self.inletValues,
-            'boundaryConditions': self.boundaryConditions
+            'boundaryConditions': self.boundaryConditions,
+            'solverSettings': self.solverSettings,
+            'simulationSettings': self.simulationSettings
         }
         ampersandPrimitives.dict_to_yaml(settings, 'project_settings.yaml')
 
@@ -129,6 +135,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.numericalSettings = settings['numericalSettings']
         self.inletValues = settings['inletValues']
         self.boundaryConditions = settings['boundaryConditions']
+        self.solverSettings = settings['solverSettings']
         self.settings = (self.meshSettings, self.physicalProperties, self.numericalSettings, self.inletValues, self.boundaryConditions)
 
     def load_default_settings(self):
@@ -138,7 +145,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.inletValues = inletValues
         self.boundaryConditions = boundaryConditions
         self.simulationSettings = simulationSettings
-        self.settings = (self.meshSettings, self.physicalProperties, self.numericalSettings, self.inletValues, self.boundaryConditions)
+        self.solverSettings = solverSettings
+        self.settings = (self.meshSettings, self.physicalProperties, 
+                         self.numericalSettings, self.inletValues, self.boundaryConditions, self.simulationSettings, self.solverSettings)
 
 
     def create_settings(self):
@@ -183,16 +192,20 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         ampersandPrimitives.write_dict_to_file("snappyHexMeshDict", snappyHexMeshDict)
         surfaceFeatureExtractDict = create_surfaceFeatureExtractDict(self.meshSettings)
         ampersandPrimitives.write_dict_to_file("surfaceFeatureExtractDict", surfaceFeatureExtractDict)
-
+        fvSchemesDict = create_fvSchemesDict(self.numericalSettings)
+        ampersandPrimitives.write_dict_to_file("fvSchemes", fvSchemesDict)
+        fvSolutionDict = create_fvSolutionDict(self.numericalSettings, self.solverSettings)
+        ampersandPrimitives.write_dict_to_file("fvSolution", fvSolutionDict)
 
 def main():
     project = ampersandProject()
-    project.set_project_directory(ampersandPrimitives.ask_for_directory())
-    project_name = input("Enter the project name: ")
-    project.set_project_name(project_name)
-    user_name = input("Enter the user name: ")
-    project.set_user_name(user_name)
-    project.create_project_path_user()
+    #project.set_project_directory(ampersandPrimitives.ask_for_directory())
+    #project_name = input("Enter the project name: ")
+    #project.set_project_name(project_name)
+    #user_name = input("Enter the user name: ")
+    #project.set_user_name(user_name)
+    #project.create_project_path_user()
+    project.project_path = "/Users/thawtar/Desktop/ampersand_tests/test5"
     project.create_project()
     project.create_settings()
     project.create_project_files()
