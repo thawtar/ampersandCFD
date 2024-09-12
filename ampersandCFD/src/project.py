@@ -152,7 +152,12 @@ class ampersandProject: # ampersandProject class to handle the project creation 
 
     def create_settings(self):
         if self.existing_project:
-            self.load_settings()
+            try:
+                self.load_settings()
+            except FileNotFoundError:
+                print("Settings file not found. Loading default settings")
+                self.load_default_settings()
+                self.write_settings()
         else:
             self.load_default_settings()
             self.write_settings()
