@@ -1,12 +1,11 @@
 # backend module for the ampersandCFD project
-from primitives import ampersandPrimitives
 # Description: This file contains the code for managing project structure and
 # generate OpenFOAM files
 
 
 import yaml
 import os
-from primitives import ampersandPrimitives
+from primitives import ampersandPrimitives, ampersandIO
 from constants import meshSettings, physicalProperties, numericalSettings, inletValues
 from constants import solverSettings, boundaryConditions, simulationSettings
 from blockMeshGenerator import generate_blockMeshDict
@@ -43,7 +42,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
 
     def set_project_directory(self, project_directory_path):
         if project_directory_path is None:
-            print("No directory selected. Aborting project creation.")
+            ampersandIO.printMessage("No directory selected. Aborting project creation.")
             exit()
         assert os.path.exists(project_directory_path), "The chosen directory does not exist"
         self.project_directory_path = project_directory_path
@@ -57,14 +56,14 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # create the project path for the user and project name
     def create_project_path_user(self):
         if not self.project_directory_path:
-            print("No directory selected. Aborting project creation.")
+            ampersandIO.printMessage("No directory selected. Aborting project creation.")
             return -1
         self.project_path = os.path.join(self.project_directory_path, self.user_name, self.project_name)
         
     # create the project path for the project name
     def create_project_path(self):
         if not self.project_directory_path:
-            print("No directory selected. Aborting project creation.")
+            ampersandIO.printMessage("No directory selected. Aborting project creation.")
             return -1
         self.project_path = os.path.join(self.project_directory_path, self.project_name)
 
@@ -72,7 +71,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         if os.path.exists(self.project_path):
             settings_file = os.path.join(self.project_path, "project_settings.yaml")
             if os.path.exists(settings_file):
-                print("Project already exists, loading project settings")
+                ampersandIO.printMessage("Project already exists, loading project settings")
                 self.existing_project = True
                 return 0
             else:
@@ -86,23 +85,23 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def create_project(self):
         # check if the project path exists
         if self.project_path is None:
-            print("No project path selected. Aborting project creation.")
+            ampersandIO.printMessage("No project path selected. Aborting project creation.")
             return -1
         if os.path.exists(self.project_path):
-            print("Directory exists")
+            ampersandIO.printMessage("Directory exists")
         else:
-            print("Creating project directory")
+            ampersandIO.printMessage("Creating project directory")
             try:
                 os.makedirs(self.project_path)
                 
             except OSError as error:
-                print(error)
+                ampersandIO.printError(error)
         try:
             os.chdir(self.project_path)
         except OSError as error:
-                print(error)
+                ampersandIO.printError(error)
         cwd = os.getcwd()
-        print(f"Working directory: {cwd}")
+        ampersandIO.printMessage(f"Working directory: {cwd}")
 
         # create 0, constant and system directory
         try:
@@ -110,7 +109,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             os.mkdir("constant")
             os.mkdir("system")
         except OSError as error:
-            print("File system already exists. Skipping the creation of directories")   
+            ampersandIO.printError("File system already exists. Skipping the creation of directories")   
             return -1
         return 0 # return 0 if the project is created successfully 
 
@@ -155,7 +154,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             try:
                 self.load_settings()
             except FileNotFoundError:
-                print("Settings file not found. Loading default settings")
+                ampersandIO.printMessage("Settings file not found. Loading default settings")
                 self.load_default_settings()
                 self.write_settings()
         else:
@@ -166,7 +165,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         #(meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)=caseSettings
         # check if the current working directory is the project directory
         if not os.path.exists(self.project_path):
-            print("Project directory does not exist. Aborting project creation.")
+            ampersandIO.printMessage("Project directory does not exist. Aborting project creation.")
             return -1
         if os.getcwd() != self.project_path:
             os.chdir(self.project_path)
@@ -210,7 +209,7 @@ def main():
     #user_name = input("Enter the user name: ")
     #project.set_user_name(user_name)
     #project.create_project_path_user()
-    project.project_path = "/Users/thawtar/Desktop/ampersand_tests/test5"
+    project.project_path = "/Users/thawtar/Desktop/ampersand_tests/test6"
     project.create_project()
     project.create_settings()
     project.create_project_files()

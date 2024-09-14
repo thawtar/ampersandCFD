@@ -1,4 +1,7 @@
 from logger import logger
+import yaml
+from primitives import ampersandPrimitives, ampersandIO
+
 # a lof of logic is implemented here
 
 # this class will contain the mesh settings
@@ -7,12 +10,19 @@ INTERNAL = 1
 class Domain:
     def __init__(self):
         self.domain_type = None
-        self. xLength = None
-        self. yLength = None
-        self. zLength = None
+        self.xLength = None
+        self.yLength = None
+        self.zLength = None
         self.nX = None
         self.nY = None
         self.nZ = None
+        self.minX = None
+        self.minY = None
+        self.minZ = None
+        self.maxX = None
+        self.maxY = None
+        self.maxZ = None
+        
         # cell size in each direction
         # this code will think from cell size perspective
         self.dx = None
@@ -33,6 +43,7 @@ class Domain:
         self.yLength = bounding_box[1][1] - bounding_box[0][1]
         self.zLength = bounding_box[1][2] - bounding_box[0][2]
     
+
 
 
 # this class will contain the methods to handle the logic and program flow

@@ -1,6 +1,8 @@
 import os
 import yaml
+import sys
 from tkinter import filedialog, Tk
+
 
 class ampersandPrimitives:
     def __init__(self):
@@ -114,6 +116,22 @@ FoamFile
     def write_dict_to_file(filename, content):
         with open(filename, 'w') as f:
             f.write(content)
+
+class ampersandIO:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def printMessage(*args):
+        print(*args)
+    
+    @staticmethod
+    def printError(*args):
+        print(*args, file=sys.stderr)
+    
+    @staticmethod
+    def get_input(prompt):
+        return input(prompt)
 
 if __name__ == "__main__":
     print(ampersandPrimitives.createFoamHeader(className="dictionary",objectName="snappyHexMeshDict"))
