@@ -8,7 +8,7 @@ class stlAnalysis:
 
     # to calculate the domain size for blockMeshDict
     @staticmethod
-    def calc_domain_size(stlBoundingBox,sizeFactor=1,onGround=False):
+    def calc_domain_size(stlBoundingBox,sizeFactor=1,onGround=False,internalFlow=False):
         stlMinX,stlMaxX,stlMinY,stlMaxY,stlMinZ,stlMaxZ= stlBoundingBox
         bbX = stlMaxX - stlMinX
         bbY = stlMaxY - stlMinY
@@ -21,6 +21,13 @@ class stlAnalysis:
         maxZ = stlMaxZ + 5*bbZ*sizeFactor
         if onGround: # the the body is touching the ground
             minZ = stlMinZ
+        if(internalFlow):
+            minX = stlMinX - 0.1*bbX*sizeFactor
+            maxX = stlMaxX + 0.1*bbX*sizeFactor
+            minY = stlMinY - 0.1*bbY*sizeFactor
+            maxY = stlMaxY + 0.1*bbY*sizeFactor
+            minZ = stlMinZ - 0.1*bbZ*sizeFactor
+            maxZ = stlMaxZ + 0.1*bbZ*sizeFactor
         domain_size = (minX,maxX,minY,maxY,minZ,maxZ)
         return domain_size
 
@@ -98,10 +105,12 @@ class stlAnalysis:
 
     # to calculate the mesh settings for blockMeshDict and snappyHexMeshDict
     @staticmethod
-    def calc_mesh_settings(stlBoundingBox,nu=1e-6,rho=1000.,U=1.0,maxCellSize=0.1):
-        domain_size = stlAnalysis.calc_domain_size(stlBoundingBox=stlBoundingBox)
+    def calc_mesh_settings(stlBoundingBox,nu=1e-6,rho=1000.,U=1.0,maxCellSize=0.1,sizeFactor=1.0,onGround=False,internalFlow=False):
         maxSTLLength = stlAnalysis.getMaxSTLDim(stlBoundingBox)
-        backgroundCellSize = min(maxSTLLength/4.,maxCellSize) # this is the size of largest blockMesh cells
+        if(maxCellSize < 0.001):
+            maxCellSize = maxSTLLength/4.
+        domain_size = stlAnalysis.calc_domain_size(stlBoundingBox=stlBoundingBox,sizeFactor=sizeFactor,onGround=onGround,internalFlow=internalFlow)
+        backgroundCellSize = min(maxSTLLength/6.,maxCellSize) # this is the size of largest blockMesh cells
         nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,backgroundCellSize)
         L = maxSTLLength # this is the characteristic length to be used in Re calculations
         target_y = stlAnalysis.calc_y(nu,rho,L,U,target_yPlus=200) # this is the thickness of closest cell
