@@ -228,6 +228,47 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         for stl_file in self.stl_files:
             ampersandIO.printMessage(f"{i}:\t{stl_file['name']}")
             i += 1
+
+    def remove_stl_file(self,stl_file_number=0):
+        #self.list_stl_files()
+        stl_file_number = ampersandIO.get_input("Enter the number of the file to remove: ")
+        try:
+            stl_file_number = int(stl_file_number)
+        except ValueError:
+            ampersandIO.printMessage("Invalid input. Aborting operation")
+            return -1
+        if stl_file_number < 0 or stl_file_number > len(self.stl_files):
+            ampersandIO.printMessage("Invalid file number. Aborting operation")
+            return -1
+        stl_file = self.stl_files[stl_file_number]
+        stl_name = stl_file['name']
+        self.stl_files.remove(stl_file)
+        self.stl_names.remove(stl_name)
+        stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
+        try:
+            os.remove(stl_path)
+        except OSError as error:
+            ampersandIO.printError(error)
+            return -1
+        return 0
+
+    def analyze_stl_file(self,stl_file_number=0):
+        try:
+            stl_file_number = int(stl_file_number)
+        except ValueError:
+            ampersandIO.printMessage("Invalid input. Aborting operation")
+            return -1
+        if stl_file_number < 0 or stl_file_number > len(self.stl_files):
+            ampersandIO.printMessage("Invalid file number. Aborting operation")
+            return -1
+        stl_file = self.stl_files[stl_file_number]
+        stl_name = stl_file['name']
+        print(f"Analyzing {stl_name}")
+        stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
+        stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
+        domain_size, nx, ny, nz, refLevel = stlAnalysis.calc_mesh_settings(stlBoundingBox)
+        self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel) 
+        return 0
      
     def create_project_files(self):
         #(meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)=caseSettings
@@ -280,12 +321,14 @@ def main():
     project.project_path = "/Users/thawtar/Desktop/ampersand_tests/test6"
     project.create_project()
     project.create_settings()
-    yN = ampersandIO.get_input("Add STL file to the project (y/N)?")
+    yN = ampersandIO.get_input("Add STL file to the project (y/N)?: ")
     while yN.lower() == 'y':
         project.add_stl_file()
         yN = ampersandIO.get_input("Add another STL file to the project (y/N)?: ")
     project.add_stl_to_project()
     # Before creating the project files, the settings are flushed to the project_settings.yaml file
+    project.list_stl_files()
+    project.analyze_stl_file()
     project.write_settings()
     project.create_project_files()
 
