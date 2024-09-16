@@ -44,6 +44,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.existing_project = False # flag to check if the project is already existing
         self.stl_files = [] # list to store the settings for stl files
         self.stl_names = [] # list to store the names of the stl files
+        self.internalFlow = False # default is external flow
+        self.onGround = False # default is off the ground
 
     def set_project_directory(self, project_directory_path):
         if project_directory_path is None:
@@ -179,7 +181,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         
         self.stl_names.append(stl_name)
         self.stl_files.append(stl_)
-        
+
 
     def ask_stl_settings(self,stl_file):
         ampersandIO.printMessage(f"Settings of the {stl_file['name']} file")
@@ -200,6 +202,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
 
     def add_stl_file(self): # to only copy the STL file to the project directory and add it to the STL list
         stl_file = ampersandPrimitives.ask_for_file([("STL Geometry", "*.stl"), ("OBJ Geometry", "*.obj")])
+        if stl_file is None:
+            ampersandIO.printMessage("No file selected. Please select STL file if necessary.")
+            return -1
         if os.path.exists(stl_file):
             # add the stl file to the project
             # This is a bit confusing. 
@@ -225,6 +230,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     
     def list_stl_files(self):
         i = 1
+        ampersandIO.printMessage("STL Files in the project:")
         for stl_file in self.stl_files:
             ampersandIO.printMessage(f"{i}:\t{stl_file['name']}")
             i += 1
@@ -252,7 +258,17 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             return -1
         return 0
 
+    def ask_flow_type(self):
+        flow_type = ampersandIO.get_input("Internal or External Flow (I/E)?: ")
+        if flow_type.lower() == 'i':
+            self.internalFlow = True
+        else:
+            self.internalFlow = False
+
+
     def analyze_stl_file(self,stl_file_number=0):
+        rho = self.physicalProperties['rho']
+        nu = self.physicalProperties['nu']
         try:
             stl_file_number = int(stl_file_number)
         except ValueError:
@@ -266,9 +282,17 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         print(f"Analyzing {stl_name}")
         stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
-        domain_size, nx, ny, nz, refLevel = stlAnalysis.calc_mesh_settings(stlBoundingBox)
+        domain_size, nx, ny, nz, refLevel = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,onGround=self.onGround,internalFlow=self.internalFlow)
         self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel) 
+        self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path)
         return 0
+    
+    def ask_ground_type(self):
+        ground_type = ampersandIO.get_input("Is the ground touching the body (y/N): ")
+        if ground_type.lower() == 'y':
+            self.onGround = True
+        else:
+            self.onGround = False
      
     def create_project_files(self):
         #(meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)=caseSettings
@@ -318,7 +342,7 @@ def main():
     #user_name = input("Enter the user name: ")
     #project.set_user_name(user_name)
     #project.create_project_path_user()
-    project.project_path = "/Users/thawtar/Desktop/ampersand_tests/test6"
+    project.project_path = "/Users/thawtar/Desktop/ampersand_tests/ahmedBody"
     project.create_project()
     project.create_settings()
     yN = ampersandIO.get_input("Add STL file to the project (y/N)?: ")
@@ -328,7 +352,12 @@ def main():
     project.add_stl_to_project()
     # Before creating the project files, the settings are flushed to the project_settings.yaml file
     project.list_stl_files()
-    project.analyze_stl_file()
+    project.ask_flow_type()
+    if(project.internalFlow!=True):
+        project.ask_ground_type()
+    if(len(project.stl_files)>0):
+        project.analyze_stl_file()
+    #project.analyze_stl_file()
     project.write_settings()
     project.create_project_files()
 

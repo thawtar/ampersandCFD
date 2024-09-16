@@ -1,6 +1,7 @@
 import os
 import vtk
 import numpy as np
+from stlToOpenFOAM import find_inside_point
 
 class stlAnalysis:
     def __init__(self):
@@ -10,6 +11,7 @@ class stlAnalysis:
     @staticmethod
     def calc_domain_size(stlBoundingBox,sizeFactor=1,onGround=False,internalFlow=False):
         stlMinX,stlMaxX,stlMinY,stlMaxY,stlMinZ,stlMaxZ= stlBoundingBox
+        # this part is for external flow
         bbX = stlMaxX - stlMinX
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
@@ -103,9 +105,24 @@ class stlAnalysis:
         # Optionally, return the bounding box as a tuple
         return bounds
 
+    @staticmethod
+    def read_stl(stl_file_path):
+        # Check if the file exists
+        if not os.path.exists(stl_file_path):
+            raise FileNotFoundError(f"File not found: {stl_file_path}. Make sure the file exists.")
+        # Create a reader for the STL file
+        reader = vtk.vtkSTLReader()
+        reader.SetFileName(stl_file_path)
+        reader.Update()
+
+        # Get the output data from the reader
+        poly_data = reader.GetOutput()
+        return poly_data
+
+
     # to calculate the mesh settings for blockMeshDict and snappyHexMeshDict
     @staticmethod
-    def calc_mesh_settings(stlBoundingBox,nu=1e-6,rho=1000.,U=1.0,maxCellSize=0.1,sizeFactor=1.0,onGround=False,internalFlow=False):
+    def calc_mesh_settings(stlBoundingBox,nu=1e-6,rho=1000.,U=1.0,maxCellSize=0.5,sizeFactor=1.0,onGround=False,internalFlow=False):
         maxSTLLength = stlAnalysis.getMaxSTLDim(stlBoundingBox)
         if(maxCellSize < 0.001):
             maxCellSize = maxSTLLength/4.
@@ -133,6 +150,36 @@ class stlAnalysis:
             if geometry['type'] == 'triSurfaceMesh':
                 geometry['refineMin'] = refMin
                 geometry['refineMax'] = refMax
+        return meshSettings
+    
+    @staticmethod
+    def calc_center_of_mass(mesh):
+        center_of_mass_filter = vtk.vtkCenterOfMass()
+        center_of_mass_filter.SetInputData(mesh)
+        center_of_mass_filter.Update()
+        center_of_mass = center_of_mass_filter.GetCenter()
+        return center_of_mass
+    
+    @staticmethod
+    def analyze_stl(stl_file_path):
+        mesh = stlAnalysis.read_stl(stl_file_path)
+        bounds = stlAnalysis.compute_bounding_box(stl_file_path)
+        stlMinX,stlMaxX,stlMinY,stlMaxY,stlMinZ,stlMaxZ= bounds
+        outsideX = stlMaxX + 0.05*(stlMaxX-stlMinX)
+        outsideY = (stlMaxY - stlMinY)/2.
+        outsideZ = (stlMaxZ - stlMinZ)/2.
+        outsidePoint = (outsideX,outsideY,outsideZ)
+        center_of_mass = stlAnalysis.calc_center_of_mass(mesh)
+        insidePoint = find_inside_point(mesh,center_of_mass,min_bounds=None,max_bounds=None)
+        return center_of_mass, insidePoint, outsidePoint
+    
+    @staticmethod
+    def set_mesh_location(meshSettings, stl_file_path, internalFlow=False):
+        center_of_mass, insidePoint, outsidePoint = stlAnalysis.analyze_stl(stl_file_path)
+        if internalFlow:
+            meshSettings['castellatedMeshControls']['locationInMesh'] = [insidePoint[0],insidePoint[1],insidePoint[2]]
+        else:
+            meshSettings['castellatedMeshControls']['locationInMesh'] = [outsidePoint[0],outsidePoint[1],outsidePoint[2]]
         return meshSettings
 
 if __name__ == "__main__":
