@@ -1,3 +1,7 @@
+# This script generates the boundary conditions files for an OpenFOAM pimpleFoam simulation.
+# The boundary conditions are specified in the meshSettings.yaml file.
+# This is an early version of the script and will be updated in the future.
+# Brute force writing is used instead of a more elegant solution.
 import yaml
 from primitives import ampersandPrimitives
 from constants import meshSettings, boundaryConditions, inletValues

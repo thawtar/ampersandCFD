@@ -14,6 +14,13 @@ class ampersandPrimitives:
         root.withdraw()  # Hide the main window
         directory = filedialog.askdirectory(title="Select Project Directory")
         return directory if directory else None
+    
+    @staticmethod
+    def ask_for_file(filetypes=[("STL Geometry", "*.stl")]):
+        root = Tk()
+        root.withdraw()
+        file = filedialog.askopenfilename(title="Select File", filetypes=filetypes)
+        return file if file else None
 
     @staticmethod
     def dict_to_yaml(data, output_file):
@@ -132,6 +139,8 @@ class ampersandIO:
     @staticmethod
     def get_input(prompt):
         return input(prompt)
+    
+
 
 if __name__ == "__main__":
     print(ampersandPrimitives.createFoamHeader(className="dictionary",objectName="snappyHexMeshDict"))

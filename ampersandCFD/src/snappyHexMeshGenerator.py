@@ -28,7 +28,7 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
     for an_entry in meshSettings['geometry']:
         # For STL surfaces, featureEdges and refinementSurfaces are added
         if(an_entry['type'] == 'triSurfaceMesh'):
-            added_geo = f"""
+            added_geo = f"""\n
     {an_entry['name']}
     {{
         type {an_entry['type']};
@@ -36,11 +36,14 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
     }}"""
             # Add features and refinement surfaces
             if(an_entry['featureEdges']):
-                features += f"""{{
+                features += f"""
+                
+        {{
             file \"{an_entry['name'][:-4]}.eMesh\";
             level {an_entry['featureLevel']};
-            }}"""
-            refinementSurfaces+= f"""{an_entry['name'][:-4]}
+        }}"""
+            refinementSurfaces+= f"""
+        {an_entry['name'][:-4]}
         {{
             level ({an_entry['refineMin']} {an_entry['refineMax']});
         }}""" 

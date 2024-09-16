@@ -24,9 +24,9 @@ meshSettings = {
                        'snap': 'true',
                         'addLayers': 'true'},
 
-    'geometry': [{'name': 'stl1.stl','type':'triSurfaceMesh', 'refineMin': 1, 'refineMax': 3, 
-                     'featureEdges':'true','featureLevel':3,'nLayers':3},
-                {'name': 'box','type':'searchableBox', 'min': [0, 0, 0], 'max': [1, 1, 1]}],
+    'geometry': [], #[{'name': 'stl1.stl','type':'triSurfaceMesh', 'refineMin': 1, 'refineMax': 3, 
+                #     'featureEdges':'true','featureLevel':3,'nLayers':3},
+                #{'name': 'box','type':'searchableBox', 'min': [0, 0, 0], 'max': [1, 1, 1]}],
 
     'castellatedMeshControls': {'maxLocalCells': 2_000_000,
                                 'maxGlobalCells': 5_000_000,

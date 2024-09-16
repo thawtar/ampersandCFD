@@ -5,9 +5,11 @@
 
 import yaml
 import os
+import shutil
 from primitives import ampersandPrimitives, ampersandIO
 from constants import meshSettings, physicalProperties, numericalSettings, inletValues
 from constants import solverSettings, boundaryConditions, simulationSettings
+from stlAnalysis import stlAnalysis
 from blockMeshGenerator import generate_blockMeshDict
 from snappyHexMeshGenerator import generate_snappyHexMeshDict
 from surfaceExtractor import create_surfaceFeatureExtractDict
@@ -16,6 +18,7 @@ from transportAndTurbulence import create_transportPropertiesDict, create_turbul
 from boundaryConditionsGenerator import create_boundary_conditions
 from controlDictGenerator import createControlDict
 from numericalSettingsGenerator import create_fvSchemesDict, create_fvSolutionDict
+
 
 #from ../constants/constants import meshSettings
 
@@ -39,6 +42,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.settings = None
         self.project_path = None
         self.existing_project = False # flag to check if the project is already existing
+        self.stl_files = [] # list to store the settings for stl files
+        self.stl_names = [] # list to store the names of the stl files
 
     def set_project_directory(self, project_directory_path):
         if project_directory_path is None:
@@ -81,7 +86,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.existing_project = False
             return -1
 
-
+    # Create the project directory in the specified location.
+    # 0, constant, system, constant/triSurface directories are created.
     def create_project(self):
         # check if the project path exists
         if self.project_path is None:
@@ -108,12 +114,13 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             os.mkdir("0")
             os.mkdir("constant")
             os.mkdir("system")
+            os.mkdir("constant/triSurface")
         except OSError as error:
             ampersandIO.printError("File system already exists. Skipping the creation of directories")   
             return -1
         return 0 # return 0 if the project is created successfully 
 
-   
+    # write current settings to the project_settings.yaml file inside the project directory
     def write_settings(self):
         settings = {
             'meshSettings': self.meshSettings,
@@ -126,7 +133,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         }
         ampersandPrimitives.dict_to_yaml(settings, 'project_settings.yaml')
 
-    
+    # If the project is already existing, load the settings from the project_settings.yaml file
     def load_settings(self):
         settings = ampersandPrimitives.yaml_to_dict('project_settings.yaml')
         self.meshSettings = settings['meshSettings']
@@ -135,8 +142,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.inletValues = settings['inletValues']
         self.boundaryConditions = settings['boundaryConditions']
         self.solverSettings = settings['solverSettings']
-        self.settings = (self.meshSettings, self.physicalProperties, self.numericalSettings, self.inletValues, self.boundaryConditions)
+        #self.settings = (self.meshSettings, self.physicalProperties, self.numericalSettings, self.inletValues, self.boundaryConditions)
 
+    # If the project is not existing, load the default settings
     def load_default_settings(self):
         self.meshSettings = meshSettings
         self.physicalProperties = physicalProperties
@@ -145,10 +153,10 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.boundaryConditions = boundaryConditions
         self.simulationSettings = simulationSettings
         self.solverSettings = solverSettings
-        self.settings = (self.meshSettings, self.physicalProperties, 
-                         self.numericalSettings, self.inletValues, self.boundaryConditions, self.simulationSettings, self.solverSettings)
+        #self.settings = (self.meshSettings, self.physicalProperties, 
+        #                 self.numericalSettings, self.inletValues, self.boundaryConditions, self.simulationSettings, self.solverSettings)
 
-
+    # Create the settings for the project or load the existing settings
     def create_settings(self):
         if self.existing_project:
             try:
@@ -160,7 +168,67 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         else:
             self.load_default_settings()
             self.write_settings()
+
+    # Add a stl file to the project settings (self.meshSettings)
+    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', featureLevel=1, nLayers=1):
+        # stl file has the following format: 
+        # {'name': 'stl1.stl','type':'triSurfaceMesh', 'refineMin': 1, 'refineMax': 3, 
+        #             'featureEdges':'true','featureLevel':3,'nLayers':3}
+        stl_ = {'name': stl_name, 'type':'triSurfaceMesh', 'refineMin': refMin, 'refineMax': refMax, 
+                'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers}
+        
+        self.stl_names.append(stl_name)
+        self.stl_files.append(stl_)
+        
+
+    def ask_stl_settings(self,stl_file):
+        ampersandIO.printMessage(f"Settings of the {stl_file['name']} file")
+        stl_file['refineMin'] = ampersandIO.get_input("Min Refinement: ")
+        stl_file['refineMax'] = ampersandIO.get_input("Max Refinement: ")
+        featureEdges = ampersandIO.get_input("Refine Feature Edges?: (y/N) ")
+        if(featureEdges == 'y'):
+            stl_file['featureEdges'] = 'true'
+        else:    
+            stl_file['featureEdges'] = 'false'
+        stl_file['featureLevel'] = ampersandIO.get_input("Feature Level: ")
+        stl_file['nLayers'] = ampersandIO.get_input("Number of Layers: ")
+
+    def add_stl_to_project(self):
+        for stl_file in self.stl_files:
+            #self.ask_stl_settings(stl_file)
+            self.meshSettings['geometry'].append(stl_file)
+
+    def add_stl_file(self): # to only copy the STL file to the project directory and add it to the STL list
+        stl_file = ampersandPrimitives.ask_for_file([("STL Geometry", "*.stl"), ("OBJ Geometry", "*.obj")])
+        if os.path.exists(stl_file):
+            # add the stl file to the project
+            # This is a bit confusing. 
+            # stl_name is the name of the file, stl_file is the path to the file
+            file_path_to_token = stl_file.split("/")
+            stl_name = file_path_to_token[-1]
+            if stl_name in self.stl_names:
+                ampersandIO.printMessage(f"STL file {stl_name} already exists in the project")
+                return -1
+            self.add_stl_to_mesh_settings(stl_name)
+            stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
+            try:
+                ampersandIO.printMessage(f"Copying {stl_name} to the project directory")
+                shutil.copy(stl_file, stl_path)
+            except OSError as error:
+                ampersandIO.printError(error)
+                return -1
+        else:
+            ampersandIO.printMessage("File does not exist. Aborting project creation.")
+            return -1
+        return 0
+            
     
+    def list_stl_files(self):
+        i = 1
+        for stl_file in self.stl_files:
+            ampersandIO.printMessage(f"{i}:\t{stl_file['name']}")
+            i += 1
+     
     def create_project_files(self):
         #(meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)=caseSettings
         # check if the current working directory is the project directory
@@ -212,6 +280,13 @@ def main():
     project.project_path = "/Users/thawtar/Desktop/ampersand_tests/test6"
     project.create_project()
     project.create_settings()
+    yN = ampersandIO.get_input("Add STL file to the project (y/N)?")
+    while yN.lower() == 'y':
+        project.add_stl_file()
+        yN = ampersandIO.get_input("Add another STL file to the project (y/N)?: ")
+    project.add_stl_to_project()
+    # Before creating the project files, the settings are flushed to the project_settings.yaml file
+    project.write_settings()
     project.create_project_files()
 
 if __name__ == '__main__':
