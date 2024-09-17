@@ -7,20 +7,28 @@ class ScriptGenerator:
 
     @staticmethod
     def generate_mesh_script(simulationFlowSettings):
-        cmdMesh = f"""#!/bin/sh\ncd "${{0%/*}}" || exit                                # Run from this directory
+        cmdMesh = f"""#!/bin/sh
+cd "${{0%/*}}" || exit                                # Run from this directory
 . ${{WM_PROJECT_DIR:?}}/bin/tools/RunFunctions        # Tutorial run functions
 #-----------------------------------------------------
 """
         if(simulationFlowSettings['parallel']):
             cmdMesh += f"""
+cp -r 0 0.oirg
 runApplication blockMesh
+touch case.foam
 runApplication surfaceFeatureExtract
 runApplication decomposePar -force
 runParallel snappyHexMesh -overwrite
-runApplication reconstructParMesh -constant -latestTime"""
+runApplication reconstructParMesh -constant -latestTime
+rm -rf processor*
+rm log.decomposePar
+runApplication decomposePar -force
+"""
         else:
             cmdMesh += f"""
 runApplication blockMesh
+touch case.foam
 runApplication surfaceFeatureExtract
 runApplication snappyHexMesh -overwrite
     """
@@ -36,8 +44,10 @@ cd "${{0%/*}}" || exit                                # Run from this directory
 """
         if(simulationFlowSettings['parallel']):
             cmdSimulation += f"""
+rm -rf 0
 cp -r 0.orig 0
 runApplication decomposePar -force
+touch case.foam
 runParallel renumberMesh -overwrite
 """
             if(simulationFlowSettings['potentialFoam']):

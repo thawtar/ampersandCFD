@@ -356,6 +356,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         # create simulation script
         simulationScript = ScriptGenerator.generate_simulation_script(self.simulationFlowSettings)
         ampersandPrimitives.write_dict_to_file("run", simulationScript)
+        ampersandPrimitives.crlf_to_LF("mesh")
+        ampersandPrimitives.crlf_to_LF("run")
 
 
 def main():
