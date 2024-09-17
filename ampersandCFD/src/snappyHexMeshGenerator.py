@@ -104,7 +104,7 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
     for an_entry in meshSettings['geometry']:
         if(an_entry['type'] == 'triSurfaceMesh'):
             layerControls += f"""
-        {an_entry['name'][:-4]}
+        "{an_entry['name'][:-4]}.*"
         {{
             nSurfaceLayers {an_entry['nLayers']};
         }}"""

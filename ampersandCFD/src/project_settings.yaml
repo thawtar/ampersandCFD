@@ -1,15 +1,16 @@
 meshSettings:
+  name: meshSettings
   scale: 1.0
   domain:
-    minx: 0.0
-    maxx: 1.0
-    miny: 0.0
+    minx: -3.0
+    maxx: 5.0
+    miny: -1.0
     maxy: 1.0
     minz: 0.0
-    maxz: 1.0
-    nx: 20
+    maxz: 2.0
+    nx: 50
     ny: 20
-    nz: 1
+    nz: 20
   patches:
   - name: inlet
     type: patch
@@ -54,27 +55,10 @@ meshSettings:
     - 6
     - 7
   snappyHexSteps:
-    castellatedMesh: true
-    snap: true
-    addLayers: true
-  geometry:
-  - name: stl1.stl
-    type: triSurfaceMesh
-    refineMin: 1
-    refineMax: 3
-    featureEdges: true
-    featureLevel: 3
-    nLayers: 3
-  - name: box
-    type: searchableBox
-    min:
-    - 0
-    - 0
-    - 0
-    max:
-    - 1
-    - 1
-    - 1
+    castellatedMesh: 'true'
+    snap: 'true'
+    addLayers: 'true'
+  geometry: []
   castellatedMeshControls:
     maxLocalCells: 2000000
     maxGlobalCells: 5000000
@@ -89,18 +73,18 @@ meshSettings:
     - 0
     - 0
     - 0
-    allowFreeStandingZoneFaces: true
+    allowFreeStandingZoneFaces: 'true'
   snapControls:
     nSmoothPatch: 3
     tolerance: 2.0
     nSolveIter: 100
     nRelaxIter: 8
     nFeatureSnapIter: 10
-    implicitFeatureSnap: false
-    explicitFeatureSnap: true
-    multiRegionFeatureSnap: false
+    implicitFeatureSnap: 'false'
+    explicitFeatureSnap: 'true'
+    multiRegionFeatureSnap: 'false'
   addLayersControls:
-    relativeSizes: true
+    relativeSizes: 'true'
     expansionRatio: 1.2
     finalLayerThickness: 0.3
     minThickness: 0.001
@@ -132,13 +116,83 @@ meshSettings:
     errorReduction: 0.75
   mergeTolerance: 1.0e-06
   debug: 0
+physicalProperties:
+  name: physicalProperties
+  rho: 1.0
+  nu: 1.0e-06
+  g:
+  - 0
+  - 0
+  - -9.81
+  pRef: 0
+  Cp: 1000
+  thermo: hPolynomial
+  Pr: 0.7
+  TRef: 300
+  turbulenceModel: kOmegaSST
+numericalSettings:
+  ddtSchemes:
+    default: Euler
+  gradSchemes:
+    default: Gauss linear
+    grad(p): Gauss linear
+    grad(U): faceMDLimited Gauss linear 0.5
+  divSchemes:
+    default: Gauss linear
+    div(phi,U): Gauss linearUpwind grad(U)
+    div(phi,k): Gauss upwind
+    div(phi,omega): Gauss upwind
+    div(phi,epsilon): Gauss upwind
+    div(phi,nut): Gauss upwind
+    div(nuEff*dev(T(grad(U)))): Gauss linear
+  laplacianSchemes:
+    default: Gauss linear limited 0.5
+  interpolationSchemes:
+    default: linear
+  snGradSchemes:
+    default: limited 0.5
+  fluxRequired:
+    default: 'no'
+  wallDist: meshWave
+  pimpleDict:
+    nOuterCorrectors: 2
+    nCorrectors: 1
+    nNonOrthogonalCorrectors: 1
+    pRefCell: 0
+    pRefValue: 0
+  relaxationFactors:
+    U: 0.7
+    k: 0.7
+    omega: 0.7
+    epsilon: 0.7
+    nut: 0.7
+    p: 0.3
+  simpleDict:
+    nNonOrthogonalCorrectors: 2
+    consistent: 'true'
+    residualControl:
+      U: 0.0001
+      p: 0.0001
+      k: 0.0001
+      omega: 0.0001
+      epsilon: 0.0001
+      nut: 0.0001
+  potentialFlowDict:
+    nonOrthogonalCorrectors: 5
+inletValues:
+  U: &id001
+  - 1
+  - 0
+  - 0
+  p: 0
+  k: 0.1
+  omega: 1
+  epsilon: 0.1
+  nut: 0
 boundaryConditions:
   velocityInlet:
     u_type: fixedValue
-    u_value:
-    - 1
-    - 0
-    - 0
+    u_value: *id001
     p_type: zeroGradient
     p_value: 0
     k_type: fixedValue
@@ -197,49 +251,89 @@ boundaryConditions:
     epsilon_value: $internalField
     nut_type: nutkWallFunction
     nut_value: $internalField
-inletValues:
+solverSettings:
   U:
-  - 1
-  - 0
-  - 0
-  p: 0
-  k: 0.1
-  omega: 1
-  epsilon: 0.1
-  nut: 0
-
-physicalProperties:
-  rho: 1.0
-  nu: 1.0e-06
-  g:
-  - 0
-  - 0
-  - -9.81
-  pRef: 0
-  Cp: 1000
-  thermo: hPolynomial
-  Pr: 0.7
-  TRef: 300
-  turbulenceModel: kOmegaSST
-
-numericalSettings:
-  ddtScheme: Euler
-  gradSchemes:
-    default: Gauss linear
-    grad(p): Gauss linear
-    grad(U): faceMDLimited Gauss linear 0.5
-  divSchemes:
-    default: Gauss linear
-    div(phi,U): Gauss linearUpwind grad(U)
-    div(phi,k): Gauss upwind
-    div(phi,omega): Gauss upwind
-    div(phi,epsilon): Gauss upwind
-  laplacianSchemes:
-    default: Gauss linear limited 0.5
-  interpolationSchemes:
-    default: linear
-  snGradSchemes:
-    default: limited 0.5
-  fluxRequired:
-    default: 'no'
-  wallDist: meshWave
+    type: PBiCGStab
+    preconditioner: DILU
+    tolerance: 1.0e-05
+    relTol: 0.01
+    maxIter: 100
+    nSweeps: 1
+    nPreSweeps: 0
+    nPostSweeps: 0
+  p:
+    type: PCG
+    preconditioner: DIC
+    tolerance: 1.0e-05
+    relTol: 0.01
+    maxIter: 100
+    nSweeps: 1
+    nPreSweeps: 0
+    nPostSweeps: 0
+  k:
+    type: PBiCGStab
+    preconditioner: DILU
+    tolerance: 1.0e-05
+    relTol: 0.01
+    maxIter: 100
+    nSweeps: 1
+    nPreSweeps: 0
+    nPostSweeps: 0
+  omega:
+    type: PBiCGStab
+    preconditioner: DILU
+    tolerance: 1.0e-05
+    relTol: 0.01
+    maxIter: 100
+    nSweeps: 1
+    nPreSweeps: 0
+    nPostSweeps: 0
+  epsilon:
+    type: PBiCGStab
+    preconditioner: DILU
+    tolerance: 1.0e-05
+    relTol: 0.01
+    maxIter: 100
+    nSweeps: 1
+    nPreSweeps: 0
+    nPostSweeps: 0
+  nut:
+    type: PBiCGStab
+    preconditioner: DILU
+    tolerance: 1.0e-05
+    relTol: 0.01
+    maxIter: 100
+    nSweeps: 1
+    nPreSweeps: 0
+    nPostSweeps: 0
+  Phi:
+    type: PCG
+    preconditioner: DIC
+    tolerance: 1.0e-05
+    relTol: 0.01
+    maxIter: 100
+    nSweeps: 1
+    nPreSweeps: 0
+    nPostSweeps: 0
+simulationSettings:
+  application: simpleFoam
+  startTime: 0
+  endTime: 1
+  deltaT: 0.001
+  startFrom: startTime
+  stopAt: endTime
+  writeControl: timeStep
+  writeInterval: 100
+  purgeWrite: 0
+  writeFormat: binary
+  writePrecision: 6
+  writeCompression: 'off'
+  timeFormat: general
+  timePrecision: 6
+  runTimeModifiable: 'true'
+  adjustTimeStep: 'yes'
+  maxCo: 0.5
+  functions: []
+  libs: []
+  allowSystemOperations: 'true'
+  runTimeControl: adjustableRunTime

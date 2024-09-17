@@ -251,3 +251,19 @@ simulationSettings = {
     'runTimeControl': 'adjustableRunTime',
 }
 
+parallelSettings = {
+    'numberOfSubdomains': 4,
+    'method': 'scotch',
+    
+}
+
+simulationFlowSettings = {
+    'parallel': True,
+    "snappyHexMesh": True,
+    'initialize': True,
+    'potentialFoam': True,
+    'solver': 'simpleFoam',
+    'postProc': True,
+    'functionObjects': [],
+}
+

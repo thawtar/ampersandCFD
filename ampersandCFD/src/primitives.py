@@ -8,6 +8,7 @@ class ampersandPrimitives:
     def __init__(self):
         pass
 
+
     @staticmethod
     def ask_for_directory():
         root = Tk()
@@ -139,6 +140,46 @@ class ampersandIO:
     @staticmethod
     def get_input(prompt):
         return input(prompt)
+    
+    @staticmethod
+    def get_input_int(prompt):
+        return int(input(prompt))
+    
+    @staticmethod  
+    def get_input_float(prompt):
+        return float(input(prompt))
+    
+    @staticmethod
+    def get_input_vector(prompt):
+        return list(map(float, input(prompt).split()))
+    
+    @staticmethod
+    def get_input_bool(prompt):
+        return input(prompt).lower() in ['y', 'yes', 'true', '1']
+    
+
+class ampersandDataInput:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def get_inlet_values():
+        U = ampersandIO.get_input_vector("Enter the velocity vector at the inlet (m/s): ")
+        return U
+    
+    @staticmethod
+    def get_physical_properties():
+        rho = ampersandIO.get_input_float("Enter the density of the fluid (kg/m^3): ")
+        nu = ampersandIO.get_input_float("Enter the kinematic viscosity of the fluid (m^2/s): ")
+        return rho, nu
+    
+    @staticmethod
+    def choose_fluid_properties():
+        fluids = {"Air":{'rho':1.225, 'nu':1.5e-5}, "Water":{'rho':1000, 'nu':1e-6}, "Kerosene":{'rho':820, 'nu':2e-6}, "Methane":{'rho':0.717, 'nu':1.3e-5}}
+        fluid_names = list(fluids.keys())
+        fluid_name = ampersandIO.get_input_int("Choose the fluid properties:\n" + "\n".join([f"{i+1}. {fluid_names[i]}" for i in range(len(fluid_names))]) + "\n")
+        fluid = fluids[fluid_names[fluid_name-1]]
+        return fluid
     
 
 

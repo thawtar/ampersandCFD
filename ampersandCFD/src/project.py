@@ -6,11 +6,14 @@
 import yaml
 import os
 import shutil
-from primitives import ampersandPrimitives, ampersandIO
+from headers import get_ampersand_header
+from primitives import ampersandPrimitives, ampersandIO, ampersandDataInput
 from constants import meshSettings, physicalProperties, numericalSettings, inletValues
 from constants import solverSettings, boundaryConditions, simulationSettings
+from constants import simulationFlowSettings, parallelSettings
 from stlAnalysis import stlAnalysis
 from blockMeshGenerator import generate_blockMeshDict
+from decomposeParGenerator import createDecomposeParDict
 from snappyHexMeshGenerator import generate_snappyHexMeshDict
 from surfaceExtractor import create_surfaceFeatureExtractDict
 from transportAndTurbulence import create_transportPropertiesDict, create_turbulencePropertiesDict
@@ -18,7 +21,7 @@ from transportAndTurbulence import create_transportPropertiesDict, create_turbul
 from boundaryConditionsGenerator import create_boundary_conditions
 from controlDictGenerator import createControlDict
 from numericalSettingsGenerator import create_fvSchemesDict, create_fvSolutionDict
-
+from scriptGenerator import ScriptGenerator
 
 #from ../constants/constants import meshSettings
 
@@ -39,6 +42,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.inletValues = None
         self.boundaryConditions = None
         self.simulationSettings = None
+        self.simulationFlowSettings = None
+        self.parallelSettings = None
         self.settings = None
         self.project_path = None
         self.existing_project = False # flag to check if the project is already existing
@@ -46,6 +51,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.stl_names = [] # list to store the names of the stl files
         self.internalFlow = False # default is external flow
         self.onGround = False # default is off the ground
+        self.parallel = False # default is serial
+        self.snap = True # default is to use snappyHexMesh
 
     def set_project_directory(self, project_directory_path):
         if project_directory_path is None:
@@ -144,6 +151,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.inletValues = settings['inletValues']
         self.boundaryConditions = settings['boundaryConditions']
         self.solverSettings = settings['solverSettings']
+        self.simulationSettings = settings['simulationSettings']
+        self.parallelSettings = settings['parallelSettings']
+        self.simulationFlowSettings = settings['simulationFlowSettings']
         #self.settings = (self.meshSettings, self.physicalProperties, self.numericalSettings, self.inletValues, self.boundaryConditions)
 
     # If the project is not existing, load the default settings
@@ -155,6 +165,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.boundaryConditions = boundaryConditions
         self.simulationSettings = simulationSettings
         self.solverSettings = solverSettings
+        self.parallelSettings = parallelSettings
+        self.simulationFlowSettings = simulationFlowSettings
         #self.settings = (self.meshSettings, self.physicalProperties, 
         #                 self.numericalSettings, self.inletValues, self.boundaryConditions, self.simulationSettings, self.solverSettings)
 
@@ -172,10 +184,11 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.write_settings()
 
     # Add a stl file to the project settings (self.meshSettings)
-    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', featureLevel=1, nLayers=1):
+    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', featureLevel=1, nLayers=3):
         # stl file has the following format: 
         # {'name': 'stl1.stl','type':'triSurfaceMesh', 'refineMin': 1, 'refineMax': 3, 
         #             'featureEdges':'true','featureLevel':3,'nLayers':3}
+        featureLevel = refMax
         stl_ = {'name': stl_name, 'type':'triSurfaceMesh', 'refineMin': refMin, 'refineMax': refMax, 
                 'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers}
         
@@ -333,16 +346,32 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         ampersandPrimitives.write_dict_to_file("fvSchemes", fvSchemesDict)
         fvSolutionDict = create_fvSolutionDict(self.numericalSettings, self.solverSettings)
         ampersandPrimitives.write_dict_to_file("fvSolution", fvSolutionDict)
+        decomposeParDict = createDecomposeParDict(self.parallelSettings)
+        ampersandPrimitives.write_dict_to_file("decomposeParDict", decomposeParDict)
+        # go back to the main directory
+        os.chdir("..")
+        # create mesh script
+        meshScript = ScriptGenerator.generate_mesh_script(self.simulationFlowSettings)
+        ampersandPrimitives.write_dict_to_file("mesh", meshScript)
+        # create simulation script
+        simulationScript = ScriptGenerator.generate_simulation_script(self.simulationFlowSettings)
+        ampersandPrimitives.write_dict_to_file("run", simulationScript)
+
 
 def main():
     project = ampersandProject()
-    #project.set_project_directory(ampersandPrimitives.ask_for_directory())
-    #project_name = input("Enter the project name: ")
-    #project.set_project_name(project_name)
+    # Clear the screen
+    os.system('cls' if os.name == 'nt' else 'clear')
+    ampersandIO.printMessage(get_ampersand_header())
+    project.set_project_directory(ampersandPrimitives.ask_for_directory())
+    project_name = ampersandIO.get_input("Enter the project name: ")
+    project.set_project_name(project_name)
     #user_name = input("Enter the user name: ")
     #project.set_user_name(user_name)
-    #project.create_project_path_user()
-    project.project_path = "/Users/thawtar/Desktop/ampersand_tests/ahmedBody"
+    project.create_project_path()
+    ampersandIO.printMessage("Creating the project")
+    ampersandIO.printMessage(f"Project path: {project.project_path}")
+    #project.project_path = r"C:\Users\Ridwa\Desktop\CFD\ampersandTests\drivAer2"
     project.create_project()
     project.create_settings()
     yN = ampersandIO.get_input("Add STL file to the project (y/N)?: ")
@@ -357,10 +386,18 @@ def main():
         project.ask_ground_type()
     if(len(project.stl_files)>0):
         project.analyze_stl_file()
+
     #project.analyze_stl_file()
     project.write_settings()
     project.create_project_files()
 
 if __name__ == '__main__':
     # Specify the output YAML file
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        ampersandIO.printMessage("\nKeyboardInterrupt detected! Aborting project creation")
+        exit()
+    except Exception as error:
+        ampersandIO.printError(error)
+        exit()
