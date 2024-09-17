@@ -1,5 +1,5 @@
 # this is the starting point of the application
-from core import ampersand
+from ampersandCFD.src.gui_core import ampersand
 
 def main(server=None, **kwargs):
     app = ampersand(server)
