@@ -53,6 +53,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.onGround = False # default is off the ground
         self.parallel = False # default is serial
         self.snap = True # default is to use snappyHexMesh
+        self.transient = False # default is steady state
 
     def set_project_directory(self, project_directory_path):
         if project_directory_path is None:
@@ -300,6 +301,31 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path)
         return 0
     
+    def set_inlet_values(self):
+        U = ampersandDataInput.get_inlet_values()
+        self.inletValues['U'] = U
+
+    def set_fluid_properties(self):
+        fluid = ampersandDataInput.choose_fluid_properties()
+        if fluid == -1:
+            rho, nu = ampersandDataInput.get_physical_properties()
+            fluid = {'rho':rho, 'nu':nu}
+        self.physicalProperties['rho'] = fluid['rho']
+        self.physicalProperties['nu'] = fluid['nu']
+
+    def set_transient(self):
+        self.transient = ampersandIO.get_input_bool("Transient simulation (y/N)?: ")
+
+    def set_transient_settings(self):
+        if self.transient:
+            ampersandIO.printMessage("Transient simulation settings")
+            self.simulationSettings['endTime'] = ampersandIO.get_input_float("End time: ")
+            self.simulationSettings['writeInterval'] = ampersandIO.get_input_float("Write interval: ")
+            self.simulationSettings['deltaT'] = ampersandIO.get_input_float("Time step: ")
+            self.simulationSettings['adjustTimeStep'] = 'yes'
+            self.simulationSettings['maxCo'] = 0.9
+            
+
     def ask_ground_type(self):
         ground_type = ampersandIO.get_input("Is the ground touching the body (y/N): ")
         if ground_type.lower() == 'y':

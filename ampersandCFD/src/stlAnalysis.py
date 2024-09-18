@@ -30,6 +30,11 @@ class stlAnalysis:
             maxY = stlMaxY + 0.1*bbY*sizeFactor
             minZ = stlMinZ - 0.1*bbZ*sizeFactor
             maxZ = stlMaxZ + 0.1*bbZ*sizeFactor
+        if(bbX > 0.1 and bbY > 0.1 and bbZ > 0.1):
+            (minX,maxX,minY,maxY,minZ,maxZ) = (np.around(minX,decimals=1),
+                                               np.around(maxX,decimals=1),np.around(minY,decimals=1),
+                                               np.around(maxY,decimals=1),np.around(minZ,decimals=1),
+                                               np.around(maxZ,decimals=1))
         domain_size = (minX,maxX,minY,maxY,minZ,maxZ)
         return domain_size
 

@@ -14,7 +14,7 @@ cd "${{0%/*}}" || exit                                # Run from this directory
 """
         if(simulationFlowSettings['parallel']):
             cmdMesh += f"""
-cp -r 0 0.oirg
+cp -r 0 0.orig
 runApplication blockMesh
 touch case.foam
 runApplication surfaceFeatureExtract
@@ -46,6 +46,7 @@ cd "${{0%/*}}" || exit                                # Run from this directory
             cmdSimulation += f"""
 rm -rf 0
 cp -r 0.orig 0
+rm -rf log.decomposePar log.simpleFoam log.snappyHexMesh log.reconstructParMesh
 runApplication decomposePar -force
 touch case.foam
 runParallel renumberMesh -overwrite

@@ -31,7 +31,9 @@ def main():
         project.ask_ground_type()
     if(len(project.stl_files)>0):
         project.analyze_stl_file()
-
+    project.set_inlet_values()
+    project.set_fluid_properties()
+    
     #project.analyze_stl_file()
     project.write_settings()
     project.create_project_files()

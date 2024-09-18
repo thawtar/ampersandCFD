@@ -2,7 +2,7 @@
 # The boundary conditions are specified in the meshSettings.yaml file.
 # This is an early version of the script and will be updated in the future.
 # Brute force writing is used instead of a more elegant solution.
-import yaml
+#import yaml
 from primitives import ampersandPrimitives
 from constants import meshSettings, boundaryConditions, inletValues
 
@@ -53,7 +53,7 @@ def create_u_file(meshSettings,boundaryConditions):
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             U_file += f"""
-    {patch['name'][:-4]}
+    "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['wall']['u_type']};
         value uniform {tuple_to_string(boundaryConditions['wall']['u_value'])};
@@ -105,7 +105,7 @@ def create_p_file(meshSettings,boundaryConditions):
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             p_file += f"""
-    {patch['name'][:-4]}
+   "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['wall']['p_type']};
         value uniform {boundaryConditions['wall']['p_value']};
@@ -157,7 +157,7 @@ def create_k_file(meshSettings,boundaryConditions):
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             k_file += f"""
-    {patch['name'][:-4]}
+    "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['wall']['k_type']};
         value  {boundaryConditions['wall']['k_value']};
@@ -209,7 +209,7 @@ def create_omega_file(meshSettings,boundaryConditions):
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             omega_file += f"""
-    {patch['name'][:-4]}
+  "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['wall']['omega_type']};
         value  {boundaryConditions['wall']['omega_value']};
@@ -261,7 +261,7 @@ def create_epsilon_file(meshSettings,boundaryConditions):
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             epsilon_file += f"""
-    {patch['name'][:-4]}
+    "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['wall']['epsilon_type']};
         value  {boundaryConditions['wall']['epsilon_value']};
@@ -313,7 +313,7 @@ def create_nut_file(meshSettings,boundaryConditions):
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             nut_file += f"""
-    {patch['name'][:-4]}
+    "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['wall']['nut_type']};
         value  {boundaryConditions['wall']['nut_value']};
