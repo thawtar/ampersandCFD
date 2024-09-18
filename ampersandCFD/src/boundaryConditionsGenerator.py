@@ -14,7 +14,7 @@ def tuple_to_string(t):
 def create_u_file(meshSettings,boundaryConditions):
     header = ampersandPrimitives.createFoamHeader(className="volVectorField", objectName="U")
     dims = ampersandPrimitives.createDimensions(M=0,L=1,T=-1)
-    internalField = ampersandPrimitives.createInternalFieldVector(type="uniform", value=boundaryConditions['velocityInlet']['u_type'])
+    internalField = ampersandPrimitives.createInternalFieldVector(type="uniform", value=boundaryConditions['velocityInlet']['u_value'])
     U_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
 {"""
     # Loop through patches for each boundary condition

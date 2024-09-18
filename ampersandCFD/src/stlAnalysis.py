@@ -7,6 +7,13 @@ class stlAnalysis:
     def __init__(self):
         pass
 
+    @staticmethod
+    def roundl(x):
+        if(x>0):
+            return float(np.around(x+0.5,decimals=1))
+        else:
+            return float(np.around(x-0.5,decimals=1))
+
     # to calculate the domain size for blockMeshDict
     @staticmethod
     def calc_domain_size(stlBoundingBox,sizeFactor=1,onGround=False,internalFlow=False):
@@ -30,11 +37,20 @@ class stlAnalysis:
             maxY = stlMaxY + 0.1*bbY*sizeFactor
             minZ = stlMinZ - 0.1*bbZ*sizeFactor
             maxZ = stlMaxZ + 0.1*bbZ*sizeFactor
+        """
         if(bbX > 0.1 and bbY > 0.1 and bbZ > 0.1):
             (minX,maxX,minY,maxY,minZ,maxZ) = (np.around(minX,decimals=1),
                                                np.around(maxX,decimals=1),np.around(minY,decimals=1),
                                                np.around(maxY,decimals=1),np.around(minZ,decimals=1),
                                                np.around(maxZ,decimals=1))
+        """
+        if(bbX > 0.1 and bbY > 0.1 and bbZ > 0.1):
+            minX = stlAnalysis.roundl(minX)
+            maxX = stlAnalysis.roundl(maxX)
+            minY = stlAnalysis.roundl(minY)
+            maxY = stlAnalysis.roundl(maxY)
+            minZ = stlAnalysis.roundl(minZ)
+            maxZ = stlAnalysis.roundl(maxZ)
         domain_size = (minX,maxX,minY,maxY,minZ,maxZ)
         return domain_size
 

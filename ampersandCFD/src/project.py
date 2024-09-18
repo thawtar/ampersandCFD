@@ -104,7 +104,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             ampersandIO.printMessage("No project path selected. Aborting project creation.")
             return -1
         if os.path.exists(self.project_path):
-            ampersandIO.printMessage("Directory exists")
+            ampersandIO.printMessage("Project already exists. Skipping the creation of directories")
+            self.existing_project = True
         else:
             ampersandIO.printMessage("Creating project directory")
             try:
@@ -139,12 +140,17 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             'inletValues': self.inletValues,
             'boundaryConditions': self.boundaryConditions,
             'solverSettings': self.solverSettings,
-            'simulationSettings': self.simulationSettings
+            'simulationSettings': self.simulationSettings,
+            'parallelSettings': self.parallelSettings,
+            'simulationFlowSettings': self.simulationFlowSettings,
         }
+        print(self.meshSettings)
+        ampersandIO.printMessage("Writing settings to project_settings.yaml")
         ampersandPrimitives.dict_to_yaml(settings, 'project_settings.yaml')
 
     # If the project is already existing, load the settings from the project_settings.yaml file
     def load_settings(self):
+        ampersandIO.printMessage("Loading project settings")
         settings = ampersandPrimitives.yaml_to_dict('project_settings.yaml')
         self.meshSettings = settings['meshSettings']
         self.physicalProperties = settings['physicalProperties']
@@ -174,6 +180,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # Create the settings for the project or load the existing settings
     def create_settings(self):
         if self.existing_project:
+            ampersandIO.printMessage("Project already exists. Loading project settings")
             try:
                 self.load_settings()
             except FileNotFoundError:
@@ -362,6 +369,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         # go inside the system directory
         os.chdir("system")
         # create the controlDict file
+        ampersandIO.printMessage("Creating the system files")
         controlDict = createControlDict(simulationSettings)
         ampersandPrimitives.write_dict_to_file("controlDict", controlDict)
         blockMeshDict = generate_blockMeshDict(self.meshSettings)
@@ -379,6 +387,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         # go back to the main directory
         os.chdir("..")
         # create mesh script
+        ampersandIO.printMessage("Creating the mesh and simulation scripts")
         meshScript = ScriptGenerator.generate_mesh_script(self.simulationFlowSettings)
         ampersandPrimitives.write_dict_to_file("mesh", meshScript)
         # create simulation script

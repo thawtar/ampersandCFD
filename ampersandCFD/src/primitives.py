@@ -3,7 +3,6 @@ import yaml
 import sys
 from tkinter import filedialog, Tk
 
-
 class ampersandPrimitives:
     def __init__(self):
         pass
@@ -17,6 +16,7 @@ class ampersandPrimitives:
         content = content.replace(WINDOWS_LINE_ENDING, UNIX_LINE_ENDING)
         with open(file_path, 'wb') as f:
             f.write(content)
+
 
     @staticmethod
     def ask_for_directory():
@@ -43,7 +43,7 @@ class ampersandPrimitives:
         """
         with open(output_file, 'w') as file:
             yaml.dump(data, file, default_flow_style=False, sort_keys=False)
-        print(f"YAML file '{output_file}' has been created.")
+        #print(f"YAML file '{output_file}' has been created.")
 
 
     @staticmethod
