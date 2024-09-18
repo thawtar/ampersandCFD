@@ -283,6 +283,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def analyze_stl_file(self,stl_file_number=0):
         rho = self.physicalProperties['rho']
         nu = self.physicalProperties['nu']
+        U = max(self.inletValues['U'])
         try:
             stl_file_number = int(stl_file_number)
         except ValueError:
@@ -296,7 +297,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         print(f"Analyzing {stl_name}")
         stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
-        domain_size, nx, ny, nz, refLevel = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,onGround=self.onGround,internalFlow=self.internalFlow)
+        domain_size, nx, ny, nz, refLevel = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,U=U,onGround=self.onGround,internalFlow=self.internalFlow)
         self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel) 
         self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path)
         return 0
@@ -304,6 +305,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def set_inlet_values(self):
         U = ampersandDataInput.get_inlet_values()
         self.inletValues['U'] = U
+        self.boundaryConditions['velocityInlet']['u_value'] = U
 
     def set_fluid_properties(self):
         fluid = ampersandDataInput.choose_fluid_properties()
@@ -354,7 +356,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         # go inside the 0 directory
         os.chdir("0")
         # create the initial conditions file
-        create_boundary_conditions(self.meshSettings, self.boundaryConditions, self.inletValues)    
+        create_boundary_conditions(self.meshSettings, self.boundaryConditions)    
         # go back to the main directory 
         os.chdir("..")
         # go inside the system directory

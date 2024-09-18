@@ -29,11 +29,14 @@ def main():
     project.ask_flow_type()
     if(project.internalFlow!=True):
         project.ask_ground_type()
+    ampersandIO.printMessage("Fluid properties and inlet values are necessary for mesh size calculations")
+    project.set_fluid_properties()
+    project.set_inlet_values()
     if(len(project.stl_files)>0):
         project.analyze_stl_file()
-    project.set_inlet_values()
-    project.set_fluid_properties()
     
+    
+
     #project.analyze_stl_file()
     project.write_settings()
     project.create_project_files()

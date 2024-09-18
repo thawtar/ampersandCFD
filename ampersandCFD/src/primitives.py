@@ -92,7 +92,7 @@ FoamFile
         return f"""\ninternalField   {type} {value};"""
     
     @staticmethod
-    def createInternalFieldVector(type="uniform",value=(0,0,0)):
+    def createInternalFieldVector(type="uniform",value=[0,0,0]):
         return f"""\ninternalField   {type} ({value[0]} {value[1]} {value[2]});"""
 
     @staticmethod

@@ -14,7 +14,7 @@ def tuple_to_string(t):
 def create_u_file(meshSettings,boundaryConditions):
     header = ampersandPrimitives.createFoamHeader(className="volVectorField", objectName="U")
     dims = ampersandPrimitives.createDimensions(M=0,L=1,T=-1)
-    internalField = ampersandPrimitives.createInternalFieldVector(type="uniform", value=(0,0,0))
+    internalField = ampersandPrimitives.createInternalFieldVector(type="uniform", value=boundaryConditions['velocityInlet']['u_type'])
     U_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
 {"""
     # Loop through patches for each boundary condition
@@ -323,8 +323,23 @@ def create_nut_file(meshSettings,boundaryConditions):
 }"""
     return nut_file
 
+def update_boundary_conditions(boundaryConditions, inletValues):
+    """
+    Update boundary conditions with inlet values.
 
-def create_boundary_conditions(meshSettings, boundaryConditions, inletValues):
+    Parameters:
+    boundaryConditions (dict): Dictionary specifying boundary conditions for U, p, k, and omega.
+    inletValues (dict): Dictionary specifying inlet values for U, p, k, and omega.
+    """
+    boundaryConditions['velocityInlet']['u_value'] = inletValues['U']
+    boundaryConditions['velocityInlet']['p_value'] = inletValues['p']
+    boundaryConditions['velocityInlet']['k_value'] = inletValues['k']
+    boundaryConditions['velocityInlet']['omega_value'] = inletValues['omega']
+    boundaryConditions['velocityInlet']['epsilon_value'] = inletValues['epsilon']
+    boundaryConditions['velocityInlet']['nut_value'] = inletValues['nut']
+    return boundaryConditions
+
+def create_boundary_conditions(meshSettings, boundaryConditions):
     """
     Create boundary condition files for an OpenFOAM pimpleFoam simulation.
 

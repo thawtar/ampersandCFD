@@ -119,8 +119,8 @@ numericalSettings = {
     'pimpleDict': {'nOuterCorrectors': 2, 'nCorrectors': 1, 
                    'nNonOrthogonalCorrectors': 1, 
                    'pRefCell': 0, 'pRefValue': 0},
-    'relaxationFactors': {'U': 0.7, 'k': 0.7, 'omega': 0.7, 'epsilon': 0.7, 'nut': 0.7, 'p': 0.3}, 
-    'simpleDict':{'nNonOrthogonalCorrectors': 2, 'consistent': 'true', 'residualControl': {'U': 1e-4, 'p': 1e-4, 'k': 1e-4, 'omega': 1e-4, 'epsilon': 1e-4, 'nut': 1e-4}},
+    'relaxationFactors': {'U': 0.8, 'k': 0.7, 'omega': 0.7, 'epsilon': 0.7, 'nut': 0.7, 'p': 0.3}, 
+    'simpleDict':{'nNonOrthogonalCorrectors': 2, 'consistent': 'false', 'residualControl': {'U': 1e-4, 'p': 1e-4, 'k': 1e-4, 'omega': 1e-4, 'epsilon': 1e-4, 'nut': 1e-4}},
     'potentialFlowDict':{'nonOrthogonalCorrectors': 5},
 }
 
