@@ -325,7 +325,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         featureLevel = max(refLevel-1,1)
         self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel, featureLevel) 
         self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path)
-        self.meshSettings = stlAnalysis.addRefinementBoxToMesh(self.meshSettings, stl_path)
+        refinementBoxLevel = max(2,refLevel-3)
+        self.meshSettings = stlAnalysis.addRefinementBoxToMesh(self.meshSettings, stl_path,refinementBoxLevel)
         return 0
     
     def set_inlet_values(self):
@@ -363,6 +364,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
 
     def ask_refinement_level(self):
         self.refinement = ampersandDataInput.get_mesh_refinement_level()
+        self.meshSettings['fineLevel'] = self.refinement
      
     def create_project_files(self):
         #(meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)=caseSettings

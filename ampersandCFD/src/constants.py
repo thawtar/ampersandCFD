@@ -41,9 +41,9 @@ meshSettings = {
                                 'locationInMesh': [0, 0, 0],
                                 'allowFreeStandingZoneFaces': 'false'},
 
-    'snapControls': {'nSmoothPatch': 3,
+    'snapControls': {'nSmoothPatch': 5,
                         'tolerance': 1.5,
-                        'nSolveIter': 200,
+                        'nSolveIter': 300,
                         'nRelaxIter': 8,
                         'nFeatureSnapIter': 10,
                         'implicitFeatureSnap': 'false',

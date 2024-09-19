@@ -86,12 +86,12 @@ class stlAnalysis:
         return (boxMinX,boxMaxX,boxMinY,boxMaxY,boxMinZ,boxMaxZ)
     
     @staticmethod
-    def addRefinementBoxToMesh(meshSettings,stl_path,boxName='refinementBox'):
+    def addRefinementBoxToMesh(meshSettings,stl_path,boxName='refinementBox',refLevel=2):
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
         box = stlAnalysis.getRefinementBox(stlBoundingBox)
         meshSettings['geometry'].append({'name': boxName,'type':'searchableBox', 
                                          'min': [box[0], box[2], box[4]], 'max': [box[1], box[3], box[5]],
-                                         'refineMax': 2})
+                                         'refineMax': refLevel})
         return meshSettings
 
     # to calculate nearest wall thickness for a target yPlus value
@@ -195,11 +195,11 @@ class stlAnalysis:
         if(refinement==0):
             refLevel = max(1,refLevel)
         elif(refinement==1):
-            refLevel = max(2,refLevel+1)
+            refLevel = max(2,refLevel)
         elif(refinement==2):
-            refLevel = max(3,refLevel+2)
+            refLevel = max(3,refLevel)
         else:
-            refLevel = max(2,refLevel+1)
+            refLevel = max(2,refLevel)
         # print the summary of results
         print(f"Domain size {domain_size}")
         print(f"Simple grading: {nx},{ny},{nz}")
