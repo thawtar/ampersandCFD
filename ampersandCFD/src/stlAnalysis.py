@@ -166,7 +166,7 @@ class stlAnalysis:
     # to calculate the mesh settings for blockMeshDict and snappyHexMeshDict
     @staticmethod
     def calc_mesh_settings(stlBoundingBox,nu=1e-6,rho=1000.,U=1.0,maxCellSize=0.5,sizeFactor=1.0,
-                           expansion_ratio=1.5,onGround=False,internalFlow=False,refinement=1,nLayers=5):
+                           expansion_ratio=1.2,onGround=False,internalFlow=False,refinement=1,nLayers=5):
         maxSTLLength = stlAnalysis.getMaxSTLDim(stlBoundingBox)
         if(maxCellSize < 0.001):
             maxCellSize = maxSTLLength/4.
@@ -181,7 +181,7 @@ class stlAnalysis:
             nLayers = 5
         elif(refinement==2):
             target_yPlus = 50
-            nLayers = 7
+            nLayers = 5
             backgroundCellSize = min(maxSTLLength/10.,maxCellSize)
         else:
             backgroundCellSize = min(maxSTLLength/8.,maxCellSize) # medium setting for default
