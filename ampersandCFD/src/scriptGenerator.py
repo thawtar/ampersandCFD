@@ -15,6 +15,7 @@ cd "${{0%/*}}" || exit                                # Run from this directory
         if(simulationFlowSettings['parallel']):
             cmdMesh += f"""
 cp -r 0 0.orig
+rm -rf log.*
 runApplication blockMesh
 touch case.foam
 runApplication surfaceFeatureExtract

@@ -11,7 +11,8 @@ meshSettings = {
         'nx': 50,
         'ny': 20,
         'nz': 20},
-    
+    'maxCellSize': 0.5,
+    'fineLevel': 1,
     'patches': [
         {'name': 'inlet', 'type': 'patch','faces': [0, 4, 7, 3]},
         {'name': 'outlet', 'type': 'patch','faces': [1, 5, 6, 2]},
@@ -29,7 +30,7 @@ meshSettings = {
                 #{'name': 'box','type':'searchableBox', 'min': [0, 0, 0], 'max': [1, 1, 1]}],
 
     'castellatedMeshControls': {'maxLocalCells': 2_000_000,
-                                'maxGlobalCells': 5_000_000,
+                                'maxGlobalCells': 10_000_000,
                                 'minRefinementCells': 5,
                                 'maxLoadUnbalance': 0.10,
                                 'nCellsBetweenLevels': 5,
@@ -38,11 +39,11 @@ meshSettings = {
                                 'resolveFeatureAngle': 30,
                                 'refinementRegions': [],
                                 'locationInMesh': [0, 0, 0],
-                                'allowFreeStandingZoneFaces': 'true'},
+                                'allowFreeStandingZoneFaces': 'false'},
 
     'snapControls': {'nSmoothPatch': 3,
-                        'tolerance': 2.0,
-                        'nSolveIter': 100,
+                        'tolerance': 1.5,
+                        'nSolveIter': 200,
                         'nRelaxIter': 8,
                         'nFeatureSnapIter': 10,
                         'implicitFeatureSnap': 'false',
@@ -50,9 +51,9 @@ meshSettings = {
                         'multiRegionFeatureSnap': 'false'},
 
     'addLayersControls': {'relativeSizes': 'true',
-                            'expansionRatio': 1.2,
-                            'finalLayerThickness': 0.3,
-                            'minThickness': 0.001,
+                            'expansionRatio': 1.5,
+                            'finalLayerThickness': 0.4,
+                            'minThickness': 0.0001,
                             'nGrow': 0,
                             'featureAngle': 180,
                             'nRelaxIter': 5,
@@ -66,7 +67,7 @@ meshSettings = {
                             'nLayerIter': 10,
                             'nRelaxIter': 5},
 
-    'meshQualityControls': {'maxNonOrtho': 75,
+    'meshQualityControls': {'maxNonOrtho': 65,
                             'maxBoundarySkewness': 4,
                             'maxInternalSkewness': 4,
                             'maxConcave': 180,

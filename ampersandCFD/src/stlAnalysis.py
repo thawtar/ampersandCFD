@@ -70,6 +70,29 @@ class stlAnalysis:
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
         return min(bbX,bbY,bbZ)
+    
+    @staticmethod
+    def getRefinementBox(stlBoundingBox):
+        stlMinX,stlMaxX,stlMinY,stlMaxY,stlMinZ,stlMaxZ= stlBoundingBox
+        bbX = stlMaxX - stlMinX
+        bbY = stlMaxY - stlMinY
+        bbZ = stlMaxZ - stlMinZ
+        boxMinX = stlMinX + 0.1*bbX
+        boxMaxX = stlMaxX + 2.5*bbX
+        boxMinY = stlMinY - 0.25*bbY
+        boxMaxY = stlMaxY + 0.25*bbY
+        boxMinZ = stlMinZ - 0.25*bbZ
+        boxMaxZ = stlMaxZ + 0.25*bbZ
+        return (boxMinX,boxMaxX,boxMinY,boxMaxY,boxMinZ,boxMaxZ)
+    
+    @staticmethod
+    def addRefinementBoxToMesh(meshSettings,stl_path,boxName='refinementBox'):
+        stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
+        box = stlAnalysis.getRefinementBox(stlBoundingBox)
+        meshSettings['geometry'].append({'name': boxName,'type':'searchableBox', 
+                                         'min': [box[0], box[2], box[4]], 'max': [box[1], box[3], box[5]],
+                                         'refineMax': 2})
+        return meshSettings
 
     # to calculate nearest wall thickness for a target yPlus value
     @staticmethod
@@ -142,34 +165,62 @@ class stlAnalysis:
 
     # to calculate the mesh settings for blockMeshDict and snappyHexMeshDict
     @staticmethod
-    def calc_mesh_settings(stlBoundingBox,nu=1e-6,rho=1000.,U=1.0,maxCellSize=0.5,sizeFactor=1.0,onGround=False,internalFlow=False):
+    def calc_mesh_settings(stlBoundingBox,nu=1e-6,rho=1000.,U=1.0,maxCellSize=0.5,sizeFactor=1.0,
+                           expansion_ratio=1.5,onGround=False,internalFlow=False,refinement=1,nLayers=5):
         maxSTLLength = stlAnalysis.getMaxSTLDim(stlBoundingBox)
         if(maxCellSize < 0.001):
             maxCellSize = maxSTLLength/4.
         domain_size = stlAnalysis.calc_domain_size(stlBoundingBox=stlBoundingBox,sizeFactor=sizeFactor,onGround=onGround,internalFlow=internalFlow)
-        backgroundCellSize = min(maxSTLLength/6.,maxCellSize) # this is the size of largest blockMesh cells
+        if(refinement==0):
+            backgroundCellSize = min(maxSTLLength/6.,maxCellSize) # this is the size of largest blockMesh cells
+            target_yPlus = 200
+            nLayers = 3
+        elif(refinement==1):
+            backgroundCellSize = min(maxSTLLength/8.,maxCellSize)
+            target_yPlus = 100
+            nLayers = 5
+        elif(refinement==2):
+            target_yPlus = 50
+            nLayers = 7
+            backgroundCellSize = min(maxSTLLength/10.,maxCellSize)
+        else:
+            backgroundCellSize = min(maxSTLLength/8.,maxCellSize) # medium setting for default
+            target_yPlus = 100
         nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,backgroundCellSize)
         L = maxSTLLength # this is the characteristic length to be used in Re calculations
-        target_y = stlAnalysis.calc_y(nu,rho,L,U,target_yPlus=200) # this is the thickness of closest cell
-        targetCellSize = stlAnalysis.calc_cell_size(target_y,expRatio=1.3,thicknessRatio=0.4)
+        target_y = stlAnalysis.calc_y(nu,rho,L,U,target_yPlus=target_yPlus) # this is the thickness of closest cell
+        targetCellSize = stlAnalysis.calc_cell_size(target_y,expRatio=expansion_ratio,thicknessRatio=0.4,nLayers=nLayers)
         refLevel = stlAnalysis.calc_refinement_levels(backgroundCellSize,targetCellSize)
+        # adjust refinement levels based on coarse, medium, fine settings
+        if(refinement==0):
+            refLevel = max(1,refLevel)
+        elif(refinement==1):
+            refLevel = max(2,refLevel+1)
+        elif(refinement==2):
+            refLevel = max(3,refLevel+2)
+        else:
+            refLevel = max(2,refLevel+1)
         # print the summary of results
         print(f"Domain size {domain_size}")
         print(f"Simple grading: {nx},{ny},{nz}")
         print(f"Target Y:{target_y}")
         print(f"Refinement Level:{refLevel}")
         return domain_size, nx, ny, nz, refLevel
+    
+    
 
     # to set mesh settings for blockMeshDict and snappyHexMeshDict 
     @staticmethod
-    def set_mesh_settings(meshSettings, domain_size, nx, ny, nz, refLevel):
+    def set_mesh_settings(meshSettings, domain_size, nx, ny, nz, refLevel,featureLevel=1):
         meshSettings['domain'] = {'minx': domain_size[0], 'maxx': domain_size[1], 'miny': domain_size[2], 'maxy': domain_size[3], 'minz': domain_size[4], 'maxz': domain_size[5], 'nx': nx, 'ny': ny, 'nz': nz}
-        refMin = max(1,refLevel-2)
-        refMax = refLevel
+        refMin = max(2,refLevel-2)
+        refMax = max(3,refLevel)
         for geometry in meshSettings['geometry']:
             if geometry['type'] == 'triSurfaceMesh':
                 geometry['refineMin'] = refMin
                 geometry['refineMax'] = refMax
+                #geometry['featureEdges'] = 'true'
+                geometry['featureLevel'] = featureLevel
         return meshSettings
     
     @staticmethod

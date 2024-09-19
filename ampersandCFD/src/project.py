@@ -54,6 +54,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.parallel = False # default is serial
         self.snap = True # default is to use snappyHexMesh
         self.transient = False # default is steady state
+        self.refinement = 0 # 0: coarse, 1: medium, 2: fine
 
     def set_project_directory(self, project_directory_path):
         if project_directory_path is None:
@@ -161,6 +162,13 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.simulationSettings = settings['simulationSettings']
         self.parallelSettings = settings['parallelSettings']
         self.simulationFlowSettings = settings['simulationFlowSettings']
+        for geometry in self.meshSettings['geometry']:
+            if(geometry['type']=='triSurfaceMesh'):
+                if(geometry['name'] in self.stl_names):
+                    ampersandIO.printMessage(f"STL file {geometry['name']} already exists in the project, skipping the addition")
+                else:
+                    self.stl_files.append(geometry)
+                    self.stl_names.append(geometry['name'])
         #self.settings = (self.meshSettings, self.physicalProperties, self.numericalSettings, self.inletValues, self.boundaryConditions)
 
     # If the project is not existing, load the default settings
@@ -192,11 +200,17 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.write_settings()
 
     # Add a stl file to the project settings (self.meshSettings)
-    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', featureLevel=1, nLayers=3):
+    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', featureLevel=1):
         # stl file has the following format: 
         # {'name': 'stl1.stl','type':'triSurfaceMesh', 'refineMin': 1, 'refineMax': 3, 
         #             'featureEdges':'true','featureLevel':3,'nLayers':3}
-        featureLevel = refMax
+        #featureLevel = refMax
+        if self.refinement == 0:
+            nLayers = 3
+        elif self.refinement == 1:
+            nLayers = 5
+        else:
+            nLayers = 7
         stl_ = {'name': stl_name, 'type':'triSurfaceMesh', 'refineMin': refMin, 'refineMax': refMax, 
                 'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers}
         
@@ -291,6 +305,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         rho = self.physicalProperties['rho']
         nu = self.physicalProperties['nu']
         U = max(self.inletValues['U'])
+        ER = self.meshSettings['addLayersControls']['expansionRatio']
         try:
             stl_file_number = int(stl_file_number)
         except ValueError:
@@ -304,9 +319,13 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         print(f"Analyzing {stl_name}")
         stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
-        domain_size, nx, ny, nz, refLevel = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,U=U,maxCellSize=2.0,onGround=self.onGround,internalFlow=self.internalFlow)
-        self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel) 
+        domain_size, nx, ny, nz, refLevel = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,U=U,maxCellSize=2.0,expansion_ratio=ER,
+                                                                           onGround=self.onGround,internalFlow=self.internalFlow,
+                                                                           refinement=self.refinement)
+        featureLevel = max(refLevel-1,1)
+        self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel, featureLevel) 
         self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path)
+        self.meshSettings = stlAnalysis.addRefinementBoxToMesh(self.meshSettings, stl_path)
         return 0
     
     def set_inlet_values(self):
@@ -341,6 +360,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.onGround = True
         else:
             self.onGround = False
+
+    def ask_refinement_level(self):
+        self.refinement = ampersandDataInput.get_mesh_refinement_level()
      
     def create_project_files(self):
         #(meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)=caseSettings

@@ -19,6 +19,8 @@ def main():
     #project.project_path = r"C:\Users\Ridwa\Desktop\CFD\ampersandTests\drivAer2"
     project.create_project()
     project.create_settings()
+    ampersandIO.printMessage("Preparing for mesh generation")
+    project.ask_refinement_level()
     yN = ampersandIO.get_input("Add STL file to the project (y/N)?: ")
     while yN.lower() == 'y':
         project.add_stl_file()
@@ -32,11 +34,10 @@ def main():
     ampersandIO.printMessage("Fluid properties and inlet values are necessary for mesh size calculations")
     project.set_fluid_properties()
     project.set_inlet_values()
+    
     if(len(project.stl_files)>0):
         project.analyze_stl_file()
     
-    
-
     #project.analyze_stl_file()
     project.write_settings()
     project.create_project_files()

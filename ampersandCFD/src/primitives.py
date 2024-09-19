@@ -184,14 +184,23 @@ class ampersandDataInput:
     
     @staticmethod
     def choose_fluid_properties():
-        fluids = {"Air":{'rho':1.225, 'nu':1.5e-5}, "Water":{'rho':1000, 'nu':1e-6}, "Kerosene":{'rho':820, 'nu':2e-6}, "Methane":{'rho':0.717, 'nu':1.3e-5}}
+        fluids = {"Air":{'rho':1.225, 'nu':1.5e-5}, "Water":{'rho':1000, 'nu':1e-6}, }
         fluid_names = list(fluids.keys())
         fluid_name = ampersandIO.get_input_int("Choose the fluid properties:\n" + "\n".join([f"{i+1}. {fluid_names[i]}" for i in range(len(fluid_names))]) + "\n")
         if(fluid_name>len(fluids) or fluid_name<=0):
-            ampersandIO.printError("Invalid fluid choice. Please input fluid properties manually.")
-            return -1
+            ampersandIO.printMessage("Invalid fluid choice. Please input fluid properties manually.")
+            rho, nu = ampersandDataInput.get_physical_properties()
+            return {'rho':rho, 'nu':nu}
         fluid = fluids[fluid_names[fluid_name-1]]
         return fluid
+    
+    @staticmethod
+    def get_mesh_refinement_level():
+        refLevel = ampersandIO.get_input_int("Enter the mesh refinement (0: coarse, 1: medium, 2: fine): ")
+        if refLevel not in [0,1,2]:
+            ampersandIO.printMessage("Invalid mesh refinement level. Defaulting to medium.")
+            refLevel = 1
+        return refLevel
     
 
 

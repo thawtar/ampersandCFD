@@ -23,10 +23,12 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
 
     features = ""
     refinementSurfaces = ""
-
+    maxRefinementLevel = 1
+    minRefinementRegionLevel = 2
     geometry = f"""\ngeometry\n{{"""
     for an_entry in meshSettings['geometry']:
         # For STL surfaces, featureEdges and refinementSurfaces are added
+        maxRefinementLevel = max(maxRefinementLevel, an_entry['refineMax'])
         if(an_entry['type'] == 'triSurfaceMesh'):
             added_geo = f"""\n
     {an_entry['name']}
@@ -40,7 +42,7 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
                 
         {{
             file \"{an_entry['name'][:-4]}.eMesh\";
-            level {an_entry['featureLevel']};
+            level {an_entry['refineMax']};
         }}"""
             refinementSurfaces+= f"""
         {an_entry['name'][:-4]}
@@ -61,6 +63,16 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
     geometry += f"""\n}}"""
 
     
+    refinementRegions = f""
+    for an_entry in meshSettings['geometry']:
+        if(an_entry['type'] == 'searchableBox'):
+            refinementRegions += f"""
+        {an_entry['name']}
+        {{
+            mode inside;
+            levels ((1E15 {an_entry['refineMax']})); 
+        }}"""
+    
     castellatedMeshControls = f"""\ncastellatedMeshControls
 {{
     maxLocalCells {meshSettings['castellatedMeshControls']['maxLocalCells']};
@@ -79,7 +91,7 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
     resolveFeatureAngle {meshSettings['castellatedMeshControls']['resolveFeatureAngle']};
     refinementRegions
     {{
-        // no regions specified
+        {refinementRegions}
     }};
     locationInMesh ({meshSettings['castellatedMeshControls']['locationInMesh'][0]} {meshSettings['castellatedMeshControls']['locationInMesh'][1]} {meshSettings['castellatedMeshControls']['locationInMesh'][2]});
     allowFreeStandingZoneFaces {meshSettings['castellatedMeshControls']['allowFreeStandingZoneFaces']};
