@@ -144,7 +144,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             'parallelSettings': self.parallelSettings,
             'simulationFlowSettings': self.simulationFlowSettings,
         }
-        print(self.meshSettings)
+        #print(self.meshSettings)
         ampersandIO.printMessage("Writing settings to project_settings.yaml")
         ampersandPrimitives.dict_to_yaml(settings, 'project_settings.yaml')
 
@@ -304,7 +304,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         print(f"Analyzing {stl_name}")
         stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
-        domain_size, nx, ny, nz, refLevel = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,U=U,onGround=self.onGround,internalFlow=self.internalFlow)
+        domain_size, nx, ny, nz, refLevel = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,U=U,maxCellSize=2.0,onGround=self.onGround,internalFlow=self.internalFlow)
         self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel) 
         self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path)
         return 0

@@ -9,10 +9,8 @@ class stlAnalysis:
 
     @staticmethod
     def roundl(x):
-        if(x>0):
-            return float(np.around(x+0.5,decimals=1))
-        else:
-            return float(np.around(x-0.5,decimals=1))
+        return float(np.around(x,decimals=1))
+        
 
     # to calculate the domain size for blockMeshDict
     @staticmethod
@@ -22,14 +20,13 @@ class stlAnalysis:
         bbX = stlMaxX - stlMinX
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
-        minX = stlMinX - 2*bbX*sizeFactor
-        maxX = stlMaxX + 7*bbX*sizeFactor
+        minX = stlMinX - 1.5*bbX*sizeFactor
+        maxX = stlMaxX + 5*bbX*sizeFactor
         minY = stlMinY - 3*bbY*sizeFactor
         maxY = stlMaxY + 3*bbY*sizeFactor
         minZ = stlMinZ - 5*bbZ*sizeFactor
         maxZ = stlMaxZ + 5*bbZ*sizeFactor
-        if onGround: # the the body is touching the ground
-            minZ = stlMinZ
+        
         if(internalFlow):
             minX = stlMinX - 0.1*bbX*sizeFactor
             maxX = stlMaxX + 0.1*bbX*sizeFactor
@@ -51,6 +48,8 @@ class stlAnalysis:
             maxY = stlAnalysis.roundl(maxY)
             minZ = stlAnalysis.roundl(minZ)
             maxZ = stlAnalysis.roundl(maxZ)
+        if onGround: # the the body is touching the ground
+            minZ = stlMinZ
         domain_size = (minX,maxX,minY,maxY,minZ,maxZ)
         return domain_size
 
