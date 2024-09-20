@@ -79,10 +79,10 @@ class stlAnalysis:
         bbZ = stlMaxZ - stlMinZ
         boxMinX = stlMinX + 0.1*bbX
         boxMaxX = stlMaxX + 2.5*bbX
-        boxMinY = stlMinY - 0.25*bbY
-        boxMaxY = stlMaxY + 0.25*bbY
-        boxMinZ = stlMinZ - 0.25*bbZ
-        boxMaxZ = stlMaxZ + 0.25*bbZ
+        boxMinY = stlMinY - 0.45*bbY
+        boxMaxY = stlMaxY + 0.45*bbY
+        boxMinZ = stlMinZ - 0.45*bbZ
+        boxMaxZ = stlMaxZ + 0.45*bbZ
         return (boxMinX,boxMaxX,boxMinY,boxMaxY,boxMinZ,boxMaxZ)
     
     @staticmethod
@@ -110,7 +110,7 @@ class stlAnalysis:
     @staticmethod
     def calc_cell_size(y_=0.001,nLayers=5,expRatio=1.2,thicknessRatio=0.3):
         max_y = y_*expRatio**(nLayers)
-        return max_y*thicknessRatio
+        return max_y/thicknessRatio
 
     @staticmethod
     def calc_refinement_levels(max_cell_size=0.1,target_cell_size=0.001):
@@ -189,25 +189,39 @@ class stlAnalysis:
         nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,backgroundCellSize)
         L = maxSTLLength # this is the characteristic length to be used in Re calculations
         target_y = stlAnalysis.calc_y(nu,rho,L,U,target_yPlus=target_yPlus) # this is the thickness of closest cell
-        targetCellSize = stlAnalysis.calc_cell_size(target_y,expRatio=expansion_ratio,thicknessRatio=0.4,nLayers=nLayers)
+        targetCellSize = stlAnalysis.calc_cell_size(target_y,expRatio=expansion_ratio,thicknessRatio=0.3,nLayers=nLayers)
         refLevel = stlAnalysis.calc_refinement_levels(backgroundCellSize,targetCellSize)
         # adjust refinement levels based on coarse, medium, fine settings
         if(refinement==0):
-            refLevel = max(1,refLevel)
+            refLevel = max(1,refLevel+1)
         elif(refinement==1):
-            refLevel = max(2,refLevel)
+            refLevel = max(2,refLevel+2)
         elif(refinement==2):
-            refLevel = max(3,refLevel)
+            refLevel = max(3,refLevel+3)
         else:
             refLevel = max(2,refLevel)
+        minVolumeSize = backgroundCellSize**3/(8.**refLevel*20.)
         # print the summary of results
         print(f"Domain size {domain_size}")
         print(f"Simple grading: {nx},{ny},{nz}")
+        print(f"Max cell size: {backgroundCellSize}")
+        print(f"Max volume size: {backgroundCellSize**3}")
+        print(f"Min volume size: {minVolumeSize}")
         print(f"Target Y:{target_y}")
         print(f"Refinement Level:{refLevel}")
-        return domain_size, nx, ny, nz, refLevel
+        return domain_size, nx, ny, nz, refLevel,target_y,minVolumeSize
     
+    @staticmethod
+    def set_layer_thickness(meshSettings,thickness=0.01):
+        meshSettings['addLayersControls']['finalLayerThickness'] = thickness
+        minThickness = max(0.0001,thickness/100.)
+        meshSettings['addLayersControls']['minThickness'] = minThickness
+        return meshSettings
     
+    @staticmethod
+    def set_min_vol(meshSettings,minVol=1e-15):
+        meshSettings['meshQualityControls']['minVol'] = minVol/100.
+        return meshSettings
 
     # to set mesh settings for blockMeshDict and snappyHexMeshDict 
     @staticmethod
