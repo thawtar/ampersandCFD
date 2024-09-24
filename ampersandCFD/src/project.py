@@ -51,10 +51,11 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.stl_names = [] # list to store the names of the stl files
         self.internalFlow = False # default is external flow
         self.onGround = False # default is off the ground
-        self.parallel = False # default is serial
+        self.parallel = True # default is parallel simulation
         self.snap = True # default is to use snappyHexMesh
         self.transient = False # default is steady state
         self.refinement = 0 # 0: coarse, 1: medium, 2: fine
+        self.characteristicLength = None # default characteristic length
 
     def set_project_directory(self, project_directory_path):
         if project_directory_path is None:
@@ -347,6 +348,11 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def set_transient(self):
         self.transient = ampersandIO.get_input_bool("Transient simulation (y/N)?: ")
 
+    def set_parallel(self):
+        n_core = ampersandIO.get_input_int("Number of cores for parallel simulation: ")
+        self.parallelSettings['numberOfSubdomains'] = n_core
+    
+    
     def set_transient_settings(self):
         if self.transient:
             ampersandIO.printMessage("Transient simulation settings")
