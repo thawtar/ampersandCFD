@@ -9,9 +9,11 @@ class turbulenceRANS:
         self.nu = None
         self.k = None
         self.epsilon = None
+        self.omega = None
         self.U = U
         self.rho = rho
         self.L = L
+        self.Re = U*L/nu
 
 
         self.I = None # turbulence intensity
@@ -21,9 +23,17 @@ class turbulenceRANS:
         self.sigma_epsilon = 1.3
         self.C1 = 1.44
         self.C2 = 1.92
+        self.kappa = 0.41
     
     def set_intensity(self, intensity):
         self.I = intensity
+
+    def calc_intensity(self):
+        self.I = 0.16*self.Re**(-1./8.)
+
+
+    def calc_k(self):
+        self.k = 1.5*(self.U*self.I)**2
 
     
 
