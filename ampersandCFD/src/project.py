@@ -253,11 +253,17 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 ampersandIO.printMessage(f"STL file {stl_name} already exists in the project")
                 return -1
             self.add_stl_to_mesh_settings(stl_name)
+            # this is the path to the constant/triSurface inside project directory where STL will be copied
             stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
             try:
                 ampersandIO.printMessage(f"Copying {stl_name} to the project directory")
                 shutil.copy(stl_file, stl_path)
             except OSError as error:
+                ampersandIO.printError(error)
+                return -1
+            try:
+                stlAnalysis.set_stl_solid_name(stl_path)
+            except Exception as error:
                 ampersandIO.printError(error)
                 return -1
         else:

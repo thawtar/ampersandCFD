@@ -270,9 +270,14 @@ class stlAnalysis:
     @staticmethod
     def set_stl_solid_name(stl_file='input.stl'):
         print(f"Setting solid name for {stl_file}")
+        # if the file does not exist, return -1
+        if not os.path.exists(stl_file):
+            print(f"File not found: {stl_file}")
+            return -1
+        # if exists, extract file name by removing the directory path
         new_lines = []
         new_stl_file = stl_file[:-4] + ".stl"
-        solid_name = stl_file[:-4]
+        solid_name = os.path.basename(stl_file)[:-4]
         #print(f"Solid name: {solid_name}")
         # open the file
         try:
@@ -283,12 +288,14 @@ class stlAnalysis:
             return -1
         # find the solid name
         for line in lines:
-            if 'solid' in line:
-                # replace the solid name using above solid_name
-                line = f"solid {solid_name}\n"
-            # replace the endsolid name
             if 'endsolid' in line:
+                # replace the solid name using above solid_name
                 line = f"endsolid {solid_name}\n"
+            # replace the endsolid name
+            elif 'solid' in line:
+                line = f"solid {solid_name}\n"
+            else:
+                pass
             new_lines.append(line)
         #print(f"Solid name: {solid_name}")
         # write the new lines to the file
@@ -301,7 +308,7 @@ class stlAnalysis:
         return 0
 
 def main():
-    stl_file = "cad.stl"
+    stl_file = "/Users/thawtar/Desktop/CFD_Monkey/STL/flange.stl"
     stlAnalysis.set_stl_solid_name(stl_file)
 
 if __name__ == "__main__":

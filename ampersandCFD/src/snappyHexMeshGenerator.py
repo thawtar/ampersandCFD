@@ -35,6 +35,14 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
     {{
         type {an_entry['type']};
         name {an_entry['name'][:-4]};
+        regions
+        {{
+            {an_entry['name'][:-4]}
+            {{
+                name {an_entry['name'][:-4]};
+            }}
+        }}
+
     }}"""
             # Add features and refinement surfaces
             if(an_entry['featureEdges']):
