@@ -1,4 +1,4 @@
-solid body_bottom
+solid cad
   facet normal 6.123234000e-17 0.000000000e+00 1.000000000e+00
     outer loop
       vertex   -4.000000000e-01 -1.500000000e+00 2.449293600e-17
@@ -5473,8 +5473,8 @@ solid body_bottom
       vertex   -1.243903000e-01 -1.749929000e-01 7.616709140e-18
     endloop
   endfacet
-endsolid
-solid solarpanel_body_left
+solid cad
+solid cad
   facet normal 1.000000000e+00 0.000000000e+00 0.000000000e+00
     outer loop
       vertex   -5.000000000e-01 1.403226000e+00 3.061617000e-17
@@ -10018,8 +10018,8 @@ solid solarpanel_body_left
       vertex   -5.000000000e-01 -7.250850000e-01 7.479751000e-01
     endloop
   endfacet
-endsolid
-solid solarpanel_body_right
+solid cad
+solid cad
   facet normal -1.000000000e+00 0.000000000e+00 0.000000000e+00
     outer loop
       vertex   5.000000000e-01 1.500000000e+00 -3.061617000e-17
@@ -14563,8 +14563,8 @@ solid solarpanel_body_right
       vertex   5.000000000e-01 -7.250850000e-01 7.479751000e-01
     endloop
   endfacet
-endsolid
-solid solarpanel_body_top
+solid cad
+solid cad
   facet normal -2.250148431e-17 -9.300325597e-01 -3.674771258e-01
     outer loop
       vertex   -4.000000000e-01 1.500000000e+00 2.449293600e-17
@@ -20025,8 +20025,8 @@ solid solarpanel_body_top
       vertex   -1.937838000e-01 -6.455301000e-01 9.715956000e-01
     endloop
   endfacet
-endsolid
-solid solarpanel_body_back
+solid cad
+solid cad
   facet normal 0.000000000e+00 7.379432013e-01 -6.748628243e-01
     outer loop
       vertex   4.000000000e-01 -1.100000000e+00 1.000000000e+00
@@ -22001,8 +22001,8 @@ solid solarpanel_body_back
       vertex   3.470858000e-01 -1.393082000e+00 5.237091000e-01
     endloop
   endfacet
-endsolid
-solid ref_wall
+solid cad
+solid cad
   facet normal 0.000000000e+00 0.000000000e+00 1.000000000e+00
     outer loop
       vertex   -1.450000000e+00 -5.000000000e-01 2.500000000e+00
@@ -22087,4 +22087,4 @@ solid ref_wall
       vertex   -1.450000000e+00 5.000000000e-01 0.000000000e+00
     endloop
   endfacet
-endsolid
+solid cad

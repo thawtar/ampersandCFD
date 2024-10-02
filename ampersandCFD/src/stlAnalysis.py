@@ -269,10 +269,40 @@ class stlAnalysis:
     
     @staticmethod
     def set_stl_solid_name(stl_file='input.stl'):
-        pass
+        print(f"Setting solid name for {stl_file}")
+        new_lines = []
+        new_stl_file = stl_file[:-4] + ".stl"
+        solid_name = stl_file[:-4]
+        #print(f"Solid name: {solid_name}")
+        # open the file
+        try:
+            with open(stl_file,'r') as f:
+                lines = f.readlines()
+        except FileNotFoundError:
+            print(f"File not found: {stl_file}")
+            return -1
+        # find the solid name
+        for line in lines:
+            if 'solid' in line:
+                # replace the solid name using above solid_name
+                line = f"solid {solid_name}\n"
+            # replace the endsolid name
+            if 'endsolid' in line:
+                line = f"endsolid {solid_name}\n"
+            new_lines.append(line)
+        #print(f"Solid name: {solid_name}")
+        # write the new lines to the file
+        try:
+            with open(new_stl_file,'w') as f:
+                f.writelines(new_lines)
+        except FileNotFoundError:
+            print(f"File not found: {new_stl_file}")
+            return -1
+        return 0
+
+def main():
+    stl_file = "cad.stl"
+    stlAnalysis.set_stl_solid_name(stl_file)
 
 if __name__ == "__main__":
-    stl_file = "flange.stl"
-    stlBoundingBox = stlAnalysis.compute_bounding_box(stl_file)
-    fluid_properties = {'rho': 1.225, 'nu': 1.5e-5}
-    stlAnalysis.calc_mesh_settings(stlBoundingBox,U=1.0,maxCellSize=0.1)
+    main()
