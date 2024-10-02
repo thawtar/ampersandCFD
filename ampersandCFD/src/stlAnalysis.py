@@ -89,7 +89,7 @@ class stlAnalysis:
     def addRefinementBoxToMesh(meshSettings,stl_path,boxName='refinementBox',refLevel=2):
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
         box = stlAnalysis.getRefinementBox(stlBoundingBox)
-        meshSettings['geometry'].append({'name': boxName,'type':'searchableBox', 
+        meshSettings['geometry'].append({'name': boxName,'type':'searchableBox', 'purpose':'refinement',
                                          'min': [box[0], box[2], box[4]], 'max': [box[1], box[3], box[5]],
                                          'refineMax': refLevel})
         return meshSettings
@@ -266,6 +266,10 @@ class stlAnalysis:
         else:
             meshSettings['castellatedMeshControls']['locationInMesh'] = [outsidePoint[0],outsidePoint[1],outsidePoint[2]]
         return meshSettings
+    
+    @staticmethod
+    def set_stl_solid_name(stl_file='input.stl'):
+        pass
 
 if __name__ == "__main__":
     stl_file = "flange.stl"
