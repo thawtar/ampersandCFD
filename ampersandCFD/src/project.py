@@ -201,18 +201,20 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.write_settings()
 
     # Add a stl file to the project settings (self.meshSettings)
-    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', featureLevel=1):
+    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', featureLevel=1,purpose='wall'):
         # stl file has the following format: 
-        # {'name': 'stl1.stl','type':'triSurfaceMesh', 'refineMin': 1, 'refineMax': 3, 
+        # {'name': 'stl1.stl','type':'triSurfaceMesh','purpose':'wall' ,'refineMin': 1, 'refineMax': 3, 
         #             'featureEdges':'true','featureLevel':3,'nLayers':3}
         #featureLevel = refMax
+        # Purpose is wall by default
+        # Other purposes are patch, refinementRegion, refinementSurface, cellZone 
         if self.refinement == 0:
             nLayers = 3
         elif self.refinement == 1:
             nLayers = 5
         else:
             nLayers = 7
-        stl_ = {'name': stl_name, 'type':'triSurfaceMesh', 'refineMin': refMin, 'refineMax': refMax, 
+        stl_ = {'name': stl_name, 'type':'triSurfaceMesh','purpose':purpose, 'refineMin': refMin, 'refineMax': refMax, 
                 'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers}
         
         self.stl_names.append(stl_name)
