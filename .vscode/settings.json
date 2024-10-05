@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "bedLoadModules.C": "cpp",
+        "sandSlideModules.C": "cpp",
+        "sedModules.C": "cpp",
+        "massBalanceModules.C": "cpp"
+    }
+}

@@ -134,6 +134,11 @@ FoamFile
         with open(filename, 'w') as f:
             f.write(content)
 
+    @staticmethod
+    # to remove duplicates from a list
+    def remove_duplicates(lst):
+        return list(set(lst))
+
 class ampersandIO:
     def __init__(self):
         pass

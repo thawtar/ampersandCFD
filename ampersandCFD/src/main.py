@@ -26,6 +26,7 @@ def main():
         project.add_stl_file()
         yN = ampersandIO.get_input("Add another STL file to the project (y/N)?: ")
     project.add_stl_to_project()
+    
     # Before creating the project files, the settings are flushed to the project_settings.yaml file
     project.list_stl_files()
     project.ask_flow_type()
