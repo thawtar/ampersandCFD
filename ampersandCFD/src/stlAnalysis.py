@@ -71,6 +71,7 @@ class stlAnalysis:
         bbZ = stlMaxZ - stlMinZ
         return min(bbX,bbY,bbZ)
     
+    # to calculate the refinement box for snappyHexMeshDict
     @staticmethod
     def getRefinementBox(stlBoundingBox):
         stlMinX,stlMaxX,stlMinY,stlMaxY,stlMinZ,stlMaxZ= stlBoundingBox
@@ -85,6 +86,7 @@ class stlAnalysis:
         boxMaxZ = stlMaxZ + 0.45*bbZ
         return (boxMinX,boxMaxX,boxMinY,boxMaxY,boxMinZ,boxMaxZ)
     
+    # to add refinement box to mesh settings
     @staticmethod
     def addRefinementBoxToMesh(meshSettings,stl_path,boxName='refinementBox',refLevel=2):
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
