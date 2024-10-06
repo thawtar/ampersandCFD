@@ -57,6 +57,17 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.refinement = 0 # 0: coarse, 1: medium, 2: fine
         self.characteristicLength = None # default characteristic length
 
+    def remove_duplicate_stl_files(self):
+        # detect duplicate dictionaries in the list
+        seen = set()
+        new_list = []
+        for d in self.stl_files:
+            t = tuple(d.items())
+            if t not in seen:
+                seen.add(t)
+                new_list.append(d)
+        self.stl_files = new_list
+
     def set_project_directory(self, project_directory_path):
         if project_directory_path is None:
             ampersandIO.printMessage("No directory selected. Aborting project creation.")
@@ -237,6 +248,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         for stl_file in self.stl_files:
             #self.ask_stl_settings(stl_file)
             self.meshSettings['geometry'].append(stl_file)
+        self.remove_duplicate_stl_files()
 
     def add_stl_file(self): # to only copy the STL file to the project directory and add it to the STL list
         stl_file = ampersandPrimitives.ask_for_file([("STL Geometry", "*.stl"), ("OBJ Geometry", "*.obj")])
@@ -252,7 +264,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             if stl_name in self.stl_names:
                 ampersandIO.printMessage(f"STL file {stl_name} already exists in the project")
                 return -1
-            self.add_stl_to_mesh_settings(stl_name)
+            else: # this is to prevent the bug of having the same file added multiple times
+                self.add_stl_to_mesh_settings(stl_name)
             # this is the path to the constant/triSurface inside project directory where STL will be copied
             stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
             try:
