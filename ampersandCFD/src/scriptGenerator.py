@@ -14,6 +14,7 @@ cd "${{0%/*}}" || exit                                # Run from this directory
 """
         if(simulationFlowSettings['parallel']):
             cmdMesh += f"""
+foamCleanTutorials
 cp -r 0 0.orig
 rm -rf log.*
 runApplication blockMesh
@@ -45,6 +46,7 @@ cd "${{0%/*}}" || exit                                # Run from this directory
 """
         if(simulationFlowSettings['parallel']):
             cmdSimulation += f"""
+foamCleanTutorials
 rm -rf 0
 cp -r 0.orig 0
 rm -rf log.decomposePar log.simpleFoam log.snappyHexMesh log.reconstructParMesh

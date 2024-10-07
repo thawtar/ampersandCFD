@@ -218,18 +218,46 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         #             'featureEdges':'true','featureLevel':3,'nLayers':3}
         #featureLevel = refMax
         # Purpose is wall by default
-        # Other purposes are patch, refinementRegion, refinementSurface, cellZone 
+        # Other purposes are patch, refinementRegion, refinementSurface, cellZone, baffles
         if self.refinement == 0:
-            nLayers = 3
+            nLayers = 1
         elif self.refinement == 1:
-            nLayers = 5
+            nLayers = 3
         else:
-            nLayers = 7
+            nLayers = 5
         stl_ = {'name': stl_name, 'type':'triSurfaceMesh','purpose':purpose, 'refineMin': refMin, 'refineMax': refMax, 
                 'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers}
         
         self.stl_names.append(stl_name)
         self.stl_files.append(stl_)
+
+    # ask for stl file name and add purpose to the stl file
+    def add_purpose_to_stl_(self):
+        purposes = ['wall', 'patch', 'refinementRegion', 'refinementSurface', 'cellZone', 'baffles']
+        self.list_stl_files()
+        #stl_name = ampersandIO.get_input("Enter the name of the STL file: ")
+        for stl in self.stl_files:
+            stl_name = stl['name']
+            if stl_name in self.stl_names:
+                purpose_no = ampersandIO.printMessage(f"Enter purpose of {stl_name}, (0: wall, 1: patch, 2: refinementRegion, 3: refinementSurface, 4: cellZone, 5: baffles)")
+                if(purpose_no < 0 or purpose_no > 5):
+                    ampersandIO.printMessage("Invalid purpose number. Setting purpose to wall")
+                    purpose = 'wall'
+                else:
+                    purpose = purposes[purpose_no]
+                self.add_purpose_(stl_name,purpose)
+
+    
+    # add purpose to the stl file
+    def add_purpose_(self,stl_name,purpose='wall'):
+        for stl in self.stl_files:
+            if stl['name'] == stl_name:
+                ampersandIO.printMessage(f"Setting purpose of {stl_name} to {purpose}")
+                stl['purpose'] = purpose
+                return 0
+        ampersandIO.printMessage(f"STL file {stl_name} not found in the project")
+        return -1
+        
 
 
     def ask_stl_settings(self,stl_file):
