@@ -50,12 +50,27 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
                 
         {{
             file \"{an_entry['name'][:-4]}.eMesh\";
-            level {an_entry['refineMax']};
+            level {an_entry['refineMin']};
         }}"""
+                if(an_entry['purpose'] == 'patch'):
+                    patchType = 'patch'
+                else:
+                    patchType = 'wall'
             refinementSurfaces+= f"""
         {an_entry['name'][:-4]}
         {{
-            level ({an_entry['refineMin']} {an_entry['refineMax']});
+            level (0 0);
+            regions
+            {{
+                {an_entry['name'][:-4]}
+                {{
+                    level ({an_entry['refineMin']} {an_entry['refineMax']});
+                    patchInfo
+                    {{
+                        type {patchType};
+                    }}
+                }}
+            
         }}""" 
 
         # For searchable boxes, min and max are added

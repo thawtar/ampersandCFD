@@ -222,7 +222,7 @@ class stlAnalysis:
     
     @staticmethod
     def set_min_vol(meshSettings,minVol=1e-15):
-        meshSettings['meshQualityControls']['minVol'] = minVol/100.
+        meshSettings['meshQualityControls']['minVol'] = 1e-30 #minVol/100.
         return meshSettings
 
     # to set mesh settings for blockMeshDict and snappyHexMeshDict 
