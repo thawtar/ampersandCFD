@@ -220,11 +220,11 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         # Purpose is wall by default
         # Other purposes are patch, refinementRegion, refinementSurface, cellZone, baffles
         if self.refinement == 0:
-            nLayers = 1
-        elif self.refinement == 1:
             nLayers = 3
-        else:
+        elif self.refinement == 1:
             nLayers = 5
+        else:
+            nLayers = 7
         stl_ = {'name': stl_name, 'type':'triSurfaceMesh','purpose':purpose, 'refineMin': refMin, 'refineMax': refMax, 
                 'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers}
         
@@ -247,6 +247,17 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                     purpose = purposes[purpose_no]
                 self.add_purpose_(stl_name,purpose)
 
+    def ask_purpose(self):
+        purposes = ['wall', 'patch', 'refinementRegion', 'refinementSurface', 'cellZone', 'baffles']
+        ampersandIO.printMessage(f"Enter purpose for this STL geometry")
+        ampersandIO.print_numbered_list(purposes)
+        purpose_no = ampersandIO.get_input_int("Enter purpose number: ")
+        if(purpose_no < 0 or purpose_no > len(purposes)-1):
+                ampersandIO.printMessage("Invalid purpose number. Setting purpose to wall")
+                purpose = 'wall'
+        else:
+            purpose = purposes[purpose_no]
+        return purpose
     
     # add purpose to the stl file
     def add_purpose_(self,stl_name,purpose='wall'):
@@ -293,6 +304,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 ampersandIO.printMessage(f"STL file {stl_name} already exists in the project")
                 return -1
             else: # this is to prevent the bug of having the same file added multiple times
+                #purpose = self.add_purpose_to_stl_()
+                #ampersandIO.printMessage(f"Adding {stl_name} to the project with purpose {purpose}")
+                purpose = self.ask_purpose()
                 self.add_stl_to_mesh_settings(stl_name)
             # this is the path to the constant/triSurface inside project directory where STL will be copied
             stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)

@@ -164,6 +164,11 @@ class ampersandIO:
         return float(input(prompt))
     
     @staticmethod
+    def print_numbered_list(lst):
+        for i in range(len(lst)):
+            print(f"{i+1}. {lst[i]}")
+    
+    @staticmethod
     def get_input_vector(prompt):
         return list(map(float, input(prompt).split()))
     
