@@ -212,7 +212,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.write_settings()
 
     # Add a stl file to the project settings (self.meshSettings)
-    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', featureLevel=1,purpose='wall'):
+    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', featureLevel=1,purpose='wall',property=None):
         # stl file has the following format: 
         # {'name': 'stl1.stl','type':'triSurfaceMesh','purpose':'wall' ,'refineMin': 1, 'refineMax': 3, 
         #             'featureEdges':'true','featureLevel':3,'nLayers':3}
@@ -226,7 +226,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         else:
             nLayers = 7
         stl_ = {'name': stl_name, 'type':'triSurfaceMesh','purpose':purpose, 'refineMin': refMin, 'refineMax': refMax, 
-                'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers}
+                'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers, 'property':property}
         
         self.stl_names.append(stl_name)
         self.stl_files.append(stl_)
@@ -248,16 +248,30 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 self.add_purpose_(stl_name,purpose)
 
     def ask_purpose(self):
-        purposes = ['wall', 'patch', 'refinementRegion', 'refinementSurface', 'cellZone', 'baffles']
+        purposes = ['wall', 'inlet','outlet', 'refinementRegion', 'refinementSurface', 'cellZone', 'baffles']
         ampersandIO.printMessage(f"Enter purpose for this STL geometry")
         ampersandIO.print_numbered_list(purposes)
-        purpose_no = ampersandIO.get_input_int("Enter purpose number: ")
+        purpose_no = ampersandIO.get_input_int("Enter purpose number: ")-1
         if(purpose_no < 0 or purpose_no > len(purposes)-1):
                 ampersandIO.printMessage("Invalid purpose number. Setting purpose to wall")
                 purpose = 'wall'
         else:
             purpose = purposes[purpose_no]
         return purpose
+    
+    def set_property(self,purpose='wall'):
+        if purpose == 'inlet':
+            property = ampersandDataInput.get_inlet_values()
+            ampersandIO.printMessage(f"Setting property of {purpose} to {property}")
+        elif purpose == 'refinementRegion' or purpose == 'cellZone':
+            refLevel = ampersandIO.get_input_int("Enter refinement level: ")
+            property = refLevel
+        elif purpose == 'refinementSurface':
+            refLevel = ampersandIO.get_input_int("Enter refinement level: ")
+            property = refLevel
+        else:
+            property = None
+        return property
     
     # add purpose to the stl file
     def add_purpose_(self,stl_name,purpose='wall'):
@@ -307,7 +321,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 #purpose = self.add_purpose_to_stl_()
                 #ampersandIO.printMessage(f"Adding {stl_name} to the project with purpose {purpose}")
                 purpose = self.ask_purpose()
-                self.add_stl_to_mesh_settings(stl_name)
+                property = self.set_property(purpose)
+                self.add_stl_to_mesh_settings(stl_name,purpose=purpose,property=property)
             # this is the path to the constant/triSurface inside project directory where STL will be copied
             stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
             try:
