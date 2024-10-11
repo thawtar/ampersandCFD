@@ -35,7 +35,9 @@ def main():
     ampersandIO.printMessage("Fluid properties and inlet values are necessary for mesh size calculations")
     project.set_fluid_properties()
     project.set_inlet_values()
+    project.set_transient_settings()
     project.set_parallel()
+
     if(len(project.stl_files)>0):
         project.analyze_stl_file()
     

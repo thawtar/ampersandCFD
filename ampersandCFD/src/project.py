@@ -261,7 +261,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     
     def set_property(self,purpose='wall'):
         if purpose == 'inlet':
-            property = ampersandDataInput.get_inlet_values()
+            U = ampersandDataInput.get_inlet_values()
+            property = tuple(U)
             ampersandIO.printMessage(f"Setting property of {purpose} to {property}")
         elif purpose == 'refinementRegion' or purpose == 'cellZone':
             refLevel = ampersandIO.get_input_int("Enter refinement level: ")
@@ -379,6 +380,13 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         else:
             self.internalFlow = False
 
+    def ask_transient(self):
+        transient = ampersandIO.get_input("Transient or Steady State (T/S)?: ")
+        if transient.lower() == 't':
+            self.transient = True
+        else:
+            self.transient = False
+
 
     def analyze_stl_file(self,stl_file_number=0):
         rho = self.physicalProperties['rho']
@@ -411,9 +419,19 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         return 0
     
     def set_inlet_values(self):
-        U = ampersandDataInput.get_inlet_values()
-        self.inletValues['U'] = U
-        self.boundaryConditions['velocityInlet']['u_value'] = U
+        if(not self.internalFlow): # external flow
+            U = ampersandDataInput.get_inlet_values()
+            self.inletValues['U'] = U
+            self.boundaryConditions['velocityInlet']['u_value'] = U
+        else: # internal flow
+            # Use inlet values from the stl file
+            ampersandIO.printMessage("Setting inlet values for various inlet boundaries")
+            for stl_file in self.stl_files:
+                if stl_file['purpose'] == 'inlet':
+                    U = list(stl_file['property'])
+                    self.boundaryConditions['velocityInlet']['u_value'] = U
+                    self.inletValues['U'] = U
+        
 
     def set_fluid_properties(self):
         fluid = ampersandDataInput.choose_fluid_properties()
@@ -423,8 +441,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.physicalProperties['rho'] = fluid['rho']
         self.physicalProperties['nu'] = fluid['nu']
 
-    def set_transient(self):
-        self.transient = ampersandIO.get_input_bool("Transient simulation (y/N)?: ")
+    #def set_transient(self):
+    #    self.transient = ampersandIO.get_input_bool("Transient simulation (y/N)?: ")
 
     def set_parallel(self):
         n_core = ampersandIO.get_input_int("Number of cores for parallel simulation: ")
@@ -432,6 +450,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     
     
     def set_transient_settings(self):
+        self.ask_transient()
         if self.transient:
             ampersandIO.printMessage("Transient simulation settings")
             self.simulationSettings['endTime'] = ampersandIO.get_input_float("End time: ")

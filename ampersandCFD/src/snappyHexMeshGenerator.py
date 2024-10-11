@@ -70,6 +70,7 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
                         type {patchType};
                     }}
                 }}
+            }}
             
         }}""" 
 
@@ -84,7 +85,7 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
     }}"""
         geometry += added_geo
     geometry += f"""
-    }}
+    
 }}"""
 
     

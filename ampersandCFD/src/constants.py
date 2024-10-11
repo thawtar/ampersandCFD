@@ -13,6 +13,7 @@ meshSettings = {
         'nz': 20},
     'maxCellSize': 0.5,
     'fineLevel': 1,
+    # patches are for the construction of the blockMeshDict
     'patches': [
         {'name': 'inlet', 'type': 'patch','faces': [0, 4, 7, 3]},
         {'name': 'outlet', 'type': 'patch','faces': [1, 5, 6, 2]},
@@ -21,6 +22,15 @@ meshSettings = {
         {'name': 'bottom', 'type': 'wall','faces': [0, 1, 2, 3]},
         {'name': 'top', 'type': 'wall','faces': [4, 5, 6, 7]},
     ],
+    # bcPatches are for the boundary conditions and may be changed based on the case
+    'bcPatches': {
+        'inlet':    {'type': 'patch','purpose': 'inlet','property': (1,0,0)},
+        'outlet':   {'type': 'patch','purpose': 'outlet','property': None},
+        'front':    {'type': 'wall','purpose': 'wall','property': None},
+        'back':     {'type': 'wall','purpose': 'wall','property': None},
+        'bottom':   {'type': 'wall','purpose': 'wall','property': None},
+        'top':      {'type': 'wall','purpose': 'wall','property': None},
+},
     'snappyHexSteps': {'castellatedMesh': 'true',
                        'snap': 'true',
                         'addLayers': 'true'},
@@ -44,7 +54,7 @@ meshSettings = {
     'snapControls': {'nSmoothPatch': 5,
                         'tolerance': 1.5,
                         'nSolveIter': 100,
-                        'nRelaxIter': 8,
+                        'nRelaxIter': 10,
                         'nFeatureSnapIter': 10,
                         'implicitFeatureSnap': 'false',
                         'explicitFeatureSnap': 'true',
