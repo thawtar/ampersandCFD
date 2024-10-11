@@ -2,56 +2,69 @@ from constants import numericalSettings, solverSettings
 from primitives import ampersandPrimitives
 
 def create_algorithmDict(numericalSettings):
-    header = ampersandPrimitives.createFoamHeader(className="dictionary", objectName="pimpleDict")
-    algorithmDict = f""+header
+    #header = ampersandPrimitives.createFoamHeader(className="dictionary", objectName="pimpleDict")
+    algorithmDict = f""
     algorithmDict += f"""
-    PIMPLE
+PIMPLE
+{{
+    nOuterCorrectors {numericalSettings['pimpleDict']['nOuterCorrectors']};
+    nCorrectors {numericalSettings['pimpleDict']['nCorrectors']};
+    nNonOrthogonalCorrectors {numericalSettings['pimpleDict']['nNonOrthogonalCorrectors']};
+    pRefCell {numericalSettings['pimpleDict']['pRefCell']};
+    pRefValue {numericalSettings['pimpleDict']['pRefValue']};
+    residualControl
     {{
-        nOuterCorrectors {numericalSettings['pimpleDict']['nOuterCorrectors']};
-        nCorrectors {numericalSettings['pimpleDict']['nCorrectors']};
-        nNonOrthogonalCorrectors {numericalSettings['pimpleDict']['nNonOrthogonalCorrectors']};
-        pRefCell {numericalSettings['pimpleDict']['pRefCell']};
-        pRefValue {numericalSettings['pimpleDict']['pRefValue']};
-    }}
-    SIMPLE
-    {{
-        nNonOrthogonalCorrectors {numericalSettings['simpleDict']['nNonOrthogonalCorrectors']};
-        consistent {numericalSettings['simpleDict']['consistent']};
-        residualControl
+        "(U|k|omega|epsilon|nut)" 
         {{
-            U {numericalSettings['simpleDict']['residualControl']['U']};
-            p {numericalSettings['simpleDict']['residualControl']['p']};
-            k {numericalSettings['simpleDict']['residualControl']['k']};
-            omega {numericalSettings['simpleDict']['residualControl']['omega']};
-            epsilon {numericalSettings['simpleDict']['residualControl']['epsilon']};
-            nut {numericalSettings['simpleDict']['residualControl']['nut']};
+            tolerance {numericalSettings['pimpleDict']['residualControl']['U']};
+            relTol 0;
+        }}
+        p
+        {{
+            tolerance {numericalSettings['pimpleDict']['residualControl']['p']};
+            relTol 0;
         }}
     }}
-    potentialFlow
+}}
+SIMPLE
+{{
+    nNonOrthogonalCorrectors {numericalSettings['simpleDict']['nNonOrthogonalCorrectors']};
+    consistent {numericalSettings['simpleDict']['consistent']};
+    residualControl
     {{
-        nonOrthogonalCorrectors {numericalSettings['potentialFlowDict']['nonOrthogonalCorrectors']};
+        U {numericalSettings['simpleDict']['residualControl']['U']};
+        p {numericalSettings['simpleDict']['residualControl']['p']};
+        k {numericalSettings['simpleDict']['residualControl']['k']};
+        omega {numericalSettings['simpleDict']['residualControl']['omega']};
+        epsilon {numericalSettings['simpleDict']['residualControl']['epsilon']};
+        nut {numericalSettings['simpleDict']['residualControl']['nut']};
     }}
-    relaxationFactors
+}}
+potentialFlow
+{{
+    nonOrthogonalCorrectors {numericalSettings['potentialFlowDict']['nonOrthogonalCorrectors']};
+}}
+relaxationFactors
+{{
+    equations
     {{
-        equations
-        {{
-            U {numericalSettings['relaxationFactors']['U']};
-            
-            k {numericalSettings['relaxationFactors']['k']};
-            omega {numericalSettings['relaxationFactors']['omega']};
-            epsilon {numericalSettings['relaxationFactors']['epsilon']};
-            nut {numericalSettings['relaxationFactors']['nut']};
-        }}
-        fields
-        {{
-            p {numericalSettings['relaxationFactors']['p']};
-        }}
+        U {numericalSettings['relaxationFactors']['U']};
+        
+        k {numericalSettings['relaxationFactors']['k']};
+        omega {numericalSettings['relaxationFactors']['omega']};
+        epsilon {numericalSettings['relaxationFactors']['epsilon']};
+        nut {numericalSettings['relaxationFactors']['nut']};
     }}
-    """
+    fields
+    {{
+        p {numericalSettings['relaxationFactors']['p']};
+    }}
+}}
+"""
     return algorithmDict
 
 def create_solverDict(solverSettings,solverName="U"):
-    #header = ampersandPrimitives.createFoamHeader(className="dictionary", objectName="solver")
+    
     solverDict = f""
     solverDict += f"""
     {solverName}
@@ -67,17 +80,31 @@ def create_solverDict(solverSettings,solverName="U"):
     """
     return solverDict
 
+def create_solverFinalDict(solverSettings,solverName="U"):
+    
+    solverDict = f""
+    solverDict += f"""
+    {solverName}Final
+    {{
+        ${solverName}
+        tolerance {solverSettings[solverName]['tolerance']/100.};
+        relTol 0;  
+    }}
+    """
+    return solverDict
+
 def create_fvSolutionDict(numericalSettings,solverSettings):
     header = ampersandPrimitives.createFoamHeader(className="dictionary", objectName="fvSolution")
     fvSolutionDict = f""+header
     fvSolutionDict += f"""
-    solvers
-    {{
+solvers
+{{
     """
     for solver in solverSettings.keys():
         fvSolutionDict += create_solverDict(solverSettings,solver)
+        fvSolutionDict += create_solverFinalDict(solverSettings,solver)
     fvSolutionDict += f"""
-    }}
+}}
     """
     fvSolutionDict += create_algorithmDict(numericalSettings)
     return fvSolutionDict
