@@ -36,7 +36,7 @@ def create_algorithmDict(numericalSettings):
         equations
         {{
             U {numericalSettings['relaxationFactors']['U']};
-            p {numericalSettings['relaxationFactors']['p']};
+            
             k {numericalSettings['relaxationFactors']['k']};
             omega {numericalSettings['relaxationFactors']['omega']};
             epsilon {numericalSettings['relaxationFactors']['epsilon']};

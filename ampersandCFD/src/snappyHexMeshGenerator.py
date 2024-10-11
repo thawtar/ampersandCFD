@@ -83,7 +83,9 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
         max ({an_entry['max'][0]} {an_entry['max'][1]} {an_entry['max'][2]});
     }}"""
         geometry += added_geo
-    geometry += f"""\n}}"""
+    geometry += f"""
+    }}
+}}"""
 
     
     refinementRegions = f""
