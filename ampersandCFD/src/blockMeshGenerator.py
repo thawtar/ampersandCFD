@@ -2,14 +2,9 @@ from constants import meshSettings
 from primitives import ampersandPrimitives
 
 def generate_blockMeshDict(meshSettings):
-    blockMeshDict = f"""FoamFile
-{{
-    version     2.0;
-    format      ascii;
-    class       dictionary;
-    object      blockMeshDict;
-}}
- 
+    header = ampersandPrimitives.createFoamHeader(className="dictionary", objectName="blockMeshDict")
+    blockMeshDict = header+f"""
+
 // ********* Domain *********
 scale {meshSettings['scale']};
  

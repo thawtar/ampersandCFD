@@ -453,6 +453,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.ask_transient()
         if self.transient:
             ampersandIO.printMessage("Transient simulation settings")
+            self.simulationSettings['solver'] = 'pimpleFoam'
+            self.simulationFlowSettings['solver'] = 'pimpleFoam'
             self.simulationSettings['endTime'] = ampersandIO.get_input_float("End time: ")
             self.simulationSettings['writeInterval'] = ampersandIO.get_input_float("Write interval: ")
             self.simulationSettings['deltaT'] = ampersandIO.get_input_float("Time step: ")
