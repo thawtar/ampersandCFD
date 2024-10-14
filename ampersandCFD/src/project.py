@@ -458,7 +458,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.simulationSettings['endTime'] = ampersandIO.get_input_float("End time: ")
             self.simulationSettings['writeInterval'] = ampersandIO.get_input_float("Write interval: ")
             self.simulationSettings['deltaT'] = ampersandIO.get_input_float("Time step: ")
-            self.simulationSettings['adjustTimeStep'] = 'yes'
+            self.simulationSettings['adjustTimeStep'] = 'no'
             self.simulationSettings['maxCo'] = 0.9
             
 

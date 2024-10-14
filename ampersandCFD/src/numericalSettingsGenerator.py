@@ -66,18 +66,34 @@ relaxationFactors
 def create_solverDict(solverSettings,solverName="U"):
     
     solverDict = f""
-    solverDict += f"""
-    {solverName}
-    {{
-        solver {solverSettings[solverName]['type']};
-        preconditioner {solverSettings[solverName]['preconditioner']};
-        tolerance {solverSettings[solverName]['tolerance']};
-        relTol {solverSettings[solverName]['relTol']};
-        maxIter {solverSettings[solverName]['maxIter']};
-        nSweeps {solverSettings[solverName]['nSweeps']};
-        nPreSweeps {solverSettings[solverName]['nPreSweeps']};
-    }}
-    """
+    if(solverName=="p" or solverName=="Phi" or solverName=="p_rgh"):
+        solverDict += f"""
+        {solverName}
+        {{
+            solver {solverSettings[solverName]['type']};
+            smoother {solverSettings[solverName]['smoother']};
+            agglomerator {solverSettings[solverName]['agglomerator']};
+            nCellsInCoarsestLevel {solverSettings[solverName]['nCellsInCoarsestLevel']};
+            mergeLevels {solverSettings[solverName]['mergeLevels']};
+            cacheAgglomeration {solverSettings[solverName]['cacheAgglomeration']};
+            tolerance {solverSettings[solverName]['tolerance']};
+            relTol {solverSettings[solverName]['relTol']};
+            maxIter {solverSettings[solverName]['maxIter']};
+            nSweeps {solverSettings[solverName]['nSweeps']};
+            nPreSweeps {solverSettings[solverName]['nPreSweeps']};
+        }}
+        """
+    else:
+        solverDict += f"""
+        {solverName}
+        {{
+            solver {solverSettings[solverName]['type']};
+            smoother {solverSettings[solverName]['smoother']};
+            tolerance {solverSettings[solverName]['tolerance']};
+            relTol {solverSettings[solverName]['relTol']};
+            maxIter 100;
+        }}
+        """
     return solverDict
 
 def create_solverFinalDict(solverSettings,solverName="U"):
