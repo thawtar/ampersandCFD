@@ -50,7 +50,7 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
                 
         {{
             file \"{an_entry['name'][:-4]}.eMesh\";
-            level {an_entry['refineMin']};
+            level {an_entry['featureLevel']};
         }}"""
                 if(an_entry['purpose'] == 'patch'):
                     patchType = 'patch'
