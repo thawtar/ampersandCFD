@@ -35,6 +35,53 @@ class turbulenceRANS:
     def calc_k(self):
         self.k = 1.5*(self.U*self.I)**2
 
-    
+# input: U, nu, turbulence intensity, eddy viscosity ratio
+# output: k, epsilon, omega
+def kEpsilon(U,nu,I=0.16,nu_t_ratio=1.0):
+    k = 1.5*(U*I)**2
+    epsilon = 1.5*k**1.5/(0.09*nu)
+    omega = 0.09*k/epsilon
+    print(f"k: {k}, epsilon: {epsilon}, omega: {omega}")
+    return k, epsilon, omega
+
+# calculate turbulent intnsity for pipe flow
+# input: flow velocity (U), nu, D
+def calc_intensity(U,nu,D):
+    Re = U*L/nu
+    I = 0.16*Re**(-1./8.)
+    return I
+
+# calculate turbulent length scale for pipe flow
+# input: D
+def calc_length_scale(D):
+    return 0.07*D
+
+# calculate turbulent length scale for channel flow
+# input: channel width (W), channel depth (H)
+def calc_intensity_channel(U,nu,W,H):
+    A = W*H
+    P = 2*(W+H)
+    D = 4*A/P
+    l = 0.07*D
+    return l
+
+# calculate turbulent kinetic energy 
+# input: U, I
+def calc_k(U,I):
+    return 1.5*(U*I)**2
+
+# calculate turbulent dissipation rate
+# input: k, nu
+def calc_epsilon(k,l):
+    Cmu = 0.09
+    eps = Cmu**(3./4.)*k**(3./2.)/l
+    return eps
+
+# calculate turbulent dissipation rate
+# input: k, l
+def calc_omega(k,l):
+    Cmu = 0.09
+    omega = Cmu**(-1./4.)*k**0.5/l
+    return omega
 
 

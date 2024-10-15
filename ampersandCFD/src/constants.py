@@ -235,7 +235,7 @@ simulationSettings = {
     'application': 'simpleFoam',
     'startTime': 0,
     'endTime': 1,
-    'deltaT': 0.001,
+    'deltaT': 1,
     'startFrom': 'startTime',
     'stopAt': 'endTime',
     'writeControl': 'runTime',

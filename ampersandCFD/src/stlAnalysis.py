@@ -21,11 +21,11 @@ class stlAnalysis:
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
         minX = stlMinX - 1.5*bbX*sizeFactor
-        maxX = stlMaxX + 5*bbX*sizeFactor
+        maxX = stlMaxX + 7*bbX*sizeFactor
         minY = stlMinY - 3*bbY*sizeFactor
         maxY = stlMaxY + 3*bbY*sizeFactor
-        minZ = stlMinZ - 5*bbZ*sizeFactor
-        maxZ = stlMaxZ + 5*bbZ*sizeFactor
+        minZ = stlMinZ - 3*bbZ*sizeFactor
+        maxZ = stlMaxZ + 3*bbZ*sizeFactor
         
         if(internalFlow):
             minX = stlMinX - 0.1*bbX*sizeFactor
@@ -78,8 +78,22 @@ class stlAnalysis:
         bbX = stlMaxX - stlMinX
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
+        boxMinX = stlMinX - 0.2*bbX
+        boxMaxX = stlMaxX + 4.5*bbX
+        boxMinY = stlMinY - 1.0*bbY
+        boxMaxY = stlMaxY + 1.0*bbY
+        boxMinZ = stlMinZ - 1.0*bbZ
+        boxMaxZ = stlMaxZ + 1.0*bbZ
+        return (boxMinX,boxMaxX,boxMinY,boxMaxY,boxMinZ,boxMaxZ)
+    
+    @staticmethod
+    def getRefinementBoxClose(stlBoundingBox):
+        stlMinX,stlMaxX,stlMinY,stlMaxY,stlMinZ,stlMaxZ= stlBoundingBox
+        bbX = stlMaxX - stlMinX
+        bbY = stlMaxY - stlMinY
+        bbZ = stlMaxZ - stlMinZ
         boxMinX = stlMinX + 0.1*bbX
-        boxMaxX = stlMaxX + 2.5*bbX
+        boxMaxX = stlMaxX + 3*bbX
         boxMinY = stlMinY - 0.45*bbY
         boxMaxY = stlMaxY + 0.45*bbY
         boxMinZ = stlMinZ - 0.45*bbZ
@@ -94,6 +108,10 @@ class stlAnalysis:
         meshSettings['geometry'].append({'name': boxName,'type':'searchableBox', 'purpose':'refinement',
                                          'min': [box[0], box[2], box[4]], 'max': [box[1], box[3], box[5]],
                                          'refineMax': refLevel})
+        fineBox = stlAnalysis.getRefinementBoxClose(stlBoundingBox)
+        meshSettings['geometry'].append({'name': 'fineBox','type':'searchableBox', 'purpose':'refinement',
+                                         'min': [fineBox[0], fineBox[2], fineBox[4]], 'max': [fineBox[1], fineBox[3], fineBox[5]],
+                                         'refineMax': refLevel+1})
         return meshSettings
 
     # to calculate nearest wall thickness for a target yPlus value
@@ -174,19 +192,19 @@ class stlAnalysis:
             maxCellSize = maxSTLLength/4.
         domain_size = stlAnalysis.calc_domain_size(stlBoundingBox=stlBoundingBox,sizeFactor=sizeFactor,onGround=onGround,internalFlow=internalFlow)
         if(refinement==0):
-            backgroundCellSize = min(maxSTLLength/12.,maxCellSize) # this is the size of largest blockMesh cells
+            backgroundCellSize = min(maxSTLLength/4.,maxCellSize) # this is the size of largest blockMesh cells
             target_yPlus = 200
             nLayers = 3
         elif(refinement==1):
-            backgroundCellSize = min(maxSTLLength/16.,maxCellSize)
+            backgroundCellSize = min(maxSTLLength/8.,maxCellSize)
             target_yPlus = 100
             nLayers = 5
         elif(refinement==2):
             target_yPlus = 50
             nLayers = 5
-            backgroundCellSize = min(maxSTLLength/20.,maxCellSize)
+            backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
         else:
-            backgroundCellSize = min(maxSTLLength/16.,maxCellSize) # medium setting for default
+            backgroundCellSize = min(maxSTLLength/8.,maxCellSize) # medium setting for default
             target_yPlus = 100
         nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,backgroundCellSize)
         L = maxSTLLength # this is the characteristic length to be used in Re calculations
@@ -222,7 +240,7 @@ class stlAnalysis:
     
     @staticmethod
     def set_min_vol(meshSettings,minVol=1e-15):
-        meshSettings['meshQualityControls']['minVol'] = 1e-30 #minVol/100.
+        meshSettings['meshQualityControls']['minVol'] = 1e-15 #minVol/100.
         return meshSettings
 
     # to set mesh settings for blockMeshDict and snappyHexMeshDict 
