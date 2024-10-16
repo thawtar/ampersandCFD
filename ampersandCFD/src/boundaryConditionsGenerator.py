@@ -5,7 +5,7 @@
 #import yaml
 from primitives import ampersandPrimitives
 from constants import meshSettings, boundaryConditions, inletValues
-
+from stlAnalysis import stlAnalysis
 
 
 def tuple_to_string(t):
@@ -64,7 +64,7 @@ def create_u_file(meshSettings,boundaryConditions):
                 U_file += f"""
     "{patch['name'][:-4]}.*"
     {{
-        type {boundaryConditions['wall']['u_type']};
+        type {boundaryConditions['velocityInlet']['u_type']};
         value uniform {tuple_to_string(patch['property'])};
     }}
     """  
@@ -204,11 +204,17 @@ def create_k_file(meshSettings,boundaryConditions):
     }}
     """
             elif(patch['purpose'] == 'inlet'):
+                if(patch['bound'] != None):
+                    charLen = stlAnalysis.getMaxSTLDim(patch['bound'])
+                    l = 0.07*charLen # turbulent length scale
+                    Umag = ampersandPrimitives.calc_Umag(patch['property'])
+                    I = 0.5 # turbulence intensity in %
+                    k = 1.5*(Umag*I)**2
                 k_file += f"""
     "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['velocityInlet']['k_type']};
-        value uniform {boundaryConditions['velocityInlet']['k_value']};
+        value uniform {k};
     }}
     """  
             elif(patch['purpose'] == 'outlet'):
@@ -276,15 +282,22 @@ def create_omega_file(meshSettings,boundaryConditions):
     }}
     """
             elif(patch['purpose'] == 'inlet'):
-                k_file += f"""
+                if(patch['bound'] != None):
+                    charLen = stlAnalysis.getMaxSTLDim(patch['bound'])
+                    l = 0.07*charLen # turbulent length scale
+                    Umag = ampersandPrimitives.calc_Umag(patch['property'])
+                    I = 0.5 # turbulence intensity in %
+                    k = 1.5*(Umag*I)**2
+                    omega = 0.09**(-1./4.)*k**0.5/l
+                omega_file += f"""
     "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['velocityInlet']['omega_type']};
-        value uniform {boundaryConditions['velocityInlet']['omega_value']};
+        value uniform {omega};
     }}
     """  
             elif(patch['purpose'] == 'outlet'):
-                k_file += f"""
+                omega_file += f"""
     "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['pressureOutlet']['omega_type']};
@@ -348,15 +361,22 @@ def create_epsilon_file(meshSettings,boundaryConditions):
     }}
     """
             elif(patch['purpose'] == 'inlet'):
-                k_file += f"""
+                if(patch['bound'] != None):
+                    charLen = stlAnalysis.getMaxSTLDim(patch['bound'])
+                    l = 0.07*charLen # turbulent length scale
+                    Umag = ampersandPrimitives.calc_Umag(patch['property'])
+                    I = 0.5 # turbulence intensity in %
+                    k = 1.5*(Umag*I)**2
+                    epsilon = 0.09**(3./4.)*k**(3./2.)/l
+                epsilon_file += f"""
     "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['velocityInlet']['epsilon_type']};
-        value uniform {boundaryConditions['velocityInlet']['epsilon_value']};
+        value uniform {epsilon};
     }}
     """  
             elif(patch['purpose'] == 'outlet'):
-                k_file += f"""
+                epsilon_file += f"""
     "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['pressureOutlet']['epsilon_type']};

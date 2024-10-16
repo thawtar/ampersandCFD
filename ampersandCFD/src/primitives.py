@@ -137,6 +137,10 @@ FoamFile
     # to remove duplicates from a list
     def remove_duplicates(lst):
         return list(set(lst))
+    
+    @staticmethod
+    def calc_Umag(U):
+        return sum([u**2 for u in U])**0.5
 
 class ampersandIO:
     def __init__(self):

@@ -212,7 +212,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.write_settings()
 
     # Add a stl file to the project settings (self.meshSettings)
-    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', featureLevel=1,purpose='wall',property=None):
+    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', 
+                                 featureLevel=1,purpose='wall',property=None,bounds=None):
         # stl file has the following format: 
         # {'name': 'stl1.stl','type':'triSurfaceMesh','purpose':'wall' ,'refineMin': 1, 'refineMax': 3, 
         #             'featureEdges':'true','featureLevel':3,'nLayers':3}
@@ -226,7 +227,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         else:
             nLayers = 7
         stl_ = {'name': stl_name, 'type':'triSurfaceMesh','purpose':purpose, 'refineMin': refMin, 'refineMax': refMax, 
-                'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers, 'property':property}
+                'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers, 'property':property, 'bounds':bounds}
         
         self.stl_names.append(stl_name)
         self.stl_files.append(stl_)
@@ -322,6 +323,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 #purpose = self.add_purpose_to_stl_()
                 #ampersandIO.printMessage(f"Adding {stl_name} to the project with purpose {purpose}")
                 purpose = self.ask_purpose()
+                bounds = stlAnalysis.get_bounding_box(stl_file)
                 property = self.set_property(purpose)
                 self.add_stl_to_mesh_settings(stl_name,purpose=purpose,property=property)
             # this is the path to the constant/triSurface inside project directory where STL will be copied

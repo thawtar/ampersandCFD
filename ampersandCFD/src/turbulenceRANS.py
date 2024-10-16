@@ -58,7 +58,7 @@ def calc_length_scale(D):
 
 # calculate turbulent length scale for channel flow
 # input: channel width (W), channel depth (H)
-def calc_intensity_channel(U,nu,W,H):
+def calc_length_scale_channel(U,nu,W,H):
     A = W*H
     P = 2*(W+H)
     D = 4*A/P
