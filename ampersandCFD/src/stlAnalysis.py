@@ -252,7 +252,7 @@ class stlAnalysis:
         refMax = max(3,refLevel)
         for geometry in meshSettings['geometry']:
             if geometry['type'] == 'triSurfaceMesh':
-                geometry['refineMin'] = refMin
+                geometry['refineMin'] = refMax
                 geometry['refineMax'] = refMax
                 #geometry['featureEdges'] = 'true'
                 geometry['featureLevel'] = featureLevel

@@ -323,9 +323,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 #purpose = self.add_purpose_to_stl_()
                 #ampersandIO.printMessage(f"Adding {stl_name} to the project with purpose {purpose}")
                 purpose = self.ask_purpose()
-                bounds = stlAnalysis.get_bounding_box(stl_file)
+                bounds = stlAnalysis.compute_bounding_box(stl_file)
                 property = self.set_property(purpose)
-                self.add_stl_to_mesh_settings(stl_name,purpose=purpose,property=property)
+                self.add_stl_to_mesh_settings(stl_name,purpose=purpose,property=property,bounds=bounds)
             # this is the path to the constant/triSurface inside project directory where STL will be copied
             stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
             try:
