@@ -21,11 +21,11 @@ class stlAnalysis:
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
         minX = stlMinX - 1.5*bbX*sizeFactor
-        maxX = stlMaxX + 7*bbX*sizeFactor
-        minY = stlMinY - 3*bbY*sizeFactor
-        maxY = stlMaxY + 3*bbY*sizeFactor
-        minZ = stlMinZ - 3*bbZ*sizeFactor
-        maxZ = stlMaxZ + 3*bbZ*sizeFactor
+        maxX = stlMaxX + 7.5*bbX*sizeFactor
+        minY = stlMinY - 2.5*bbY*sizeFactor
+        maxY = stlMaxY + 2.5*bbY*sizeFactor
+        minZ = stlMinZ - 2.5*bbZ*sizeFactor
+        maxZ = stlMaxZ + 2.5*bbZ*sizeFactor
         
         if(internalFlow):
             minX = stlMinX - 0.1*bbX*sizeFactor
@@ -50,6 +50,7 @@ class stlAnalysis:
             maxZ = stlAnalysis.roundl(maxZ)
         if onGround: # the the body is touching the ground
             minZ = stlMinZ
+            maxZ = stlMaxZ + 4.0*bbZ*sizeFactor
         domain_size = (minX,maxX,minY,maxY,minZ,maxZ)
         return domain_size
 

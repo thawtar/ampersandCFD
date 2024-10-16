@@ -12,8 +12,7 @@ cd "${{0%/*}}" || exit                                # Run from this directory
 #-----------------------------------------------------
 """
         cmdPostProcess += f"""
-runApplication postProcess -func writeCellCentres
-runApplication postProcess -func writeCellVolumes
+runApplication postProcess 
 """
         return cmdPostProcess
     
@@ -43,23 +42,6 @@ yPlus1
     // Mandatory entries
     type            yPlus;
     libs            (fieldFunctionObjects);
-
-    // Optional (inherited) entries
-    writePrecision  10;
-    writeToFile     true;
-    useUserTime     true;
-
-    region          region0;
-    enabled         true;
-    log             true;
-    timeStart       0;
-    timeEnd         1000;
-
-    writeFields     yes;
-    executeControl  timeStep;
-    executeInterval 1;
-    writeControl    writeTime;
-    writeInterval   -1;
 }}
 """
         return FO
@@ -71,11 +53,8 @@ forces
 {{
     type            forces;
     libs            (forces);
-
     writeControl    timeStep;
     timeInterval    1;
-
-
     patches         ({patchName});
     rho             rhoInf;      // Indicates incompressible
     rhoInf          {rhoInf};           // Required when rho = rhoInf
@@ -84,3 +63,4 @@ forces
 }}
 """
         return FO
+    

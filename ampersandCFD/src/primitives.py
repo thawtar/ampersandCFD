@@ -127,8 +127,11 @@ FoamFile
     
     @staticmethod
     def write_dict_to_file(filename, content):
-        with open(filename, 'w') as f:
-            f.write(content)
+        try:
+            with open(filename, 'w') as f:
+                f.write(content)
+        except Exception as e:
+            print(f"Error writing to file: {e}")
 
     @staticmethod
     # to remove duplicates from a list
