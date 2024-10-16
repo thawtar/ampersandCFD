@@ -99,12 +99,19 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
             levels ((1E15 {an_entry['refineMax']})); 
         }}"""
         elif(an_entry['type'] == 'triSurfaceMesh'):
-            if(an_entry['purpose'] == 'refinementRegion'):
+            if(an_entry['purpose'] == 'refinementSurface'):
                 refinementRegions += f"""
         {an_entry['name']}
         {{
             mode distance;
             levels ((1E-4 {an_entry['property']})); 
+        }}"""
+            elif(an_entry['purpose'] == 'refinementRegion'):
+                refinementRegions += f"""
+        {an_entry['name']}
+        {{
+            mode inside;
+            levels ((1E15 {an_entry['property']})); 
         }}"""
         else:
             pass
