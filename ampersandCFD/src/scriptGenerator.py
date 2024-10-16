@@ -48,7 +48,7 @@ cd "${{0%/*}}" || exit                                # Run from this directory
             cmdSimulation += f"""
 rm -rf 0
 cp -r 0.orig 0
-rm -rf log.decomposePar log.simpleFoam log.reconstructParMesh
+rm -rf log.decomposePar log.simpleFoam log.reconstructParMesh log.potentialFoam log.renumberMesh
 runApplication decomposePar -force
 touch case.foam
 runParallel renumberMesh -overwrite

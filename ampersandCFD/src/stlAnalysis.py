@@ -193,19 +193,32 @@ class stlAnalysis:
             maxCellSize = maxSTLLength/4.
         domain_size = stlAnalysis.calc_domain_size(stlBoundingBox=stlBoundingBox,sizeFactor=sizeFactor,onGround=onGround,internalFlow=internalFlow)
         if(refinement==0):
-            backgroundCellSize = min(maxSTLLength/4.,maxCellSize) # this is the size of largest blockMesh cells
-            target_yPlus = 200
+            if(internalFlow):
+                backgroundCellSize = min(maxSTLLength/8.,maxCellSize)
+            else:
+                backgroundCellSize = min(maxSTLLength/4.,maxCellSize) # this is the size of largest blockMesh cells
+            target_yPlus = 120
             nLayers = 3
         elif(refinement==1):
-            backgroundCellSize = min(maxSTLLength/8.,maxCellSize)
-            target_yPlus = 100
+            if(internalFlow):
+                backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
+            else:
+                backgroundCellSize = min(maxSTLLength/8.,maxCellSize)
+            target_yPlus = 70
             nLayers = 5
         elif(refinement==2):
-            target_yPlus = 50
+            if(internalFlow):
+                backgroundCellSize = min(maxSTLLength/16.,maxCellSize)
+            else:
+                backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
+            target_yPlus = 40
+            nLayers = 7
+        else: # medium settings for default
+            if(internalFlow):
+                backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
+            else:
+                backgroundCellSize = min(maxSTLLength/8.,maxCellSize)
             nLayers = 5
-            backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
-        else:
-            backgroundCellSize = min(maxSTLLength/8.,maxCellSize) # medium setting for default
             target_yPlus = 100
         nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,backgroundCellSize)
         L = maxSTLLength # this is the characteristic length to be used in Re calculations

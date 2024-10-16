@@ -234,7 +234,7 @@ boundaryConditions = {
 simulationSettings = {
     'application': 'simpleFoam',
     'startTime': 0,
-    'endTime': 100,
+    'endTime': 1000,
     'deltaT': 1,
     'startFrom': 'startTime',
     'stopAt': 'endTime',

@@ -411,7 +411,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         domain_size, nx, ny, nz, refLevel,target_y,minVol = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,U=U,maxCellSize=2.0,expansion_ratio=ER,
                                                                            onGround=self.onGround,internalFlow=self.internalFlow,
                                                                            refinement=self.refinement)
-        featureLevel = max(refLevel+1,1)
+        featureLevel = max(refLevel,1)
         self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel, featureLevel) 
         self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path,self.internalFlow)
         refinementBoxLevel = max(2,refLevel-3)
