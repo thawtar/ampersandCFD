@@ -98,6 +98,16 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
             mode inside;
             levels ((1E15 {an_entry['refineMax']})); 
         }}"""
+        elif(an_entry['type'] == 'triSurfaceMesh'):
+            if(an_entry['purpose'] == 'refinementRegion'):
+                refinementRegions += f"""
+        {an_entry['name']}
+        {{
+            mode distance;
+            levels ((1E-4 {an_entry['property']})); 
+        }}"""
+        else:
+            pass
     
     castellatedMeshControls = f"""\ncastellatedMeshControls
 {{
@@ -141,11 +151,12 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
     {{"""
     for an_entry in meshSettings['geometry']:
         if(an_entry['type'] == 'triSurfaceMesh'):
-            layerControls += f"""
-        "{an_entry['name'][:-4]}.*"
-        {{
-            nSurfaceLayers {an_entry['nLayers']};
-        }}"""
+            if(an_entry['purpose'] == 'wall'): # If the surface is a wall, add layers
+                layerControls += f"""
+            "{an_entry['name'][:-4]}.*"
+            {{
+                nSurfaceLayers {an_entry['nLayers']};
+            }}"""
     layerControls += f"""
     }};
     expansionRatio {meshSettings['addLayersControls']['expansionRatio']};

@@ -52,13 +52,33 @@ def create_u_file(meshSettings,boundaryConditions):
     """
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
-            U_file += f"""
+            if(patch['purpose'] == 'wall'):
+                U_file += f"""
     "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['wall']['u_type']};
         value uniform {tuple_to_string(boundaryConditions['wall']['u_value'])};
     }}
     """
+            elif(patch['purpose'] == 'inlet'):
+                U_file += f"""
+    "{patch['name'][:-4]}.*"
+    {{
+        type {boundaryConditions['wall']['u_type']};
+        value uniform {tuple_to_string(patch['property'])};
+    }}
+    """  
+            elif(patch['purpose'] == 'outlet'):
+                U_file += f"""
+    "{patch['name'][:-4]}.*"
+    {{
+        type {boundaryConditions['pressureOutlet']['u_type']};
+        inletValue uniform {tuple_to_string(boundaryConditions['pressureOutlet']['u_value'])};
+        value uniform {tuple_to_string(boundaryConditions['pressureOutlet']['u_value'])};
+    }}
+    """
+            else:
+                pass         
     U_file += """
 }"""
     return U_file
@@ -104,13 +124,32 @@ def create_p_file(meshSettings,boundaryConditions):
     """
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
-            p_file += f"""
+            if(patch['purpose'] == 'wall'):
+                p_file += f"""
    "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['wall']['p_type']};
         value uniform {boundaryConditions['wall']['p_value']};
     }}
     """
+            elif(patch['purpose'] == 'inlet'):
+                p_file += f"""
+    "{patch['name'][:-4]}.*"
+    {{
+        type {boundaryConditions['velocityInlet']['p_type']};
+        value uniform {boundaryConditions['velocityInlet']['p_value']};
+    }}
+    """  
+            elif(patch['purpose'] == 'outlet'):
+                p_file += f"""
+    "{patch['name'][:-4]}.*"
+    {{
+        type {boundaryConditions['pressureOutlet']['p_type']};
+        value uniform {boundaryConditions['pressureOutlet']['p_value']};
+    }}
+    """
+            else:
+                pass 
     p_file += """
 }"""
     return p_file
@@ -156,13 +195,33 @@ def create_k_file(meshSettings,boundaryConditions):
     """
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
-            k_file += f"""
+            if(patch['purpose'] == 'wall'):
+                k_file += f"""
     "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['wall']['k_type']};
         value  {boundaryConditions['wall']['k_value']};
     }}
     """
+            elif(patch['purpose'] == 'inlet'):
+                k_file += f"""
+    "{patch['name'][:-4]}.*"
+    {{
+        type {boundaryConditions['velocityInlet']['k_type']};
+        value uniform {boundaryConditions['velocityInlet']['k_value']};
+    }}
+    """  
+            elif(patch['purpose'] == 'outlet'):
+                k_file += f"""
+    "{patch['name'][:-4]}.*"
+     {{
+        type {boundaryConditions['pressureOutlet']['k_type']};
+        value uniform {boundaryConditions['pressureOutlet']['k_value']};
+    }}
+    """
+            else:
+                pass 
+
     k_file += """
 }"""
     return k_file
@@ -208,13 +267,33 @@ def create_omega_file(meshSettings,boundaryConditions):
     """
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
-            omega_file += f"""
-  "{patch['name'][:-4]}.*"
+            if(patch['purpose'] == 'wall'):
+                omega_file += f"""
+    "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['wall']['omega_type']};
         value  {boundaryConditions['wall']['omega_value']};
     }}
     """
+            elif(patch['purpose'] == 'inlet'):
+                k_file += f"""
+    "{patch['name'][:-4]}.*"
+    {{
+        type {boundaryConditions['velocityInlet']['omega_type']};
+        value uniform {boundaryConditions['velocityInlet']['omega_value']};
+    }}
+    """  
+            elif(patch['purpose'] == 'outlet'):
+                k_file += f"""
+    "{patch['name'][:-4]}.*"
+    {{
+        type {boundaryConditions['pressureOutlet']['omega_type']};
+        value uniform {boundaryConditions['pressureOutlet']['omega_value']};
+    }}
+    """
+            else:
+                pass 
+
     omega_file += """
 }"""
     return omega_file
@@ -260,13 +339,33 @@ def create_epsilon_file(meshSettings,boundaryConditions):
     """
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
-            epsilon_file += f"""
+            if(patch['purpose'] == 'wall'):
+                epsilon_file += f"""
     "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['wall']['epsilon_type']};
         value  {boundaryConditions['wall']['epsilon_value']};
     }}
     """
+            elif(patch['purpose'] == 'inlet'):
+                k_file += f"""
+    "{patch['name'][:-4]}.*"
+    {{
+        type {boundaryConditions['velocityInlet']['epsilon_type']};
+        value uniform {boundaryConditions['velocityInlet']['epsilon_value']};
+    }}
+    """  
+            elif(patch['purpose'] == 'outlet'):
+                k_file += f"""
+    "{patch['name'][:-4]}.*"
+    {{
+        type {boundaryConditions['pressureOutlet']['epsilon_type']};
+        value uniform {boundaryConditions['pressureOutlet']['epsilon_value']};
+    }}
+    """
+            else:
+                pass 
+        
     epsilon_file += """
 }"""
     return epsilon_file
