@@ -241,7 +241,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             stl_name = stl['name']
             if stl_name in self.stl_names:
                 purpose_no = ampersandIO.printMessage(f"Enter purpose of {stl_name}, (0: wall, 1: patch, 2: refinementRegion, 3: refinementSurface, 4: cellZone, 5: baffles)")
-                if(purpose_no < 0 or purpose_no > 5):
+                if(purpose_no < 0 or purpose_no > 6):
                     ampersandIO.printMessage("Invalid purpose number. Setting purpose to wall")
                     purpose = 'wall'
                 else:

@@ -194,21 +194,21 @@ class stlAnalysis:
         domain_size = stlAnalysis.calc_domain_size(stlBoundingBox=stlBoundingBox,sizeFactor=sizeFactor,onGround=onGround,internalFlow=internalFlow)
         if(refinement==0):
             if(internalFlow):
-                backgroundCellSize = min(maxSTLLength/8.,maxCellSize)
+                backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
             else:
                 backgroundCellSize = min(maxSTLLength/4.,maxCellSize) # this is the size of largest blockMesh cells
             target_yPlus = 120
             nLayers = 3
         elif(refinement==1):
             if(internalFlow):
-                backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
+                backgroundCellSize = min(maxSTLLength/24.,maxCellSize)
             else:
                 backgroundCellSize = min(maxSTLLength/8.,maxCellSize)
             target_yPlus = 70
             nLayers = 5
         elif(refinement==2):
             if(internalFlow):
-                backgroundCellSize = min(maxSTLLength/16.,maxCellSize)
+                backgroundCellSize = min(maxSTLLength/36.,maxCellSize)
             else:
                 backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
             target_yPlus = 40
@@ -227,13 +227,13 @@ class stlAnalysis:
         refLevel = stlAnalysis.calc_refinement_levels(backgroundCellSize,targetCellSize)
         # adjust refinement levels based on coarse, medium, fine settings
         if(refinement==0):
-            refLevel = max(1,refLevel+1)
+            refLevel = max(1,refLevel+2)
         elif(refinement==1):
             refLevel = max(2,refLevel+2)
         elif(refinement==2):
-            refLevel = max(3,refLevel+3)
+            refLevel = max(3,refLevel+2)
         else:
-            refLevel = max(2,refLevel)
+            refLevel = max(2,refLevel+2)
         minVolumeSize = backgroundCellSize**3/(8.**refLevel*20.)
         # print the summary of results
         print(f"Domain size {domain_size}")

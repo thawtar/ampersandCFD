@@ -54,9 +54,38 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
         }}"""
                 if(an_entry['purpose'] == 'patch'):
                     patchType = 'patch'
+                    refinementSurfaces+= f"""
+        {an_entry['name'][:-4]}
+        {{
+            level (0 0);
+            regions
+            {{
+                {an_entry['name'][:-4]}
+                {{
+                    level ({an_entry['refineMin']} {an_entry['refineMax']});
+                    patchInfo
+                    {{
+                        type {patchType};
+                    }}
+                }}
+            }}
+            
+        }}""" 
+                elif(an_entry['purpose'] == 'cellZone'):
+                    patchType = 'cellZone'
+                    refinementSurfaces+= f"""
+        {an_entry['name'][:-4]}
+        {{
+            level (0 0);
+            cellZone {an_entry['name'][:-4]};
+            faceZone {an_entry['name'][:-4]};
+            cellZoneInside inside;
+            boundary internal;
+            
+        }}""" 
                 else:
                     patchType = 'wall'
-            refinementSurfaces+= f"""
+                    refinementSurfaces+= f"""
         {an_entry['name'][:-4]}
         {{
             level (0 0);
@@ -106,13 +135,14 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
             mode distance;
             levels ((1E-4 {an_entry['property']})); 
         }}"""
-            elif(an_entry['purpose'] == 'refinementRegion'):
+            elif(an_entry['purpose'] == 'refinementRegion' or an_entry['purpose'] == 'cellZone'):
                 refinementRegions += f"""
         {an_entry['name']}
         {{
             mode inside;
             levels ((1E15 {an_entry['property']})); 
         }}"""
+            
         else:
             pass
     
