@@ -194,21 +194,21 @@ class stlAnalysis:
         domain_size = stlAnalysis.calc_domain_size(stlBoundingBox=stlBoundingBox,sizeFactor=sizeFactor,onGround=onGround,internalFlow=internalFlow)
         if(refinement==0):
             if(internalFlow):
-                backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
+                backgroundCellSize = min(maxSTLLength/6.,maxCellSize)
             else:
                 backgroundCellSize = min(maxSTLLength/4.,maxCellSize) # this is the size of largest blockMesh cells
             target_yPlus = 120
             nLayers = 3
         elif(refinement==1):
             if(internalFlow):
-                backgroundCellSize = min(maxSTLLength/24.,maxCellSize)
+                backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
             else:
                 backgroundCellSize = min(maxSTLLength/8.,maxCellSize)
             target_yPlus = 70
             nLayers = 5
         elif(refinement==2):
             if(internalFlow):
-                backgroundCellSize = min(maxSTLLength/36.,maxCellSize)
+                backgroundCellSize = min(maxSTLLength/24.,maxCellSize)
             else:
                 backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
             target_yPlus = 40
