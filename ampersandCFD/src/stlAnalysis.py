@@ -1,6 +1,7 @@
 import os
 import vtk
 import numpy as np
+import math
 from stlToOpenFOAM import find_inside_point
 
 class stlAnalysis:
@@ -103,16 +104,20 @@ class stlAnalysis:
     
     # to add refinement box to mesh settings
     @staticmethod
-    def addRefinementBoxToMesh(meshSettings,stl_path,boxName='refinementBox',refLevel=2):
+    def addRefinementBoxToMesh(meshSettings,stl_path,boxName='refinementBox',refLevel=2,internalFlow=False):
+        if(internalFlow):
+            return meshSettings
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
         box = stlAnalysis.getRefinementBox(stlBoundingBox)
         meshSettings['geometry'].append({'name': boxName,'type':'searchableBox', 'purpose':'refinement',
                                          'min': [box[0], box[2], box[4]], 'max': [box[1], box[3], box[5]],
                                          'refineMax': refLevel})
+        
         fineBox = stlAnalysis.getRefinementBoxClose(stlBoundingBox)
         meshSettings['geometry'].append({'name': 'fineBox','type':'searchableBox', 'purpose':'refinement',
                                          'min': [fineBox[0], fineBox[2], fineBox[4]], 'max': [fineBox[1], fineBox[3], fineBox[5]],
                                          'refineMax': refLevel+1})
+        
         return meshSettings
 
     # to calculate nearest wall thickness for a target yPlus value
@@ -146,7 +151,7 @@ class stlAnalysis:
         nx = (maxX-minX)/target_cell_size
         ny = (maxY-minY)/target_cell_size
         nz = (maxZ-minZ)/target_cell_size
-        nx, ny, nz = int(nx), int(ny), int(nz)
+        nx, ny, nz = int(math.ceil(nx)), int(math.ceil(ny)), int(math.ceil(nz))
         return (nx,ny,nz)
     
     # Function to read STL file and compute bounding box
@@ -189,28 +194,29 @@ class stlAnalysis:
     def calc_mesh_settings(stlBoundingBox,nu=1e-6,rho=1000.,U=1.0,maxCellSize=0.5,sizeFactor=1.0,
                            expansion_ratio=1.2,onGround=False,internalFlow=False,refinement=1,nLayers=5):
         maxSTLLength = stlAnalysis.getMaxSTLDim(stlBoundingBox)
+        minSTLLength = stlAnalysis.getMinSTLDim(stlBoundingBox)
         if(maxCellSize < 0.001):
             maxCellSize = maxSTLLength/4.
         domain_size = stlAnalysis.calc_domain_size(stlBoundingBox=stlBoundingBox,sizeFactor=sizeFactor,onGround=onGround,internalFlow=internalFlow)
         if(refinement==0):
             if(internalFlow):
-                backgroundCellSize = min(maxSTLLength/6.,maxCellSize)
+                backgroundCellSize = min(minSTLLength/6.,maxCellSize)
             else:
-                backgroundCellSize = min(maxSTLLength/4.,maxCellSize) # this is the size of largest blockMesh cells
+                backgroundCellSize = min(minSTLLength/4.,maxCellSize) # this is the size of largest blockMesh cells
             target_yPlus = 120
             nLayers = 3
         elif(refinement==1):
             if(internalFlow):
-                backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
+                backgroundCellSize = min(minSTLLength/12.,maxCellSize)
             else:
-                backgroundCellSize = min(maxSTLLength/8.,maxCellSize)
+                backgroundCellSize = min(minSTLLength/8.,maxCellSize)
             target_yPlus = 70
             nLayers = 5
         elif(refinement==2):
             if(internalFlow):
-                backgroundCellSize = min(maxSTLLength/24.,maxCellSize)
+                backgroundCellSize = min(minSTLLength/18.,maxCellSize)
             else:
-                backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
+                backgroundCellSize = min(minSTLLength/12.,maxCellSize)
             target_yPlus = 40
             nLayers = 7
         else: # medium settings for default
@@ -227,21 +233,24 @@ class stlAnalysis:
         refLevel = stlAnalysis.calc_refinement_levels(backgroundCellSize,targetCellSize)
         # adjust refinement levels based on coarse, medium, fine settings
         if(refinement==0):
-            refLevel = max(1,refLevel+2)
+            refLevel = max(1,refLevel)
         elif(refinement==1):
-            refLevel = max(2,refLevel+2)
+            refLevel = max(2,refLevel)
         elif(refinement==2):
-            refLevel = max(3,refLevel+2)
+            refLevel = max(3,refLevel)
         else:
-            refLevel = max(2,refLevel+2)
+            refLevel = max(2,refLevel)
         minVolumeSize = backgroundCellSize**3/(8.**refLevel*20.)
         # print the summary of results
-        print(f"Domain size {domain_size}")
-        print(f"Simple grading: {nx},{ny},{nz}")
+        print("\n-----------------Mesh Settings-----------------")
+        print(f"Domain size: {domain_size}")
+        print(f"Nx Ny Nz: {nx},{ny},{nz}")
         print(f"Max cell size: {backgroundCellSize}")
-        print(f"Max volume size: {backgroundCellSize**3}")
-        print(f"Min volume size: {minVolumeSize}")
-        print(f"Target Y:{target_y}")
+        print(f"Min cell size: {targetCellSize}")
+        #print(f"Max volume size: {backgroundCellSize**3}")
+        #print(f"Min volume size: {minVolumeSize}")
+        print(f"First layer thickness:{target_y}")
+        
         print(f"Refinement Level:{refLevel}")
         return domain_size, nx, ny, nz, refLevel,target_y,minVolumeSize
     

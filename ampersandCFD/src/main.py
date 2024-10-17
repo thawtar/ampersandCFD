@@ -28,7 +28,7 @@ def main():
     project.add_stl_to_project()
     
     # Before creating the project files, the settings are flushed to the project_settings.yaml file
-    project.list_stl_files()
+    
     project.ask_flow_type()
     if(project.internalFlow!=True):
         project.ask_ground_type()
@@ -40,7 +40,7 @@ def main():
 
     if(len(project.stl_files)>0):
         project.analyze_stl_file()
-    
+    project.list_stl_files()
     #project.analyze_stl_file()
     project.write_settings()
     project.create_project_files()

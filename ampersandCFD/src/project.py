@@ -347,10 +347,35 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     
     def list_stl_files(self):
         i = 1
-        ampersandIO.printMessage("STL Files in the project:")
+        ampersandIO.printMessage("\n-----------------STL Files-----------------")
+        ampersandIO.printMessage("No.\tName\t\tPurpose\tRefineMent\tProperty")
         for stl_file in self.stl_files:
-            ampersandIO.printMessage(f"{i}:\t{stl_file['name']}")
+            ampersandIO.printMessage(f"{i}:\t{stl_file['name']}\t{stl_file['purpose']}\t({stl_file['refineMin']} {stl_file['refineMax']})\t\t{stl_file['property']}")
             i += 1
+
+    # this will allow the user to change the details of the stl file if necessary
+    def change_stl_details(self,stl_file_number=0):
+        self.list_stl_files()
+        change_purpose = ampersandIO.get_input("Change any STL files (y/N)?: ")
+        if change_purpose.lower() != 'y':
+            ampersandIO.printMessage("No change in STL files properties")
+            return 0
+        stl_file_number = ampersandIO.get_input("Enter the number of the file to change purpose: ")
+        try:
+            stl_file_number = int(stl_file_number)
+        except ValueError:
+            ampersandIO.printMessage("Invalid input. Please try again.")
+            self.change_stl_details()
+            #return -1
+        if stl_file_number < 0 or stl_file_number > len(self.stl_files):
+            ampersandIO.printMessage("Invalid input. Please try again.")
+            self.change_stl_details()
+            
+        stl_file = self.stl_files[stl_file_number]
+        stl_name = stl_file['name']
+        purpose = self.ask_purpose()
+        self.add_purpose_(stl_name,purpose)
+        return 0
 
     def remove_stl_file(self,stl_file_number=0):
         #self.list_stl_files()
@@ -415,7 +440,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel, featureLevel) 
         self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path,self.internalFlow)
         refinementBoxLevel = max(2,refLevel-3)
-        self.meshSettings = stlAnalysis.addRefinementBoxToMesh(self.meshSettings, stl_path,refLevel=refinementBoxLevel)
+        self.meshSettings = stlAnalysis.addRefinementBoxToMesh(meshSettings=self.meshSettings, stl_path=stl_path,refLevel=refinementBoxLevel,internalFlow=self.internalFlow)
         #self.meshSettings = stlAnalysis.set_layer_thickness(self.meshSettings, target_y)
         self.meshSettings = stlAnalysis.set_min_vol(self.meshSettings, minVol)
         return 0

@@ -452,15 +452,22 @@ def create_nut_file(meshSettings,boundaryConditions):
     """
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
-            nut_file += f"""
+            if(patch['purpose'] == 'wall'):
+                nut_file += f"""
     "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['wall']['nut_type']};
         value  {boundaryConditions['wall']['nut_value']};
     }}
     """
-    nut_file += """
-}"""
+            elif(patch['purpose'] == 'inlet' or patch['purpose'] == 'outlet'):
+                nut_file += f"""
+    {{
+        type {boundaryConditions['velocityInlet']['nut_type']};
+        value uniform {boundaryConditions['velocityInlet']['nut_value']};
+    }}
+    """
+                
     return nut_file
 
 def update_boundary_conditions(boundaryConditions, inletValues):

@@ -52,7 +52,7 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
             file \"{an_entry['name'][:-4]}.eMesh\";
             level {an_entry['featureLevel']};
         }}"""
-                if(an_entry['purpose'] == 'patch'):
+                if(an_entry['purpose'] == 'inlet' or an_entry['purpose'] == 'outlet'):
                     patchType = 'patch'
                     refinementSurfaces+= f"""
         {an_entry['name'][:-4]}
