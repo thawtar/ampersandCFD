@@ -201,6 +201,7 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
     minThickness {meshSettings['addLayersControls']['minThickness']};
     nGrow {meshSettings['addLayersControls']['nGrow']};
     featureAngle {meshSettings['addLayersControls']['featureAngle']};
+    slipFeatureAngle {meshSettings['addLayersControls']['slipFeatureAngle']};
     nRelaxIter {meshSettings['addLayersControls']['nRelaxIter']};
     nSmoothSurfaceNormals {meshSettings['addLayersControls']['nSmoothSurfaceNormals']};
     nSmoothNormals {meshSettings['addLayersControls']['nSmoothNormals']};
@@ -229,7 +230,14 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
     nSmoothScale {meshSettings['meshQualityControls']['nSmoothScale']};
     errorReduction {meshSettings['meshQualityControls']['errorReduction']};
 }}"""
-    debug = f"""\ndebug {meshSettings['debug']};
+    debug = f"""
+writeFlags
+(
+    scalarLevels
+    layerSets
+    layerFields     // write volScalarField for layer coverage
+);
+debug {meshSettings['debug']};
 mergeTolerance {meshSettings['mergeTolerance']};"""
     snappyHexMeshDict += header+steps+geometry+castellatedMeshControls+snapControls+layerControls+meshQualityControls+debug
     #print(snappyHexMeshDict)

@@ -462,11 +462,17 @@ def create_nut_file(meshSettings,boundaryConditions):
     """
             elif(patch['purpose'] == 'inlet' or patch['purpose'] == 'outlet'):
                 nut_file += f"""
+    "{patch['name'][:-4]}.*"
     {{
         type {boundaryConditions['velocityInlet']['nut_type']};
         value uniform {boundaryConditions['velocityInlet']['nut_value']};
     }}
     """
+            else:
+                pass 
+        
+    nut_file += """
+}"""
                 
     return nut_file
 
