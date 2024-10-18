@@ -18,38 +18,41 @@ def create_u_file(meshSettings,boundaryConditions):
     U_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
 {"""
     # Loop through patches for each boundary condition
-    for patch in meshSettings['patches']:
-        U_file += f"""
-    {patch['name']}"""
-        if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+    # If external flow, set the boundary conditions for blockMesh patches
+    if(meshSettings['internalFlow'] == False):
+        for patch in meshSettings['patches']:
             U_file += f"""
+    {patch['name']}"""
+            if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+                U_file += f"""
     {{
         type {boundaryConditions['velocityInlet']['u_type']};
         value uniform {tuple_to_string(boundaryConditions['velocityInlet']['u_value'])};
     }}
     """
-        if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
-            U_file += f"""
+            if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
+                U_file += f"""
     {{
         type {boundaryConditions['pressureOutlet']['u_type']};
         inletValue uniform {tuple_to_string(boundaryConditions['pressureOutlet']['u_value'])};
         value uniform {tuple_to_string(boundaryConditions['pressureOutlet']['u_value'])};
     }}
     """
-        if(patch['type'] == 'wall'):
-            U_file += f"""
+            if(patch['type'] == 'wall'):
+                U_file += f"""
     {{
         type {boundaryConditions['wall']['u_type']};
         value uniform {tuple_to_string(boundaryConditions['wall']['u_value'])};
     }}
     """
-        if(patch['type'] == 'movingWall'):
-            U_file += f"""
+            if(patch['type'] == 'movingWall'):
+                U_file += f"""
     {{
         type {boundaryConditions['movingWall']['u_type']};
         value uniform {tuple_to_string(boundaryConditions['movingWall']['u_value'])};
     }}
     """
+    # If internal flow, set the boundary conditions for STL patches
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             if(patch['purpose'] == 'wall'):
@@ -90,38 +93,40 @@ def create_p_file(meshSettings,boundaryConditions):
     p_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
 {"""
     # Loop through patches for each boundary condition
-    for patch in meshSettings['patches']:
-        #print(patch)
-        p_file += f"""
-    {patch['name']}"""
-        if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+    if(meshSettings['internalFlow'] == False):
+        for patch in meshSettings['patches']:
+            #print(patch)
             p_file += f"""
+    {patch['name']}"""
+            if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+                p_file += f"""
     {{
         type {boundaryConditions['velocityInlet']['p_type']};
         value uniform {boundaryConditions['velocityInlet']['p_value']};
     }}
     """
-        if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
-            p_file += f"""
+            if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
+                p_file += f"""
     {{
         type {boundaryConditions['pressureOutlet']['p_type']};
         value uniform {boundaryConditions['pressureOutlet']['p_value']};
     }}
     """
-        if(patch['type'] == 'wall'):
-            p_file += f"""
+            if(patch['type'] == 'wall'):
+                p_file += f"""
     {{
         type {boundaryConditions['wall']['p_type']};
         value uniform {boundaryConditions['wall']['p_value']};
     }}
     """
-        if(patch['type'] == 'movingWall'):
-            p_file += f"""
+            if(patch['type'] == 'movingWall'):
+                p_file += f"""
     {{
         type {boundaryConditions['movingWall']['p_type']};
         value uniform {boundaryConditions['movingWall']['p_value']};
     }}
     """
+                
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             if(patch['purpose'] == 'wall'):
@@ -161,41 +166,43 @@ def create_k_file(meshSettings,boundaryConditions,nu=1.0e-5):
     k_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
 {"""
     # Loop through patches for each boundary condition
-    for patch in meshSettings['patches']:
-        #print(patch)
-        k_file += f"""
-    {patch['name']}"""
-        if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
-            Umag = ampersandPrimitives.calc_Umag(boundaryConditions['velocityInlet']['u_value'])
-            I = 0.05 # turbulence intensity in %
-            k = 1.5*(Umag*I)**2
+    if(meshSettings['internalFlow'] == False):
+        for patch in meshSettings['patches']:
+            #print(patch)
             k_file += f"""
+    {patch['name']}"""
+            if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+                Umag = ampersandPrimitives.calc_Umag(boundaryConditions['velocityInlet']['u_value'])
+                I = 0.05 # turbulence intensity in %
+                k = 1.5*(Umag*I)**2
+                k_file += f"""
     {{
         type {boundaryConditions['velocityInlet']['k_type']};
         value uniform {k};
     }}
     """
-        if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
-            k_file += f"""
+            if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
+                k_file += f"""
     {{
         type {boundaryConditions['pressureOutlet']['k_type']};
         value uniform {boundaryConditions['pressureOutlet']['k_value']};
     }}
     """
-        if(patch['type'] == 'wall'):
-            k_file += f"""
+            if(patch['type'] == 'wall'):
+                k_file += f"""
     {{
         type {boundaryConditions['wall']['k_type']};
         value  {boundaryConditions['wall']['k_value']};
     }}
     """
-        if(patch['type'] == 'movingWall'):
-            k_file += f"""
+            if(patch['type'] == 'movingWall'):
+                k_file += f"""
     {{
         type {boundaryConditions['movingWall']['k_type']};
         value  {boundaryConditions['movingWall']['k_value']};
     }}
     """
+                
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             if(patch['purpose'] == 'wall'):
@@ -244,44 +251,46 @@ def create_omega_file(meshSettings,boundaryConditions,nu=1.0e-5):
     omega_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
 {"""
     # Loop through patches for each boundary condition
-    for patch in meshSettings['patches']:
-        #print(patch)
-        omega_file += f"""
-    {patch['name']}"""
-        if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
-            Umag = ampersandPrimitives.calc_Umag(boundaryConditions['velocityInlet']['u_value'])
-            I = 0.05 # turbulence intensity in %
-            k = 1.5*(Umag*I)**2
-            nut = 100.*nu
-            omega = k/nu*(nut/nu)**(-1)
-            # add the omega boundary condition
+    if(meshSettings['internalFlow'] == False):
+        for patch in meshSettings['patches']:
+            #print(patch)
             omega_file += f"""
+    {patch['name']}"""
+            if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+                Umag = ampersandPrimitives.calc_Umag(boundaryConditions['velocityInlet']['u_value'])
+                I = 0.05 # turbulence intensity in %
+                k = 1.5*(Umag*I)**2
+                nut = 100.*nu
+                omega = k/nu*(nut/nu)**(-1)
+                # add the omega boundary condition
+                omega_file += f"""
     {{
         type {boundaryConditions['velocityInlet']['omega_type']};
         value uniform {omega};
     }}
     """
-        if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
-            omega_file += f"""
+            if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
+                omega_file += f"""
     {{
         type {boundaryConditions['pressureOutlet']['omega_type']};
         value uniform {boundaryConditions['pressureOutlet']['omega_value']};
     }}
     """
-        if(patch['type'] == 'wall'):
-            omega_file += f"""
+            if(patch['type'] == 'wall'):
+                omega_file += f"""
     {{
         type {boundaryConditions['wall']['omega_type']};
         value  {boundaryConditions['wall']['omega_value']};
     }}
     """
-        if(patch['type'] == 'movingWall'):
-            omega_file += f"""
+            if(patch['type'] == 'movingWall'):
+                omega_file += f"""
     {{
         type {boundaryConditions['movingWall']['omega_type']};
         value  {boundaryConditions['movingWall']['omega_value']};
     }}
     """
+                
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             if(patch['purpose'] == 'wall'):
@@ -331,44 +340,46 @@ def create_epsilon_file(meshSettings,boundaryConditions,nu=1.0e-5):
     epsilon_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
 {"""
     # Loop through patches for each boundary condition
-    for patch in meshSettings['patches']:
-        #print(patch)
-        epsilon_file += f"""
-    {patch['name']}"""
-        if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
-            Umag = ampersandPrimitives.calc_Umag(boundaryConditions['velocityInlet']['u_value'])
-            I = 0.05 # turbulence intensity in %
-            k = 1.5*(Umag*I)**2
-            nut = 100.*nu
-            epsilon = 0.09*k**2/nu*(nut/nu)**(-1)
-            # add epsilon boundary condition
+    if(meshSettings['internalFlow'] == False):
+        for patch in meshSettings['patches']:
+            #print(patch)
             epsilon_file += f"""
+    {patch['name']}"""
+            if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+                Umag = ampersandPrimitives.calc_Umag(boundaryConditions['velocityInlet']['u_value'])
+                I = 0.05 # turbulence intensity in %
+                k = 1.5*(Umag*I)**2
+                nut = 100.*nu
+                epsilon = 0.09*k**2/nu*(nut/nu)**(-1)
+                # add epsilon boundary condition
+                epsilon_file += f"""
     {{
         type {boundaryConditions['velocityInlet']['epsilon_type']};
         value uniform {epsilon};
     }}
     """
-        if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
-            epsilon_file += f"""
+            if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
+                epsilon_file += f"""
     {{
         type {boundaryConditions['pressureOutlet']['epsilon_type']};
         value uniform {boundaryConditions['pressureOutlet']['epsilon_value']};
     }}
     """
-        if(patch['type'] == 'wall'):
-            epsilon_file += f"""
+            if(patch['type'] == 'wall'):
+                epsilon_file += f"""
     {{
         type {boundaryConditions['wall']['epsilon_type']};
         value  {boundaryConditions['wall']['epsilon_value']};
     }}
     """
-        if(patch['type'] == 'movingWall'):
-            epsilon_file += f"""
+            if(patch['type'] == 'movingWall'):
+                epsilon_file += f"""
     {{
         type {boundaryConditions['movingWall']['epsilon_type']};
         value  {boundaryConditions['movingWall']['epsilon_value']};
     }}
     """
+                
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             if(patch['purpose'] == 'wall'):
@@ -418,33 +429,34 @@ def create_nut_file(meshSettings,boundaryConditions):
     nut_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
 {"""
     # Loop through patches for each boundary condition
-    for patch in meshSettings['patches']:
-        #print(patch)
-        nut_file += f"""
-    {patch['name']}"""
-        if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+    if(meshSettings['internalFlow'] == False):
+        for patch in meshSettings['patches']:
+            #print(patch)
             nut_file += f"""
+        {patch['name']}"""
+            if(patch['type'] == 'patch' and patch['name'] == 'inlet'):
+                nut_file += f"""
     {{
         type {boundaryConditions['velocityInlet']['nut_type']};
         value uniform {boundaryConditions['velocityInlet']['nut_value']};
     }}
     """
-        if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
-            nut_file += f"""
+            if(patch['type'] == 'patch' and patch['name'] == 'outlet'):
+                nut_file += f"""
     {{
         type {boundaryConditions['pressureOutlet']['nut_type']};
         value uniform {boundaryConditions['pressureOutlet']['nut_value']};
     }}
     """
-        if(patch['type'] == 'wall'):
-            nut_file += f"""
+            if(patch['type'] == 'wall'):
+                nut_file += f"""
     {{
         type {boundaryConditions['wall']['nut_type']};
         value  {boundaryConditions['wall']['nut_value']};
     }}
     """
-        if(patch['type'] == 'movingWall'):
-            nut_file += f"""
+            if(patch['type'] == 'movingWall'):
+                nut_file += f"""
     {{
         type {boundaryConditions['movingWall']['nut_type']};
         value  {boundaryConditions['movingWall']['nut_value']};

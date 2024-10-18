@@ -227,10 +227,15 @@ class stlAnalysis:
             nLayers = 5
             target_yPlus = 100
         nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,backgroundCellSize)
+        #print(f"Nx Ny Nz (before): {nx},{ny},{nz}")
         L = maxSTLLength # this is the characteristic length to be used in Re calculations
         target_y = stlAnalysis.calc_y(nu,rho,L,U,target_yPlus=target_yPlus) # this is the thickness of closest cell
         targetCellSize = stlAnalysis.calc_cell_size(target_y,expRatio=expansion_ratio,thicknessRatio=0.3,nLayers=nLayers)
         refLevel = stlAnalysis.calc_refinement_levels(backgroundCellSize,targetCellSize)
+        adjustedBackgroundCellSize = targetCellSize*2.**refLevel
+        adjustedTargetCellSize = backgroundCellSize/2.**refLevel
+        adjustedNearWallThickness = adjustedTargetCellSize*0.3
+        #nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,adjustedBackgroundCellSize)
         # adjust refinement levels based on coarse, medium, fine settings
         if(refinement==0):
             refLevel = max(1,refLevel)
@@ -246,10 +251,10 @@ class stlAnalysis:
         print(f"Domain size: {domain_size}")
         print(f"Nx Ny Nz: {nx},{ny},{nz}")
         print(f"Max cell size: {backgroundCellSize}")
-        print(f"Min cell size: {targetCellSize}")
+        print(f"Min cell size: {adjustedTargetCellSize}")
         #print(f"Max volume size: {backgroundCellSize**3}")
         #print(f"Min volume size: {minVolumeSize}")
-        print(f"First layer thickness:{target_y}")
+        print(f"First layer thickness:{adjustedNearWallThickness}")
         
         print(f"Refinement Level:{refLevel}")
         return domain_size, nx, ny, nz, refLevel,target_y,minVolumeSize
@@ -270,8 +275,8 @@ class stlAnalysis:
     @staticmethod
     def set_mesh_settings(meshSettings, domain_size, nx, ny, nz, refLevel,featureLevel=1):
         meshSettings['domain'] = {'minx': domain_size[0], 'maxx': domain_size[1], 'miny': domain_size[2], 'maxy': domain_size[3], 'minz': domain_size[4], 'maxz': domain_size[5], 'nx': nx, 'ny': ny, 'nz': nz}
-        refMin = max(2,refLevel-2)
-        refMax = max(3,refLevel)
+        refMin = max(1,refLevel-1)
+        refMax = max(2,refLevel)
         for geometry in meshSettings['geometry']:
             if geometry['type'] == 'triSurfaceMesh':
                 geometry['refineMin'] = refMax

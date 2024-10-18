@@ -13,6 +13,7 @@ meshSettings = {
         'nz': 20},
     'maxCellSize': 0.5,
     'fineLevel': 1,
+    'internalFlow': False,
     # patches are for the construction of the blockMeshDict
     'patches': [
         {'name': 'inlet', 'type': 'patch','faces': [0, 4, 7, 3]},
@@ -216,7 +217,7 @@ boundaryConditions = {
      'nut_type': 'calculated','nut_value': 0},
 
     'wall':
-    {'u_type': 'noSlip','u_value': [0, 0, 0],
+    {'u_type': 'fixedValue','u_value': [0, 0, 0],
      'p_type': 'zeroGradient','p_value': 0,
      'k_type': 'kqRWallFunction','k_value': '$internalField',
      'omega_type': 'omegaWallFunction','omega_value': '$internalField',

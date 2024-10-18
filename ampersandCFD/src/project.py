@@ -406,6 +406,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.internalFlow = True
         else:
             self.internalFlow = False
+        self.meshSettings['internalFlow'] = self.internalFlow
 
     def ask_transient(self):
         transient = ampersandIO.get_input("Transient or Steady State (T/S)?: ")
