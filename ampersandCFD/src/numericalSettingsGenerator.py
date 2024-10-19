@@ -42,7 +42,7 @@ SIMPLE
 }}
 potentialFlow
 {{
-    nonOrthogonalCorrectors {numericalSettings['potentialFlowDict']['nonOrthogonalCorrectors']};
+    nNonOrthogonalCorrectors {numericalSettings['potentialFlowDict']['nonOrthogonalCorrectors']};
 }}
 relaxationFactors
 {{
@@ -72,6 +72,7 @@ def create_solverDict(solverSettings,solverName="U"):
 {{
     solver {solverSettings[solverName]['type']};
     smoother {solverSettings[solverName]['smoother']};
+    
     agglomerator {solverSettings[solverName]['agglomerator']};
     nCellsInCoarsestLevel {solverSettings[solverName]['nCellsInCoarsestLevel']};
     mergeLevels {solverSettings[solverName]['mergeLevels']};
