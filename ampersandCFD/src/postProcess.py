@@ -43,9 +43,9 @@ yPlus1
     // Mandatory entries
     type            yPlus;
     libs            (fieldFunctionObjects);
-    writeControl    timeStep;
+    writeControl    outputTime;
 	writeInterval   1;
-	writeFields     false;
+	writeFields     true;
     log             true;
 }}
 """
@@ -98,7 +98,10 @@ forces
 {{
     type            probes;
     libs            ("libfieldFunctionObjects.so");
-    writeControl    outputTime;
+    enabled         true;
+    writeControl    timeStep;
+    timeInterval    1;
+    log				true;
     probeLocations
     (
 """

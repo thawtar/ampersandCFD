@@ -514,8 +514,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.meshSettings['fineLevel'] = self.refinement
 
     def set_post_process_settings(self):
-        meshPoint = tuple(self.meshSettings['locationInMesh'])
-        self.postProcessSettings['fluxes'] = True
+        meshPoint = tuple(self.meshSettings['castellatedMeshControls']['locationInMesh'])
+        self.postProcessSettings['massFlow'] = True
         self.postProcessSettings['minMax'] = True
         self.postProcessSettings['yPlus'] = True
         self.postProcessSettings['forces'] = True
