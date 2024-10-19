@@ -1,4 +1,5 @@
-from primitives import ampersandPrimitives
+from primitives import ampersandPrimitives, ampersandIO
+from constants import meshSettings, postProcessSettings
 
 class postProcess:
     def __init__(self):
@@ -42,6 +43,10 @@ yPlus1
     // Mandatory entries
     type            yPlus;
     libs            (fieldFunctionObjects);
+    writeControl    timeStep;
+	writeInterval   1;
+	writeFields     false;
+    log             true;
 }}
 """
         return FO
@@ -64,3 +69,101 @@ forces
 """
         return FO
     
+    @staticmethod
+    def FO_massFlow(patchName="patchName"):
+        FO = f"""
+{patchName}_massFlow
+{{
+    type            surfaceFieldValue;
+    libs            ("libfieldFunctionObjects.so");
+    writeControl    timeStep;
+    timeInterval    1;
+    log             true;
+    writeFields     false;
+    regionType      patch;
+    name            {patchName};
+    operation       sum;
+    fields
+    (
+        phi
+    );
+}}
+"""
+        return FO
+    
+    @staticmethod
+    def FO_probes(probeName="probeName",probeLocations=[(0,0,0)]):
+        FO = f"""
+{probeName}
+{{
+    type            probes;
+    libs            ("libfieldFunctionObjects.so");
+    writeControl    outputTime;
+    probeLocations
+    (
+"""
+        for probeLocation in probeLocations:
+            FO += f"        ({probeLocation[0]} {probeLocation[1]} {probeLocation[2]})\n"
+        FO += f"""    );
+    fields
+    (
+        U
+        p
+    );
+}}
+"""
+        return FO
+    
+    @staticmethod
+    def FO_streamLines(start="start",end="end",nPoints=100):
+        FO = f"""
+streamLines
+{{
+    type            streamLines;
+    libs            (streamLines);
+    writeControl    timeStep;
+    nPoints         {nPoints};
+    start           ({start[0]} {start[1]} {start[2]});
+    end             ({end[0]} {end[1]} {end[2]});
+}}
+"""
+        return FO
+    
+    @staticmethod
+    def get_probe_location():
+        probeLocation = ampersandIO.get_input_vector("Enter probe location (x y z): ")
+        return tuple(probeLocation)
+    
+    @staticmethod
+    def get_mass_flow_rate_FO(meshSettings):
+        massFlowFO = ""
+        # for internal flow problems, get all patches
+        if(meshSettings['internalFlow']):
+            for patch in meshSettings['geometry']:
+                if(patch['purpose'] == "inlet" or patch['purpose'] == "outlet"):
+                    massFlowFO += postProcess.FO_massFlow(patchName=patch['name'][:-4])
+                    #massFlowFO += postProcess.FO_massFlow(patchName=patch)
+        else:
+            # for external flow problems, there are only inlet and outlet patches
+            massFlowFO += postProcess.FO_massFlow(patchName="inlet")
+            massFlowFO += postProcess.FO_massFlow(patchName="outlet")
+        return massFlowFO
+    
+    @staticmethod
+    def create_FOs(meshSettings,postProcessSettings,useFOs=True):
+        if(not useFOs):
+            return "// No function objects are used"
+        FOs = ""
+        if(postProcessSettings['minMax']):
+            FOs += postProcess.FO_min_max()
+        if(postProcessSettings['yPlus']):
+            FOs += postProcess.FO_yPlus()
+        if(postProcessSettings['forces']):
+            FOs += postProcess.FO_forces(patchName="wall",rhoInf=1,CofR=(0,0,0),pitchAxis=(0,1,0))
+        if(postProcessSettings['massFlow']):
+            FOs += postProcess.get_mass_flow_rate_FO(meshSettings)
+        if(len(postProcessSettings['probeLocations'])>0):
+            FOs += postProcess.FO_probes(probeName="probe",probeLocations=postProcessSettings['probeLocations'])
+        #if(postProcessSettings['streamLines']):
+        #    FOs += postProcess.FO_streamLines(start=(0,0,0),end=(0,0,1),nPoints=100)
+        return FOs

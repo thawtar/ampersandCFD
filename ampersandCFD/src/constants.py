@@ -273,3 +273,12 @@ simulationFlowSettings = {
     'functionObjects': [],
 }
 
+postProcessSettings = {
+    'FOs': False,
+    'minMax': True,
+    'massFlow': True,
+    'yPlus': True,
+    'forces': True,
+    'probeLocations': [],
+}
+

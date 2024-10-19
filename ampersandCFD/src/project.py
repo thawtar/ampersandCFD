@@ -10,7 +10,7 @@ from headers import get_ampersand_header
 from primitives import ampersandPrimitives, ampersandIO, ampersandDataInput
 from constants import meshSettings, physicalProperties, numericalSettings, inletValues
 from constants import solverSettings, boundaryConditions, simulationSettings
-from constants import simulationFlowSettings, parallelSettings
+from constants import simulationFlowSettings, parallelSettings, postProcessSettings
 from stlAnalysis import stlAnalysis
 from blockMeshGenerator import generate_blockMeshDict
 from decomposeParGenerator import createDecomposeParDict
@@ -22,6 +22,8 @@ from boundaryConditionsGenerator import create_boundary_conditions
 from controlDictGenerator import createControlDict
 from numericalSettingsGenerator import create_fvSchemesDict, create_fvSolutionDict
 from scriptGenerator import ScriptGenerator
+from postProcess import postProcess
+
 
 #from ../constants/constants import meshSettings
 
@@ -44,6 +46,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.simulationSettings = None
         self.simulationFlowSettings = None
         self.parallelSettings = None
+        self.postProcessSettings = None
         self.settings = None
         self.project_path = None
         self.existing_project = False # flag to check if the project is already existing
@@ -56,6 +59,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.transient = False # default is steady state
         self.refinement = 0 # 0: coarse, 1: medium, 2: fine
         self.characteristicLength = None # default characteristic length
+        self.useFOs = False # default is not to use function objects
 
     def remove_duplicate_stl_files(self):
         # detect duplicate dictionaries in the list
@@ -156,6 +160,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             'simulationSettings': self.simulationSettings,
             'parallelSettings': self.parallelSettings,
             'simulationFlowSettings': self.simulationFlowSettings,
+            'postProcessSettings': self.postProcessSettings
         }
         #print(self.meshSettings)
         ampersandIO.printMessage("Writing settings to project_settings.yaml")
@@ -174,6 +179,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.simulationSettings = settings['simulationSettings']
         self.parallelSettings = settings['parallelSettings']
         self.simulationFlowSettings = settings['simulationFlowSettings']
+        self.postProcessSettings = settings['postProcessSettings']
         for geometry in self.meshSettings['geometry']:
             if(geometry['type']=='triSurfaceMesh'):
                 if(geometry['name'] in self.stl_names):
@@ -194,6 +200,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.solverSettings = solverSettings
         self.parallelSettings = parallelSettings
         self.simulationFlowSettings = simulationFlowSettings
+        self.postProcessSettings = postProcessSettings
         #self.settings = (self.meshSettings, self.physicalProperties, 
         #                 self.numericalSettings, self.inletValues, self.boundaryConditions, self.simulationSettings, self.solverSettings)
 
@@ -505,6 +512,22 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def ask_refinement_level(self):
         self.refinement = ampersandDataInput.get_mesh_refinement_level()
         self.meshSettings['fineLevel'] = self.refinement
+
+    def set_post_process_settings(self):
+        meshPoint = tuple(self.meshSettings['locationInMesh'])
+        self.postProcessSettings['fluxes'] = True
+        self.postProcessSettings['minMax'] = True
+        self.postProcessSettings['yPlus'] = True
+        self.postProcessSettings['forces'] = True
+        # the default probe location for monitoring of flow variables
+        self.postProcessSettings['probeLocations'].append(meshPoint)
+
+    def get_probe_location(self):
+        point = postProcess.get_probe_location()
+        # for internal flows, the point should be inside stl
+        # for external flows, the point should be outside stl
+        # TO DO
+        self.postProcessSettings['probeLocations'].append(point)
      
     def create_project_files(self):
         #(meshSettings, physicalProperties, numericalSettings, inletValues, boundaryConditions)=caseSettings
@@ -548,6 +571,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         ampersandPrimitives.write_dict_to_file("fvSolution", fvSolutionDict)
         decomposeParDict = createDecomposeParDict(self.parallelSettings)
         ampersandPrimitives.write_dict_to_file("decomposeParDict", decomposeParDict)
+        FODict = postProcess.create_FOs(self.meshSettings,self.postProcessSettings,useFOs=self.useFOs)
+        ampersandPrimitives.write_dict_to_file("FOs", FODict)
         # go back to the main directory
         os.chdir("..")
         # create mesh script

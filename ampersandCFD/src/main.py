@@ -37,11 +37,12 @@ def main():
     project.set_inlet_values()
     project.set_transient_settings()
     project.set_parallel()
-
+    project.useFOs = ampersandIO.get_input_bool("Use function objects for post-processing (y/N)?: ")
     if(len(project.stl_files)>0):
         project.analyze_stl_file()
     project.list_stl_files()
     #project.analyze_stl_file()
+    
     project.write_settings()
     project.create_project_files()
 

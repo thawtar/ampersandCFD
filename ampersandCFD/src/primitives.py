@@ -160,11 +160,19 @@ class ampersandIO:
     
     @staticmethod
     def get_input_int(prompt):
-        return int(input(prompt))
+        try:
+            return int(input(prompt))
+        except:
+            ampersandIO.printError("Invalid input. Please enter an integer.")
+            return ampersandIO.get_input_int(prompt)
     
     @staticmethod  
     def get_input_float(prompt):
-        return float(input(prompt))
+        try:
+            return float(input(prompt))
+        except:
+            ampersandIO.printError("Invalid input. Please enter a number.")
+            return ampersandIO.get_input_float(prompt)
     
     @staticmethod
     def print_numbered_list(lst):
@@ -173,11 +181,24 @@ class ampersandIO:
     
     @staticmethod
     def get_input_vector(prompt):
-        return list(map(float, input(prompt).split()))
+        inp = input(prompt).split()
+        # Check if the input is a list of floats
+        try:
+            return list(map(float, inp))
+        except:
+            ampersandIO.printError("Invalid input. Please enter a list of numbers.")
+            # Recursively call the function until a valid input is given
+            return ampersandIO.get_input_vector(prompt)
+        #return list(map(float, input(prompt).split()))
     
     @staticmethod
     def get_input_bool(prompt):
-        return input(prompt).lower() in ['y', 'yes', 'true', '1']
+        try:
+            return input(prompt).lower() in ['y', 'yes', 'true', '1']
+        except:
+            ampersandIO.printError("Invalid input. Please enter a boolean value.")
+            return ampersandIO.get_input_bool(prompt)
+       
     
 
 class ampersandDataInput:

@@ -2,7 +2,7 @@ import os
 import vtk
 import numpy as np
 import math
-from stlToOpenFOAM import find_inside_point
+from stlToOpenFOAM import find_inside_point, is_point_inside
 
 class stlAnalysis:
     def __init__(self):
@@ -199,6 +199,32 @@ class stlAnalysis:
         # xmin, xmax, ymin, ymax, zmin, zmax = bounds
         # Optionally, return the bounding box as a tuple
         return bounds
+    
+    # this is the wrapper function to check if a point is inside the mesh
+    @staticmethod
+    def is_point_inside(stl_file_path,point):
+        # Check if the file exists
+        if not os.path.exists(stl_file_path):
+            raise FileNotFoundError(f"File not found: {stl_file_path}. Make sure the file exists.")
+        # Create a reader for the STL file
+        reader = vtk.vtkSTLReader()
+        reader.SetFileName(stl_file_path)
+        reader.Update()
+
+        # Get the output data from the reader
+        poly_data = reader.GetOutput()
+        # Calculate the bounding box
+        bounds = poly_data.GetBounds()
+        # Check if the point is inside the bounding box
+        xmin, xmax, ymin, ymax, zmin, zmax = bounds
+        if point[0] < xmin or point[0] > xmax:
+            return False
+        if point[1] < ymin or point[1] > ymax:
+            return False
+        if point[2] < zmin or point[2] > zmax:
+            return False
+        # Check if the point is inside the mesh
+        return is_point_inside(poly_data, point)
 
     @staticmethod
     def read_stl(stl_file_path):

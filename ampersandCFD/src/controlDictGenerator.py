@@ -24,6 +24,7 @@ adjustTimeStep  {simulationSettings['adjustTimeStep']};
 maxCo           {simulationSettings['maxCo']};
 functions
 {{
+    #include "FOs"
 }};
 libs
 (
