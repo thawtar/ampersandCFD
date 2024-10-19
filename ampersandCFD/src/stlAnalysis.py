@@ -122,9 +122,9 @@ class stlAnalysis:
     
     # refinement box for the ground for external automotive flows
     @staticmethod
-    def addGroundRefinementBoxToMesh(meshSettings,stl_path,refLevel=2,internalFlow=False):
-        if(internalFlow):
-            return meshSettings
+    def addGroundRefinementBoxToMesh(meshSettings,stl_path,refLevel=2):
+        #if(internalFlow):
+        #    return meshSettings
         boxName = 'groundBox'
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
         xmin, xmax, ymin, ymax, zmin, zmax = stlBoundingBox
