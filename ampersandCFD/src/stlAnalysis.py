@@ -21,8 +21,8 @@ class stlAnalysis:
         bbX = stlMaxX - stlMinX
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
-        minX = stlMinX - 1.5*bbX*sizeFactor
-        maxX = stlMaxX + 7.5*bbX*sizeFactor
+        minX = stlMinX - 2.0*bbX*sizeFactor
+        maxX = stlMaxX + 7.0*bbX*sizeFactor
         minY = stlMinY - 2.5*bbY*sizeFactor
         maxY = stlMaxY + 2.5*bbY*sizeFactor
         minZ = stlMinZ - 2.5*bbZ*sizeFactor
@@ -80,8 +80,8 @@ class stlAnalysis:
         bbX = stlMaxX - stlMinX
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
-        boxMinX = stlMinX - 0.2*bbX
-        boxMaxX = stlMaxX + 4.5*bbX
+        boxMinX = stlMinX - 0.7*bbX
+        boxMaxX = stlMaxX + 10*bbX
         boxMinY = stlMinY - 1.0*bbY
         boxMaxY = stlMaxY + 1.0*bbY
         boxMinZ = stlMinZ - 1.0*bbZ
@@ -94,7 +94,7 @@ class stlAnalysis:
         bbX = stlMaxX - stlMinX
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
-        boxMinX = stlMinX + 0.1*bbX
+        boxMinX = stlMinX - 0.2*bbX
         boxMaxX = stlMaxX + 3*bbX
         boxMinY = stlMinY - 0.45*bbY
         boxMaxY = stlMaxY + 0.45*bbY
@@ -111,13 +111,29 @@ class stlAnalysis:
         box = stlAnalysis.getRefinementBox(stlBoundingBox)
         meshSettings['geometry'].append({'name': boxName,'type':'searchableBox', 'purpose':'refinement',
                                          'min': [box[0], box[2], box[4]], 'max': [box[1], box[3], box[5]],
-                                         'refineMax': refLevel})
+                                         'refineMax': refLevel-1})
         
         fineBox = stlAnalysis.getRefinementBoxClose(stlBoundingBox)
         meshSettings['geometry'].append({'name': 'fineBox','type':'searchableBox', 'purpose':'refinement',
                                          'min': [fineBox[0], fineBox[2], fineBox[4]], 'max': [fineBox[1], fineBox[3], fineBox[5]],
-                                         'refineMax': refLevel+1})
+                                         'refineMax': refLevel})
         
+        return meshSettings
+    
+    # refinement box for the ground for external automotive flows
+    @staticmethod
+    def addGroundRefinementBoxToMesh(meshSettings,stl_path,refLevel=2,internalFlow=False):
+        if(internalFlow):
+            return meshSettings
+        boxName = 'groundBox'
+        stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
+        xmin, xmax, ymin, ymax, zmin, zmax = stlBoundingBox
+        z = meshSettings['domain']['minz']
+        z_delta = 0.2*(zmax-zmin)
+        box = [-1000.0,1000.,-1000,1000,z-z_delta,z+z_delta]
+        meshSettings['geometry'].append({'name': boxName,'type':'searchableBox', 'purpose':'refinement',
+                                         'min': [box[0], box[2], box[4]], 'max': [box[1], box[3], box[5]],
+                                         'refineMax': refLevel})
         return meshSettings
 
     # to calculate nearest wall thickness for a target yPlus value
@@ -131,6 +147,16 @@ class stlAnalysis:
         uStar = np.sqrt(tau/rho)
         y = target_yPlus*nu/uStar
         return y
+    
+    # to calculate yPlus value for a given first layer thickness
+    @staticmethod
+    def calc_yPlus(nu=1e-6,L=1.0,u=1.0,y=0.001):
+        Re = u*L/nu
+        Cf = 0.0592*Re**(-1./5.)
+        tau = 0.5*Cf*u**2.
+        uStar = np.sqrt(tau)
+        yPlus = uStar*y/nu
+        return yPlus
 
     # calculate nearest cell size for a given expansion ratio and layer count
     @staticmethod
@@ -235,6 +261,7 @@ class stlAnalysis:
         adjustedBackgroundCellSize = targetCellSize*2.**refLevel
         adjustedTargetCellSize = backgroundCellSize/2.**refLevel
         adjustedNearWallThickness = adjustedTargetCellSize*0.3
+        adjustedYPlus = stlAnalysis.calc_yPlus(nu,L,U,adjustedNearWallThickness)
         #nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,adjustedBackgroundCellSize)
         # adjust refinement levels based on coarse, medium, fine settings
         if(refinement==0):
@@ -255,7 +282,7 @@ class stlAnalysis:
         #print(f"Max volume size: {backgroundCellSize**3}")
         #print(f"Min volume size: {minVolumeSize}")
         print(f"First layer thickness:{adjustedNearWallThickness}")
-        
+        print(f"YPlus:{adjustedYPlus}")
         print(f"Refinement Level:{refLevel}")
         return domain_size, nx, ny, nz, refLevel,target_y,minVolumeSize
     

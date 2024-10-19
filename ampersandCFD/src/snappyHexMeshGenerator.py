@@ -83,6 +83,10 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
             boundary internal;
             
         }}""" 
+                # if refinementSurface or region, do not add here
+                elif(an_entry['purpose'] == 'refinementRegion' or an_entry['purpose'] == 'refinementSurface'):
+                    pass
+                
                 else:
                     patchType = 'wall'
                     refinementSurfaces+= f"""
@@ -130,14 +134,14 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
         elif(an_entry['type'] == 'triSurfaceMesh'):
             if(an_entry['purpose'] == 'refinementSurface'):
                 refinementRegions += f"""
-        {an_entry['name']}
+        {an_entry['name'][:-4]}
         {{
             mode distance;
             levels ((1E-4 {an_entry['property']})); 
         }}"""
             elif(an_entry['purpose'] == 'refinementRegion' or an_entry['purpose'] == 'cellZone'):
                 refinementRegions += f"""
-        {an_entry['name']}
+        {an_entry['name'][:-4]}
         {{
             mode inside;
             levels ((1E15 {an_entry['property']})); 

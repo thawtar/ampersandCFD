@@ -442,6 +442,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path,self.internalFlow)
         refinementBoxLevel = max(2,refLevel-3)
         self.meshSettings = stlAnalysis.addRefinementBoxToMesh(meshSettings=self.meshSettings, stl_path=stl_path,refLevel=refinementBoxLevel,internalFlow=self.internalFlow)
+        self.meshSettings = stlAnalysis.addGroundRefinementBoxToMesh(meshSettings=self.meshSettings, stl_path=stl_path,refLevel=refinementBoxLevel,internalFlow=self.internalFlow)
         #self.meshSettings = stlAnalysis.set_layer_thickness(self.meshSettings, target_y)
         self.meshSettings = stlAnalysis.set_min_vol(self.meshSettings, minVol)
         return 0
