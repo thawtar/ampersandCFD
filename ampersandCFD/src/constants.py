@@ -52,7 +52,7 @@ meshSettings = {
                                 'locationInMesh': [0, 0, 0],
                                 'allowFreeStandingZoneFaces': 'false'},
 
-    'snapControls': {'nSmoothPatch': 5,
+    'snapControls': {'nSmoothPatch': 3,
                         'tolerance': 1.5,
                         'nSolveIter': 200,
                         'nRelaxIter': 15,
@@ -62,7 +62,7 @@ meshSettings = {
                         'multiRegionFeatureSnap': 'false'},
 
     'addLayersControls': {'relativeSizes': 'true',
-                            'expansionRatio': 1.2,
+                            'expansionRatio': 1.4,
                             'finalLayerThickness': 0.3,
                             'minThickness': 0.0001,
                             'nGrow': 0,

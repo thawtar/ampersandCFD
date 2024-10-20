@@ -21,12 +21,13 @@ class stlAnalysis:
         bbX = stlMaxX - stlMinX
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
-        minX = stlMinX - 2.0*bbX*sizeFactor
-        maxX = stlMaxX + 7.0*bbX*sizeFactor
-        minY = stlMinY - 2.5*bbY*sizeFactor
-        maxY = stlMaxY + 2.5*bbY*sizeFactor
-        minZ = stlMinZ - 2.5*bbZ*sizeFactor
-        maxZ = stlMaxZ + 2.5*bbZ*sizeFactor
+        characLength = max(bbX,bbY,bbZ)
+        minX = stlMinX - 2.0*characLength*sizeFactor
+        maxX = stlMaxX + 10.0*characLength*sizeFactor
+        minY = stlMinY - 2.0*characLength*sizeFactor
+        maxY = stlMaxY + 2.0*characLength*sizeFactor
+        minZ = stlMinZ - 2.0*characLength*sizeFactor
+        maxZ = stlMaxZ + 2.0*characLength*sizeFactor
         
         if(internalFlow):
             minX = stlMinX - 0.1*bbX*sizeFactor
@@ -51,7 +52,7 @@ class stlAnalysis:
             maxZ = stlAnalysis.roundl(maxZ)
         if onGround: # the the body is touching the ground
             minZ = stlMinZ
-            maxZ = stlMaxZ + 4.0*bbZ*sizeFactor
+            maxZ = stlMaxZ + 4.0*characLength*sizeFactor
         domain_size = (minX,maxX,minY,maxY,minZ,maxZ)
         return domain_size
 
@@ -81,7 +82,7 @@ class stlAnalysis:
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
         boxMinX = stlMinX - 0.7*bbX
-        boxMaxX = stlMaxX + 10*bbX
+        boxMaxX = stlMaxX + 15*bbX
         boxMinY = stlMinY - 1.0*bbY
         boxMaxY = stlMaxY + 1.0*bbY
         boxMinZ = stlMinZ - 1.0*bbZ
@@ -95,7 +96,7 @@ class stlAnalysis:
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
         boxMinX = stlMinX - 0.2*bbX
-        boxMaxX = stlMaxX + 3*bbX
+        boxMaxX = stlMaxX + 3.0*bbX
         boxMinY = stlMinY - 0.45*bbY
         boxMaxY = stlMaxY + 0.45*bbY
         boxMinZ = stlMinZ - 0.45*bbZ
@@ -244,7 +245,7 @@ class stlAnalysis:
     # to calculate the mesh settings for blockMeshDict and snappyHexMeshDict
     @staticmethod
     def calc_mesh_settings(stlBoundingBox,nu=1e-6,rho=1000.,U=1.0,maxCellSize=0.5,sizeFactor=1.0,
-                           expansion_ratio=1.2,onGround=False,internalFlow=False,refinement=1,nLayers=5):
+                           expansion_ratio=1.5,onGround=False,internalFlow=False,refinement=1,nLayers=5):
         maxSTLLength = stlAnalysis.getMaxSTLDim(stlBoundingBox)
         minSTLLength = stlAnalysis.getMinSTLDim(stlBoundingBox)
         if(maxCellSize < 0.001):
@@ -254,23 +255,23 @@ class stlAnalysis:
             if(internalFlow):
                 backgroundCellSize = min(minSTLLength/6.,maxCellSize)
             else:
-                backgroundCellSize = min(minSTLLength/4.,maxCellSize) # this is the size of largest blockMesh cells
+                backgroundCellSize = min(minSTLLength/3.,maxCellSize) # this is the size of largest blockMesh cells
             target_yPlus = 120
-            nLayers = 3
+            nLayers = 5
         elif(refinement==1):
             if(internalFlow):
                 backgroundCellSize = min(minSTLLength/12.,maxCellSize)
             else:
-                backgroundCellSize = min(minSTLLength/8.,maxCellSize)
+                backgroundCellSize = min(minSTLLength/5.,maxCellSize)
             target_yPlus = 70
             nLayers = 5
         elif(refinement==2):
             if(internalFlow):
                 backgroundCellSize = min(minSTLLength/18.,maxCellSize)
             else:
-                backgroundCellSize = min(minSTLLength/12.,maxCellSize)
+                backgroundCellSize = min(minSTLLength/7.,maxCellSize)
             target_yPlus = 40
-            nLayers = 7
+            nLayers = 5
         else: # medium settings for default
             if(internalFlow):
                 backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
@@ -328,11 +329,11 @@ class stlAnalysis:
     @staticmethod
     def set_mesh_settings(meshSettings, domain_size, nx, ny, nz, refLevel,featureLevel=1):
         meshSettings['domain'] = {'minx': domain_size[0], 'maxx': domain_size[1], 'miny': domain_size[2], 'maxy': domain_size[3], 'minz': domain_size[4], 'maxz': domain_size[5], 'nx': nx, 'ny': ny, 'nz': nz}
-        refMin = max(1,refLevel-1)
-        refMax = max(2,refLevel)
+        refMin = max(1,refLevel)
+        refMax = max(2,refLevel+1)
         for geometry in meshSettings['geometry']:
             if geometry['type'] == 'triSurfaceMesh':
-                geometry['refineMin'] = refMax
+                geometry['refineMin'] = refMin
                 geometry['refineMax'] = refMax
                 #geometry['featureEdges'] = 'true'
                 geometry['featureLevel'] = featureLevel
