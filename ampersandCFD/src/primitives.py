@@ -9,6 +9,18 @@ class ampersandPrimitives:
         pass
 
     @staticmethod
+    # Function to recursively convert tuples to lists (or any other conversion)
+    def sanitize_yaml(data):
+        if isinstance(data, tuple):
+            return list(data)
+        elif isinstance(data, dict):
+            return {k: ampersandPrimitives.sanitize_yaml(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return [ampersandPrimitives.sanitize_yaml(item) for item in data]
+        else:
+            return data
+
+    @staticmethod
     def crlf_to_LF(file_path):
         WINDOWS_LINE_ENDING = b'\r\n'
         UNIX_LINE_ENDING = b'\n'
@@ -32,6 +44,20 @@ class ampersandPrimitives:
         root.withdraw()
         file = filedialog.askopenfilename(title="Select File", filetypes=filetypes)
         return file if file else None
+    
+    @staticmethod
+    def check_dict(dict_):
+        # check every elements of the dictionary and whether there are tuples
+        """
+        dict_: The dictionary to be checked.
+        This function checks every element of the dictionary 
+        and converts tuples to lists."""
+        for key, value in dict_.items():
+            if isinstance(value, dict):
+                ampersandPrimitives.check_dict(value)
+            elif isinstance(value, tuple):
+                dict_[key] = list(value)
+        return dict_
 
     @staticmethod
     def dict_to_yaml(data, output_file):
@@ -42,6 +68,8 @@ class ampersandPrimitives:
         - data (dict): The dictionary to be converted.
         - output_file (str): The name of the output YAML file.
         """
+        #data = ampersandPrimitives.check_dict(data)
+        data = ampersandPrimitives.sanitize_yaml(data)
         with open(output_file, 'w') as file:
             yaml.dump(data, file, default_flow_style=False, sort_keys=False)
         #print(f"YAML file '{output_file}' has been created.")
@@ -157,6 +185,11 @@ class ampersandIO:
     @staticmethod
     def get_input(prompt):
         return input(prompt)
+    
+    @staticmethod
+    def print_dict(data):
+        for key, value in data.items():
+            print(f"{key}: {value}")
     
     @staticmethod
     def get_input_int(prompt):

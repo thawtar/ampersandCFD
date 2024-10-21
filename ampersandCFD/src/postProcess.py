@@ -92,7 +92,7 @@ forces
         return FO
     
     @staticmethod
-    def FO_probes(probeName="probeName",probeLocations=[(0,0,0)]):
+    def FO_probes(probeName="probeName",probeLocations=[[0,0,0]]):
         FO = f"""
 {probeName}
 {{
@@ -135,7 +135,7 @@ streamLines
     @staticmethod
     def get_probe_location():
         probeLocation = ampersandIO.get_input_vector("Enter probe location (x y z): ")
-        return tuple(probeLocation)
+        return probeLocation
     
     @staticmethod
     def get_mass_flow_rate_FO(meshSettings):

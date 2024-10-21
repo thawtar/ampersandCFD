@@ -92,12 +92,33 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             return -1
         self.project_path = os.path.join(self.project_directory_path, self.user_name, self.project_name)
         
-    # create the project path for the project name
+    # To create the project path for a new project with the project name
     def create_project_path(self):
         if not self.project_directory_path:
             ampersandIO.printMessage("No directory selected. Aborting project creation.")
             return -1
         self.project_path = os.path.join(self.project_directory_path, self.project_name)
+    
+    # this is to set the project path if the project is already existing
+    # useful for opening existing projects and modifying the settings
+    def set_project_path(self,project_path):
+        if project_path is None:
+            ampersandIO.printMessage("No project path selected. Aborting project creation.")
+            exit()
+        if os.path.exists(project_path):
+            settings_file = os.path.join(project_path, "project_settings.yaml")
+            if os.path.exists(settings_file):
+                ampersandIO.printMessage("Project found, loading project settings")
+                self.existing_project = True
+                self.project_path = project_path
+                return 0
+            else:
+                ampersandIO.printMessage("Settings file not found. Creating a new project here.")
+                # TO DO: Add the code socket to create a new project here
+                return -1
+        else:
+            ampersandIO.printMessage("Project path does not exist. Aborting project creation/opening.")
+            return -1
 
     def check_project_path(self): # check if the project path exists and if the project is already existing
         if os.path.exists(self.project_path):
@@ -112,6 +133,15 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         else:
             self.existing_project = False
             return -1
+        
+    # Wrapper of cwd with error handling
+    def go_inside_directory(self):
+        try:
+            os.chdir(self.project_path)
+        except OSError as error:
+                ampersandIO.printError(error)
+        cwd = os.getcwd()
+        ampersandIO.printMessage(f"Working directory: {cwd}")
 
     # Create the project directory in the specified location.
     # 0, constant, system, constant/triSurface directories are created.
@@ -189,6 +219,29 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                     self.stl_names.append(geometry['name'])
         #self.settings = (self.meshSettings, self.physicalProperties, self.numericalSettings, self.inletValues, self.boundaryConditions)
 
+    def show_settings(self):
+        ampersandIO.printMessage("Project settings")
+        ampersandIO.printMessage("Mesh Settings")
+        ampersandIO.print_dict(self.meshSettings)
+        ampersandIO.printMessage("Physical Properties")
+        ampersandIO.print_dict(self.physicalProperties)
+        ampersandIO.printMessage("Numerical Settings")
+        ampersandIO.print_dict(self.numericalSettings)
+        ampersandIO.printMessage("Inlet Values")
+        ampersandIO.print_dict(self.inletValues)
+        ampersandIO.printMessage("Boundary Conditions")
+        ampersandIO.print_dict(self.boundaryConditions)
+        ampersandIO.printMessage("Solver Settings")
+        ampersandIO.print_dict(self.solverSettings)
+        ampersandIO.printMessage("Simulation Settings")
+        ampersandIO.print_dict(self.simulationSettings)
+        ampersandIO.printMessage("Parallel Settings")
+        ampersandIO.print_dict(self.parallelSettings)
+        ampersandIO.printMessage("Simulation Flow Settings")
+        ampersandIO.print_dict(self.simulationFlowSettings)
+        ampersandIO.printMessage("Post Process Settings")
+        ampersandIO.print_dict(self.postProcessSettings)
+
     # If the project is not existing, load the default settings
     def load_default_settings(self):
         self.meshSettings = meshSettings
@@ -221,10 +274,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # Add a stl file to the project settings (self.meshSettings)
     def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', 
                                  featureLevel=1,purpose='wall',property=None,bounds=None):
-        # stl file has the following format: 
-        # {'name': 'stl1.stl','type':'triSurfaceMesh','purpose':'wall' ,'refineMin': 1, 'refineMax': 3, 
-        #             'featureEdges':'true','featureLevel':3,'nLayers':3}
-        #featureLevel = refMax
+        already_exists = False # flag to check if the stl file already exists in the project
+        idx = 0 # index of the stl file in the list
         # Purpose is wall by default
         # Other purposes are patch, refinementRegion, refinementSurface, cellZone, baffles
         if self.refinement == 0:
@@ -236,10 +287,27 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         stl_ = {'name': stl_name, 'type':'triSurfaceMesh','purpose':purpose, 'refineMin': refMin, 'refineMax': refMax, 
                 'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers, 'property':property, 'bounds':bounds}
         
-        self.stl_names.append(stl_name)
-        self.stl_files.append(stl_)
+        # this snippet is to prevent the same stl file from being added multiple times
+        # Instead of using set, we are using a list to store the stl files
+        # To check if the stl file already exists in the project, stl names are compared.
+        # list all the stl files in the project
+        for stl_name in self.stl_names:
+            if stl_name == stl_['name']:
+                ampersandIO.printMessage(f"STL file {stl_name} already exists in the project")
+                already_exists = True
+                break
+            idx += 1
+        if not already_exists:
+            self.stl_names.append(stl_name)
+            self.stl_files.append(stl_)
+        else:    
+            self.stl_files[idx] = stl_
+            return 1 # flag to indicate that the stl file is replaced
+        return 0
 
     # ask for stl file name and add purpose to the stl file
+    # Not used currently
+    """
     def add_purpose_to_stl_(self):
         purposes = ['wall', 'patch', 'refinementRegion', 'refinementSurface', 'cellZone', 'baffles']
         self.list_stl_files()
@@ -253,7 +321,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                     purpose = 'wall'
                 else:
                     purpose = purposes[purpose_no]
-                self.add_purpose_(stl_name,purpose)
+                #self.add_purpose_(stl_name,purpose)
+    """
 
     def ask_purpose(self):
         purposes = ['wall', 'inlet','outlet', 'refinementRegion', 'refinementSurface', 'cellZone', 'baffles']
@@ -282,8 +351,10 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             property = None
         return property
     
-    # add purpose to the stl file
+    # add purpose to the stl file. currently not used
+    """
     def add_purpose_(self,stl_name,purpose='wall'):
+        ampersandIO.printMessage(f"Setting purpose of {stl_name} to")
         for stl in self.stl_files:
             if stl['name'] == stl_name:
                 ampersandIO.printMessage(f"Setting purpose of {stl_name} to {purpose}")
@@ -291,6 +362,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 return 0
         ampersandIO.printMessage(f"STL file {stl_name} not found in the project")
         return -1
+    """
         
 
 
@@ -327,10 +399,10 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 ampersandIO.printMessage(f"STL file {stl_name} already exists in the project")
                 return -1
             else: # this is to prevent the bug of having the same file added multiple times
-                #purpose = self.add_purpose_to_stl_()
-                #ampersandIO.printMessage(f"Adding {stl_name} to the project with purpose {purpose}")
+                
                 purpose = self.ask_purpose()
                 bounds = stlAnalysis.compute_bounding_box(stl_file)
+                bounds = tuple(bounds)
                 property = self.set_property(purpose)
                 self.add_stl_to_mesh_settings(stl_name,purpose=purpose,property=property,bounds=bounds)
             # this is the path to the constant/triSurface inside project directory where STL will be copied
@@ -516,7 +588,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.meshSettings['fineLevel'] = self.refinement
 
     def set_post_process_settings(self):
-        meshPoint = tuple(self.meshSettings['castellatedMeshControls']['locationInMesh'])
+        meshPoint = list(self.meshSettings['castellatedMeshControls']['locationInMesh'])
         self.postProcessSettings['massFlow'] = True
         self.postProcessSettings['minMax'] = True
         self.postProcessSettings['yPlus'] = True
