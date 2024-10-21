@@ -86,9 +86,19 @@ class ampersandPrimitives:
         Returns:
         - dict: The dictionary representation of the YAML file.
         """
-        with open(input_file, 'r') as file:
-            data = yaml.safe_load(file)
-        return data
+        try:
+            with open(input_file, 'r') as file:
+                data = yaml.safe_load(file)
+            return data
+        except Exception as e:
+            print(f"Error reading YAML file: {e}")
+            yN = ampersandIO.get_input_bool("Continue y/N?")
+            if yN:
+                return None
+            else:
+                exit()
+            return None
+        
 
     @staticmethod
     # This file contains the basic primitives used in the generation of OpenFOAM casefiles
@@ -232,6 +242,27 @@ class ampersandIO:
             ampersandIO.printError("Invalid input. Please enter a boolean value.")
             return ampersandIO.get_input_bool(prompt)
        
+    @staticmethod
+    def get_option_choice(prompt, options,title=None):
+        if title:
+            ampersandIO.printMessage(title)
+        ampersandIO.print_numbered_list(options)
+        choice = ampersandIO.get_input_int(prompt)
+        if choice>len(options) or choice<=0:
+            ampersandIO.printError("Invalid choice. Please choose from the given options.")
+            return ampersandIO.get_option_choice(prompt, options)
+        return choice-1
+    
+    @staticmethod
+    def show_title(title):
+        total_len = 60
+        half_len = (total_len - len(title))//2
+        title = "-"*half_len + title + "-"*half_len
+        ampersandIO.printMessage("\n" + title  )
+
+    @staticmethod
+    def printFormat(item_name, item_value):
+        print(f"{item_name:12}\t{item_value}")
     
 
 class ampersandDataInput:

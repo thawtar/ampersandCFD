@@ -60,6 +60,33 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.refinement = 0 # 0: coarse, 1: medium, 2: fine
         self.characteristicLength = None # default characteristic length
         self.useFOs = False # default is not to use function objects
+        self.current_modification = None # current modification to the project settings
+
+    def summarize_project(self):
+        trueFalse = {True: 'Yes', False: 'No'}
+        ampersandIO.show_title("Project Summary")
+        #ampersandIO.printMessage(f"Project directory: {self.project_directory_path}")
+        ampersandIO.printFormat("Project name", self.project_name)
+        ampersandIO.printFormat("Project path", self.project_path)
+        #ampersandIO.printMessage(f"Project path: {self.project_path}")
+       
+        #ampersandIO.printMessage(f"Existing project: {self.existing_project}")
+        #ampersandIO.printMessage(f"STL files: {self.stl_names}")
+        ampersandIO.printMessage(f"Internal Flow: {trueFalse[self.internalFlow]}")
+        if(self.internalFlow==False):
+            ampersandIO.printMessage(f"On Ground: {trueFalse[self.onGround]}")
+        ampersandIO.printMessage(f"Transient: {trueFalse[self.transient]}")
+        
+        #ampersandIO.printMessage("Boundary Conditions")
+        #ampersandIO.print_dict(self.boundaryConditions)
+    
+    def choose_modification(self):
+        options = ["Background Mesh","Add Geometry","Refinement Levels","Boundary Conditions","Fluid Properties", "Numerical Settings", 
+                   "Simulation Control Settings","Turbulence Model","Post Processing Settings"]
+        self.current_modification = ampersandIO.get_option_choice(prompt="Choose any option for project modification: ",
+                                      options=options,title="\nModify Project Settings")
+        ampersandIO.printMessage(f"Current modification: {options[self.current_modification]}")
+        
 
     def remove_duplicate_stl_files(self):
         # detect duplicate dictionaries in the list
@@ -217,8 +244,17 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 else:
                     self.stl_files.append(geometry)
                     self.stl_names.append(geometry['name'])
-        #self.settings = (self.meshSettings, self.physicalProperties, self.numericalSettings, self.inletValues, self.boundaryConditions)
-
+        # Change project settings based on loaded settings
+        self.internalFlow = self.meshSettings['internalFlow']
+        self.onGround = self.meshSettings['onGround']
+        self.transient = self.simulationSettings['transient']
+        self.parallel = self.parallelSettings['parallel']
+        self.snap = self.meshSettings['snap']
+        self.refinement = self.meshSettings['fineLevel']
+        self.characteristicLength = self.meshSettings['characteristicLength']
+        self.useFOs = self.postProcessSettings['useFunctionObjects']
+        
+        
     def show_settings(self):
         ampersandIO.printMessage("Project settings")
         ampersandIO.printMessage("Mesh Settings")
@@ -426,7 +462,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     
     def list_stl_files(self):
         i = 1
-        ampersandIO.printMessage("\n-----------------STL Files-----------------")
+        ampersandIO.show_title("STL Files")
+        #ampersandIO.printMessage("\n-----------------STL Files-----------------")
         ampersandIO.printMessage("No.\tName\t\tPurpose\tRefineMent\tProperty")
         for stl_file in self.stl_files:
             ampersandIO.printMessage(f"{i}:\t{stl_file['name']}\t{stl_file['purpose']}\t({stl_file['refineMin']} {stl_file['refineMax']})\t\t{stl_file['property']}")

@@ -10,13 +10,14 @@ def open_project():
     ampersandIO.printMessage(get_ampersand_header())
     project.set_project_path(ampersandPrimitives.ask_for_directory())
     ampersandIO.printMessage(f"Project path: {project.project_path}")
-    yN = ampersandIO.get_input("Open the project (y/N)?: ")
-    if yN.lower() != 'y':
-        ampersandIO.printMessage("Exiting the program")
-        exit()
+    ampersandIO.printMessage("Loading the project")
     project.go_inside_directory()
-
+    
     project.load_settings()
+    ampersandIO.printMessage("Project loaded successfully")
+    project.summarize_project()
+    project.list_stl_files()
+    project.choose_modification()
     exit()
 
 
