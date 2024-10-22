@@ -14,6 +14,7 @@ meshSettings = {
     'maxCellSize': 0.5,
     'fineLevel': 1,
     'internalFlow': False,
+    'onGround': False,
     # patches are for the construction of the blockMeshDict
     'patches': [
         {'name': 'inlet', 'type': 'patch','faces': [0, 4, 7, 3]},
@@ -234,6 +235,7 @@ boundaryConditions = {
 }
 
 simulationSettings = {
+    'transient': False,
     'application': 'simpleFoam',
     'startTime': 0,
     'endTime': 1000,
@@ -258,6 +260,7 @@ simulationSettings = {
 }
 
 parallelSettings = {
+    'parallel': True,
     'numberOfSubdomains': 4,
     'method': 'scotch',
     
@@ -274,7 +277,7 @@ simulationFlowSettings = {
 }
 
 postProcessSettings = {
-    'FOs': False,
+    'FOs': True,
     'minMax': True,
     'massFlow': True,
     'yPlus': True,

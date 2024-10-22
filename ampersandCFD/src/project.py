@@ -23,6 +23,7 @@ from controlDictGenerator import createControlDict
 from numericalSettingsGenerator import create_fvSchemesDict, create_fvSolutionDict
 from scriptGenerator import ScriptGenerator
 from postProcess import postProcess
+from mod_project import mod_project
 
 
 #from ../constants/constants import meshSettings
@@ -61,6 +62,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.characteristicLength = None # default characteristic length
         self.useFOs = False # default is not to use function objects
         self.current_modification = None # current modification to the project settings
+        self.mod_options = ["Background Mesh","Add Geometry","Refinement Levels","Boundary Conditions","Fluid Properties", "Numerical Settings", 
+                   "Simulation Control Settings","Turbulence Model","Post Processing Settings"]
 
     def summarize_project(self):
         trueFalse = {True: 'Yes', False: 'No'}
@@ -81,13 +84,37 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         #ampersandIO.print_dict(self.boundaryConditions)
     
     def choose_modification(self):
-        options = ["Background Mesh","Add Geometry","Refinement Levels","Boundary Conditions","Fluid Properties", "Numerical Settings", 
-                   "Simulation Control Settings","Turbulence Model","Post Processing Settings"]
-        self.current_modification = ampersandIO.get_option_choice(prompt="Choose any option for project modification: ",
-                                      options=options,title="\nModify Project Settings")
-        ampersandIO.printMessage(f"Current modification: {options[self.current_modification]}")
+        current_modification = ampersandIO.get_option_choice(prompt="Choose any option for project modification: ",
+                                      options=self.mod_options,title="\nModify Project Settings")
+        self.current_modification = self.mod_options[current_modification]
+        ampersandIO.printMessage(f"Current modification: {self.current_modification}")
         
 
+
+    def modify_project(self):
+        if self.current_modification=="Background Mesh":
+            mod_project.change_background_mesh(self)
+        elif self.current_modification=="Add Geometry":
+            mod_project.add_geometry(self)
+        elif self.current_modification=="Refinement Levels":
+            mod_project.change_refinement_levels(self)
+        elif self.current_modification=="Boundary Conditions":
+            mod_project.change_boundary_conditions(self)
+        elif self.current_modification=="Fluid Properties":
+            mod_project.change_fluid_properties(self)
+        elif self.current_modification=="Numerical Settings":
+            mod_project.change_numerical_settings(self)
+        elif self.current_modification=="Simulation Control Settings":
+            mod_project.change_simulation_settings(self)
+        elif self.current_modification=="Turbulence Model":
+            mod_project.change_turbulenc_model(self)
+        elif self.current_modification=="Post Processing Settings":
+            mod_project.change_post_process_settings(self)
+        else:
+            ampersandIO.printMessage("Invalid option. Aborting operation")
+            return -1
+        return 0
+    
     def remove_duplicate_stl_files(self):
         # detect duplicate dictionaries in the list
         seen = set()
@@ -248,12 +275,14 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.internalFlow = self.meshSettings['internalFlow']
         self.onGround = self.meshSettings['onGround']
         self.transient = self.simulationSettings['transient']
-        self.parallel = self.parallelSettings['parallel']
-        self.snap = self.meshSettings['snap']
+        #self.parallel = self.parallelSettings['parallel']
+        #self.snap = self.meshSettings['snap']
         self.refinement = self.meshSettings['fineLevel']
-        self.characteristicLength = self.meshSettings['characteristicLength']
-        self.useFOs = self.postProcessSettings['useFunctionObjects']
-        
+        #self.characteristicLength = self.meshSettings['characteristicLength']
+        self.useFOs = self.postProcessSettings['FOs']
+        project_name = self.project_path.split("/")[-1]
+        self.project_name = project_name
+
         
     def show_settings(self):
         ampersandIO.printMessage("Project settings")
@@ -341,24 +370,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             return 1 # flag to indicate that the stl file is replaced
         return 0
 
-    # ask for stl file name and add purpose to the stl file
-    # Not used currently
-    """
-    def add_purpose_to_stl_(self):
-        purposes = ['wall', 'patch', 'refinementRegion', 'refinementSurface', 'cellZone', 'baffles']
-        self.list_stl_files()
-        #stl_name = ampersandIO.get_input("Enter the name of the STL file: ")
-        for stl in self.stl_files:
-            stl_name = stl['name']
-            if stl_name in self.stl_names:
-                purpose_no = ampersandIO.printMessage(f"Enter purpose of {stl_name}, (0: wall, 1: patch, 2: refinementRegion, 3: refinementSurface, 4: cellZone, 5: baffles)")
-                if(purpose_no < 0 or purpose_no > 6):
-                    ampersandIO.printMessage("Invalid purpose number. Setting purpose to wall")
-                    purpose = 'wall'
-                else:
-                    purpose = purposes[purpose_no]
-                #self.add_purpose_(stl_name,purpose)
-    """
+    
 
     def ask_purpose(self):
         purposes = ['wall', 'inlet','outlet', 'refinementRegion', 'refinementSurface', 'cellZone', 'baffles']
@@ -387,21 +399,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             property = None
         return property
     
-    # add purpose to the stl file. currently not used
-    """
-    def add_purpose_(self,stl_name,purpose='wall'):
-        ampersandIO.printMessage(f"Setting purpose of {stl_name} to")
-        for stl in self.stl_files:
-            if stl['name'] == stl_name:
-                ampersandIO.printMessage(f"Setting purpose of {stl_name} to {purpose}")
-                stl['purpose'] = purpose
-                return 0
-        ampersandIO.printMessage(f"STL file {stl_name} not found in the project")
-        return -1
-    """
-        
-
-
+   
     def ask_stl_settings(self,stl_file):
         ampersandIO.printMessage(f"Settings of the {stl_file['name']} file")
         stl_file['refineMin'] = ampersandIO.get_input("Min Refinement: ")
@@ -459,39 +457,10 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             return -1
         return 0
             
-    
+    # this is a wrapper of the primitives 
     def list_stl_files(self):
-        i = 1
-        ampersandIO.show_title("STL Files")
-        #ampersandIO.printMessage("\n-----------------STL Files-----------------")
-        ampersandIO.printMessage("No.\tName\t\tPurpose\tRefineMent\tProperty")
-        for stl_file in self.stl_files:
-            ampersandIO.printMessage(f"{i}:\t{stl_file['name']}\t{stl_file['purpose']}\t({stl_file['refineMin']} {stl_file['refineMax']})\t\t{stl_file['property']}")
-            i += 1
+        ampersandPrimitives.list_stl_files(self.stl_files)
 
-    # this will allow the user to change the details of the stl file if necessary
-    def change_stl_details(self,stl_file_number=0):
-        self.list_stl_files()
-        change_purpose = ampersandIO.get_input("Change any STL files (y/N)?: ")
-        if change_purpose.lower() != 'y':
-            ampersandIO.printMessage("No change in STL files properties")
-            return 0
-        stl_file_number = ampersandIO.get_input("Enter the number of the file to change purpose: ")
-        try:
-            stl_file_number = int(stl_file_number)
-        except ValueError:
-            ampersandIO.printMessage("Invalid input. Please try again.")
-            self.change_stl_details()
-            #return -1
-        if stl_file_number < 0 or stl_file_number > len(self.stl_files):
-            ampersandIO.printMessage("Invalid input. Please try again.")
-            self.change_stl_details()
-            
-        stl_file = self.stl_files[stl_file_number]
-        stl_name = stl_file['name']
-        purpose = self.ask_purpose()
-        self.add_purpose_(stl_name,purpose)
-        return 0
 
     def remove_stl_file(self,stl_file_number=0):
         #self.list_stl_files()
@@ -625,6 +594,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.meshSettings['fineLevel'] = self.refinement
 
     def set_post_process_settings(self):
+        if self.useFOs:
+            self.postProcessSettings['FOs'] = True
         meshPoint = list(self.meshSettings['castellatedMeshControls']['locationInMesh'])
         self.postProcessSettings['massFlow'] = True
         self.postProcessSettings['minMax'] = True

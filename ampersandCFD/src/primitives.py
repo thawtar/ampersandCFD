@@ -9,6 +9,15 @@ class ampersandPrimitives:
         pass
 
     @staticmethod
+    def list_stl_files(stl_files):
+        i = 1
+        ampersandIO.show_title("STL Files")
+        ampersandIO.printMessage("No.\tName\t\tPurpose\tRefineMent\tProperty")
+        for stl_file in stl_files:
+            ampersandIO.printMessage(f"{i}:\t{stl_file['name']}\t{stl_file['purpose']}\t({stl_file['refineMin']} {stl_file['refineMax']})\t\t{stl_file['property']}")
+            i += 1
+
+    @staticmethod
     # Function to recursively convert tuples to lists (or any other conversion)
     def sanitize_yaml(data):
         if isinstance(data, tuple):
@@ -225,9 +234,15 @@ class ampersandIO:
     @staticmethod
     def get_input_vector(prompt):
         inp = input(prompt).split()
+        #output = [0.,0.,0.]
         # Check if the input is a list of floats
         try:
-            return list(map(float, inp))
+            vec = list(map(float, inp))
+            if len(vec)!=3:
+                ampersandIO.printError("Invalid input. Please enter 3 numbers.")
+                # Recursively call the function until a valid input is given
+                return ampersandIO.get_input_vector(prompt)
+            return vec
         except:
             ampersandIO.printError("Invalid input. Please enter a list of numbers.")
             # Recursively call the function until a valid input is given

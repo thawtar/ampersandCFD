@@ -3,29 +3,12 @@ from primitives import ampersandPrimitives, ampersandIO
 from headers import get_ampersand_header
 import os
 
-def open_project():
+def create_project():
     project = ampersandProject()
     # Clear the screen
     os.system('cls' if os.name == 'nt' else 'clear')
     ampersandIO.printMessage(get_ampersand_header())
-    project.set_project_path(ampersandPrimitives.ask_for_directory())
-    ampersandIO.printMessage(f"Project path: {project.project_path}")
-    ampersandIO.printMessage("Loading the project")
-    project.go_inside_directory()
-    
-    project.load_settings()
-    ampersandIO.printMessage("Project loaded successfully")
-    project.summarize_project()
-    project.list_stl_files()
-    project.choose_modification()
-    project.modify_project()
-    # if everything is successful, write the settings to the project_settings.yaml file
-    project.write_settings()
-    # Then create the project files with the new settings
-    project.create_project_files()
-    exit()
-
-
+    project.set_project_directory(ampersandPrimitives.ask_for_directory())
     project_name = ampersandIO.get_input("Enter the project name: ")
     project.set_project_name(project_name)
     #user_name = input("Enter the user name: ")
@@ -57,8 +40,9 @@ def open_project():
     
     if(len(project.stl_files)>0):
         project.analyze_stl_file()
-    project.set_post_process_settings()
+    
     project.useFOs = ampersandIO.get_input_bool("Use function objects for post-processing (y/N)?: ")
+    project.set_post_process_settings()
     project.list_stl_files()
     #project.analyze_stl_file()
     
@@ -68,7 +52,7 @@ def open_project():
 if __name__ == '__main__':
     # Specify the output YAML file
     try:
-        open_project()
+        create_project()
     except KeyboardInterrupt:
         ampersandIO.printMessage("\nKeyboardInterrupt detected! Aborting project creation")
         exit()
