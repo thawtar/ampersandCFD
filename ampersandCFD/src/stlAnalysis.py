@@ -15,7 +15,8 @@ class stlAnalysis:
 
     # to calculate the domain size for blockMeshDict
     @staticmethod
-    def calc_domain_size(stlBoundingBox,sizeFactor=1,onGround=False,internalFlow=False):
+    def calc_domain_size(stlBoundingBox,sizeFactor=1,onGround=False,
+                         internalFlow=False,halfModel=False):
         stlMinX,stlMaxX,stlMinY,stlMaxY,stlMinZ,stlMaxZ= stlBoundingBox
         # this part is for external flow
         bbX = stlMaxX - stlMinX
@@ -53,6 +54,8 @@ class stlAnalysis:
         if onGround: # the the body is touching the ground
             minZ = stlMinZ
             maxZ = stlMaxZ + 4.0*characLength*sizeFactor
+        if halfModel:
+            maxY = (maxY+minY)/2.
         domain_size = (minX,maxX,minY,maxY,minZ,maxZ)
         return domain_size
 
@@ -245,12 +248,14 @@ class stlAnalysis:
     # to calculate the mesh settings for blockMeshDict and snappyHexMeshDict
     @staticmethod
     def calc_mesh_settings(stlBoundingBox,nu=1e-6,rho=1000.,U=1.0,maxCellSize=0.5,sizeFactor=1.0,
-                           expansion_ratio=1.5,onGround=False,internalFlow=False,refinement=1,nLayers=5):
+                           expansion_ratio=1.5,onGround=False,internalFlow=False,refinement=1,
+                           nLayers=5,halfModel=False):
         maxSTLLength = stlAnalysis.getMaxSTLDim(stlBoundingBox)
         minSTLLength = stlAnalysis.getMinSTLDim(stlBoundingBox)
         if(maxCellSize < 0.001):
             maxCellSize = maxSTLLength/4.
-        domain_size = stlAnalysis.calc_domain_size(stlBoundingBox=stlBoundingBox,sizeFactor=sizeFactor,onGround=onGround,internalFlow=internalFlow)
+        domain_size = stlAnalysis.calc_domain_size(stlBoundingBox=stlBoundingBox,sizeFactor=sizeFactor,
+                                                   onGround=onGround,internalFlow=internalFlow,halfModel=halfModel)
         if(refinement==0):
             if(internalFlow):
                 backgroundCellSize = min(minSTLLength/6.,maxCellSize)
@@ -287,7 +292,7 @@ class stlAnalysis:
         refLevel = stlAnalysis.calc_refinement_levels(backgroundCellSize,targetCellSize)
         adjustedBackgroundCellSize = targetCellSize*2.**refLevel
         adjustedTargetCellSize = backgroundCellSize/2.**refLevel
-        adjustedNearWallThickness = adjustedTargetCellSize*0.3
+        adjustedNearWallThickness = adjustedTargetCellSize*0.3/(expansion_ratio**nLayers)
         adjustedYPlus = stlAnalysis.calc_yPlus(nu,L,U,adjustedNearWallThickness)
         #nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,adjustedBackgroundCellSize)
         # adjust refinement levels based on coarse, medium, fine settings
@@ -353,7 +358,7 @@ class stlAnalysis:
         bounds = stlAnalysis.compute_bounding_box(stl_file_path)
         stlMinX,stlMaxX,stlMinY,stlMaxY,stlMinZ,stlMaxZ= bounds
         outsideX = stlMaxX + 0.05*(stlMaxX-stlMinX)
-        outsideY = (stlMaxY - stlMinY)/2.
+        outsideY = stlMinY*0.95 #(stlMaxY - stlMinY)/2.
         outsideZ = (stlMaxZ - stlMinZ)/2.
         outsidePoint = (outsideX,outsideY,outsideZ)
         center_of_mass = stlAnalysis.calc_center_of_mass(mesh)

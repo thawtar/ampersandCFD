@@ -55,6 +55,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.stl_names = [] # list to store the names of the stl files
         self.internalFlow = False # default is external flow
         self.onGround = False # default is off the ground
+        self.halfModel = False # default is full model
         self.parallel = True # default is parallel simulation
         self.snap = True # default is to use snappyHexMesh
         self.transient = False # default is steady state
@@ -500,6 +501,18 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         else:
             self.transient = False
 
+    def ask_half_model(self):
+        half_model = ampersandIO.get_input_bool("Half Model (y/N)?: ")
+        if half_model==True:
+            self.halfModel = True
+            self.meshSettings['halfModel'] = True
+            # if the model is half, the back patch should be symmetry
+            ampersandPrimitives.change_patch_type(self.meshSettings['patches'],patch_name='back'
+                                                  ,new_type='symmetry')
+        else:
+            self.halfModel = False
+            self.meshSettings['halfModel'] = False
+
 
     def analyze_stl_file(self,stl_file_number=0):
         rho = self.physicalProperties['rho']
@@ -521,7 +534,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
         domain_size, nx, ny, nz, refLevel,target_y,minVol = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,U=U,maxCellSize=2.0,expansion_ratio=ER,
                                                                            onGround=self.onGround,internalFlow=self.internalFlow,
-                                                                           refinement=self.refinement)
+                                                                           refinement=self.refinement,halfModel=self.halfModel)
         featureLevel = max(refLevel,1)
         self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel, featureLevel) 
         self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path,self.internalFlow)

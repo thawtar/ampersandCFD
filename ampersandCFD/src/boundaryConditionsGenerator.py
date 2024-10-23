@@ -52,6 +52,12 @@ def create_u_file(meshSettings,boundaryConditions):
         value uniform {tuple_to_string(boundaryConditions['movingWall']['u_value'])};
     }}
     """
+            if(patch['type'] == 'symmetry'):
+                U_file += f"""
+    {{
+        type symmetry;
+    }}
+    """
     # If internal flow, set the boundary conditions for STL patches
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
@@ -124,6 +130,12 @@ def create_p_file(meshSettings,boundaryConditions):
     {{
         type {boundaryConditions['movingWall']['p_type']};
         value uniform {boundaryConditions['movingWall']['p_value']};
+    }}
+    """
+            if(patch['type'] == 'symmetry'):
+                p_file += f"""
+    {{
+        type symmetry;
     }}
     """
                 
@@ -200,6 +212,12 @@ def create_k_file(meshSettings,boundaryConditions,nu=1.0e-5):
     {{
         type {boundaryConditions['movingWall']['k_type']};
         value  {boundaryConditions['movingWall']['k_value']};
+    }}
+    """
+            if(patch['type'] == 'symmetry'):
+                k_file += f"""
+    {{
+        type symmetry;
     }}
     """
                 
@@ -288,6 +306,12 @@ def create_omega_file(meshSettings,boundaryConditions,nu=1.0e-5):
     {{
         type {boundaryConditions['movingWall']['omega_type']};
         value  {boundaryConditions['movingWall']['omega_value']};
+    }}
+    """
+            if(patch['type'] == 'symmetry'):
+                omega_file += f"""
+    {{
+        type symmetry;
     }}
     """
                 
@@ -379,6 +403,12 @@ def create_epsilon_file(meshSettings,boundaryConditions,nu=1.0e-5):
         value  {boundaryConditions['movingWall']['epsilon_value']};
     }}
     """
+            if(patch['type'] == 'symmetry'):
+                epsilon_file += f"""
+    {{
+        type symmetry;
+    }}
+    """
                 
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
@@ -460,6 +490,12 @@ def create_nut_file(meshSettings,boundaryConditions):
     {{
         type {boundaryConditions['movingWall']['nut_type']};
         value  {boundaryConditions['movingWall']['nut_value']};
+    }}
+    """
+            if(patch['type'] == 'symmetry'):
+                nut_file += f"""
+    {{
+        type symmetry;
     }}
     """
     for patch in meshSettings['geometry']:

@@ -18,6 +18,18 @@ class ampersandPrimitives:
             i += 1
 
     @staticmethod
+    def change_patch_type(patches, patch_name, new_type='patch'):
+        patch_found = False
+        for patch in patches:
+            if patch['name'] == patch_name:
+                patch_found = True
+                patch['type'] = new_type
+                break
+        if not patch_found:
+            return -1
+        return 0
+
+    @staticmethod
     # Function to recursively convert tuples to lists (or any other conversion)
     def sanitize_yaml(data):
         if isinstance(data, tuple):
@@ -248,6 +260,8 @@ class ampersandIO:
             # Recursively call the function until a valid input is given
             return ampersandIO.get_input_vector(prompt)
         #return list(map(float, input(prompt).split()))
+
+    
     
     @staticmethod
     def get_input_bool(prompt):

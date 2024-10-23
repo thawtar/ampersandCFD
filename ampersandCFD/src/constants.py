@@ -15,6 +15,7 @@ meshSettings = {
     'fineLevel': 1,
     'internalFlow': False,
     'onGround': False,
+    'halfModel': False,
     # patches are for the construction of the blockMeshDict
     'patches': [
         {'name': 'inlet', 'type': 'patch','faces': [0, 4, 7, 3]},

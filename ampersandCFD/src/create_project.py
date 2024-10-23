@@ -37,6 +37,7 @@ def create_project():
     project.set_inlet_values()
     project.set_transient_settings()
     project.set_parallel()
+    project.ask_half_model()
     
     if(len(project.stl_files)>0):
         project.analyze_stl_file()
