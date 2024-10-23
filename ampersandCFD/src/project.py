@@ -532,7 +532,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         print(f"Analyzing {stl_name}")
         stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
-        domain_size, nx, ny, nz, refLevel,target_y,minVol = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,U=U,maxCellSize=2.0,expansion_ratio=ER,
+        domain_size, nx, ny, nz, refLevel,target_y,nLayers = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,U=U,maxCellSize=2.0,expansion_ratio=ER,
                                                                            onGround=self.onGround,internalFlow=self.internalFlow,
                                                                            refinement=self.refinement,halfModel=self.halfModel)
         featureLevel = max(refLevel,1)
@@ -543,8 +543,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         if(self.internalFlow==False and self.onGround==True):
             # if the flow is external and the geometry is on the ground, add a ground refinement box
             self.meshSettings = stlAnalysis.addGroundRefinementBoxToMesh(meshSettings=self.meshSettings, stl_path=stl_path,refLevel=refinementBoxLevel)
-        #self.meshSettings = stlAnalysis.set_layer_thickness(self.meshSettings, target_y)
-        self.meshSettings = stlAnalysis.set_min_vol(self.meshSettings, minVol)
+        self.meshSettings = stlAnalysis.set_layer_thickness(self.meshSettings, target_y)
+        #self.meshSettings = stlAnalysis.set_min_vol(self.meshSettings, minVol)
         return 0
     
     def set_inlet_values(self):

@@ -23,9 +23,9 @@ runApplication surfaceFeatureExtract
 runApplication decomposePar -force
 runParallel snappyHexMesh -overwrite
 runApplication reconstructParMesh -constant -latestTime
-rm -rf processor*
-rm log.decomposePar
-runApplication decomposePar -force
+#rm -rf processor*
+#rm log.decomposePar
+#runApplication decomposePar -force
 """
         else:
             cmdMesh += f"""

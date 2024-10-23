@@ -295,10 +295,11 @@ class stlAnalysis:
         target_y = stlAnalysis.calc_y(nu,rho,L,U,target_yPlus=target_yPlus) # this is the thickness of closest cell
         targetCellSize = stlAnalysis.calc_cell_size(target_y,expRatio=expansion_ratio,thicknessRatio=0.3,nLayers=nLayers)
         refLevel = stlAnalysis.calc_refinement_levels(backgroundCellSize,targetCellSize)
-        adjustedBackgroundCellSize = targetCellSize*2.**refLevel
+        #adjustedBackgroundCellSize = targetCellSize*2.**refLevel
         adjustedTargetCellSize = backgroundCellSize/2.**refLevel
         adjustedNearWallThickness = target_y #adjustedTargetCellSize*0.3/(expansion_ratio**nLayers)
-        nLayers = stlAnalysis.calc_nLayer(yFirst=target_y,targetCellSize=adjustedTargetCellSize,expRatio=expansion_ratio)
+        adjustedNearWallThickness = np.round(adjustedNearWallThickness,decimals=3)
+        nLayers = stlAnalysis.calc_nLayer(yFirst=adjustedNearWallThickness,targetCellSize=adjustedTargetCellSize,expRatio=expansion_ratio)
         adjustedYPlus = stlAnalysis.calc_yPlus(nu,L,U,adjustedNearWallThickness)
         #nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,adjustedBackgroundCellSize)
         # adjust refinement levels based on coarse, medium, fine settings
@@ -322,11 +323,12 @@ class stlAnalysis:
         print(f"First layer thickness:{adjustedNearWallThickness}")
         print(f"YPlus:{adjustedYPlus}")
         print(f"Refinement Level:{refLevel}")
-        return domain_size, nx, ny, nz, refLevel,target_y,minVolumeSize
+        print(f"Number of layers:{nLayers}")
+        return domain_size, nx, ny, nz, refLevel,adjustedNearWallThickness,nLayers
     
     @staticmethod
     def set_layer_thickness(meshSettings,thickness=0.01):
-        meshSettings['addLayersControls']['finalLayerThickness'] = thickness
+        meshSettings['addLayersControls']['firstLayerThickness'] = thickness
         minThickness = max(0.0001,thickness/100.)
         meshSettings['addLayersControls']['minThickness'] = minThickness
         return meshSettings
