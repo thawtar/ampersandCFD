@@ -596,11 +596,15 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             
 
     def ask_ground_type(self):
-        ground_type = ampersandIO.get_input("Is the ground touching the body (y/N): ")
-        if ground_type.lower() == 'y':
+        ground_type = ampersandIO.get_input_bool("Is the ground touching the body (y/N): ")
+        if ground_type:
             self.onGround = True
+            self.meshSettings['onGround'] = True
+            ampersandPrimitives.change_patch_type(self.meshSettings['patches'],patch_name='ground',
+                                                    new_type='wall')
         else:
             self.onGround = False
+            self.meshSettings['onGround'] = False
 
     def ask_refinement_level(self):
         self.refinement = ampersandDataInput.get_mesh_refinement_level()

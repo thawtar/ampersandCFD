@@ -23,8 +23,8 @@ class stlAnalysis:
         bbY = stlMaxY - stlMinY
         bbZ = stlMaxZ - stlMinZ
         characLength = max(bbX,bbY,bbZ)
-        minX = stlMinX - 2.0*characLength*sizeFactor
-        maxX = stlMaxX + 10.0*characLength*sizeFactor
+        minX = stlMinX - 3.0*characLength*sizeFactor
+        maxX = stlMaxX + 9.0*characLength*sizeFactor
         minY = stlMinY - 2.0*characLength*sizeFactor
         maxY = stlMaxY + 2.0*characLength*sizeFactor
         minZ = stlMinZ - 2.0*characLength*sizeFactor
@@ -243,6 +243,11 @@ class stlAnalysis:
         # Get the output data from the reader
         poly_data = reader.GetOutput()
         return poly_data
+    
+    @staticmethod
+    def calc_nLayer(yFirst=0.001,targetCellSize=0.1,expRatio=1.2):
+        n = np.log(targetCellSize*0.7/yFirst)/np.log(expRatio)
+        return int(np.ceil(n))
 
 
     # to calculate the mesh settings for blockMeshDict and snappyHexMeshDict
@@ -292,7 +297,8 @@ class stlAnalysis:
         refLevel = stlAnalysis.calc_refinement_levels(backgroundCellSize,targetCellSize)
         adjustedBackgroundCellSize = targetCellSize*2.**refLevel
         adjustedTargetCellSize = backgroundCellSize/2.**refLevel
-        adjustedNearWallThickness = adjustedTargetCellSize*0.3/(expansion_ratio**nLayers)
+        adjustedNearWallThickness = target_y #adjustedTargetCellSize*0.3/(expansion_ratio**nLayers)
+        nLayers = stlAnalysis.calc_nLayer(yFirst=target_y,targetCellSize=adjustedTargetCellSize,expRatio=expansion_ratio)
         adjustedYPlus = stlAnalysis.calc_yPlus(nu,L,U,adjustedNearWallThickness)
         #nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,adjustedBackgroundCellSize)
         # adjust refinement levels based on coarse, medium, fine settings
