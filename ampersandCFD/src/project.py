@@ -642,8 +642,15 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             return -1
         if os.getcwd() != self.project_path:
             os.chdir(self.project_path)
+            
+        # create the initial conditions file
+        ampersandIO.printMessage("Creating boundary conditions")
+        create_boundary_conditions(self.meshSettings, self.boundaryConditions)    
+        # go back to the main directory 
+        os.chdir("..")
         # go inside the constant directory
         os.chdir("constant")
+        ampersandIO.printMessage("Creating physical properties and turbulence properties")
         # create transportProperties file
         tranP = create_transportPropertiesDict(self.physicalProperties)
         # create turbulenceProperties file
@@ -654,10 +661,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         os.chdir("..")
         # go inside the 0 directory
         os.chdir("0")
-        # create the initial conditions file
-        create_boundary_conditions(self.meshSettings, self.boundaryConditions)    
-        # go back to the main directory 
-        os.chdir("..")
+        
         # go inside the system directory
         os.chdir("system")
         # create the controlDict file
@@ -681,7 +685,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         # go back to the main directory
         os.chdir("..")
         # create mesh script
-        ampersandIO.printMessage("Creating the mesh and simulation scripts")
+        ampersandIO.printMessage("Creating scripts for meshing and running the simulation")
         meshScript = ScriptGenerator.generate_mesh_script(self.simulationFlowSettings)
         ampersandPrimitives.write_dict_to_file("mesh", meshScript)
         # create simulation script
@@ -689,6 +693,16 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         ampersandPrimitives.write_dict_to_file("run", simulationScript)
         ampersandPrimitives.crlf_to_LF("mesh")
         ampersandPrimitives.crlf_to_LF("run")
+        if os.name != 'nt':
+            os.chmod("mesh", 0o755)
+            os.chmod("run", 0o755)
+        # go back to the main directory
+        os.chdir("..")
+        ampersandIO.printMessage("\n-----------------------------------")
+        ampersandIO.printMessage("Project files created successfully!")
+        ampersandIO.printMessage("-----------------------------------\n")
+        return 0
+
 
 
 def main():

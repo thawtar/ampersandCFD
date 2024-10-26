@@ -201,8 +201,8 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
     layerControls += f"""
     }};
     expansionRatio {meshSettings['addLayersControls']['expansionRatio']};
-    //finalLayerThickness {meshSettings['addLayersControls']['finalLayerThickness']};
-    firstLayerThickness {meshSettings['addLayersControls']['firstLayerThickness']};
+    finalLayerThickness {meshSettings['addLayersControls']['finalLayerThickness']};
+    //firstLayerThickness {meshSettings['addLayersControls']['firstLayerThickness']};
     minThickness {meshSettings['addLayersControls']['minThickness']};
     nGrow {meshSettings['addLayersControls']['nGrow']};
     featureAngle {meshSettings['addLayersControls']['featureAngle']};

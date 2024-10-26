@@ -246,7 +246,7 @@ class stlAnalysis:
     
     @staticmethod
     def calc_nLayer(yFirst=0.001,targetCellSize=0.1,expRatio=1.2):
-        n = np.log(targetCellSize*0.7/yFirst)/np.log(expRatio)
+        n = np.log(targetCellSize*0.4/yFirst)/np.log(expRatio)
         return int(np.ceil(n))
 
 
@@ -266,21 +266,21 @@ class stlAnalysis:
                 backgroundCellSize = min(minSTLLength/6.,maxCellSize)
             else:
                 backgroundCellSize = min(minSTLLength/3.,maxCellSize) # this is the size of largest blockMesh cells
-            target_yPlus = 120
+            target_yPlus = 70
             nLayers = 5
         elif(refinement==1):
             if(internalFlow):
                 backgroundCellSize = min(minSTLLength/12.,maxCellSize)
             else:
                 backgroundCellSize = min(minSTLLength/5.,maxCellSize)
-            target_yPlus = 70
+            target_yPlus = 50
             nLayers = 5
         elif(refinement==2):
             if(internalFlow):
                 backgroundCellSize = min(minSTLLength/18.,maxCellSize)
             else:
                 backgroundCellSize = min(minSTLLength/7.,maxCellSize)
-            target_yPlus = 40
+            target_yPlus = 30
             nLayers = 5
         else: # medium settings for default
             if(internalFlow):
@@ -288,7 +288,7 @@ class stlAnalysis:
             else:
                 backgroundCellSize = min(maxSTLLength/8.,maxCellSize)
             nLayers = 5
-            target_yPlus = 100
+            target_yPlus = 70
         nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,backgroundCellSize)
         #print(f"Nx Ny Nz (before): {nx},{ny},{nz}")
         L = maxSTLLength # this is the characteristic length to be used in Re calculations
@@ -301,6 +301,7 @@ class stlAnalysis:
         adjustedNearWallThickness = np.round(adjustedNearWallThickness,decimals=3)
         nLayers = stlAnalysis.calc_nLayer(yFirst=adjustedNearWallThickness,targetCellSize=adjustedTargetCellSize,expRatio=expansion_ratio)
         adjustedYPlus = stlAnalysis.calc_yPlus(nu,L,U,adjustedNearWallThickness)
+        finalLayerThickness = adjustedTargetCellSize*0.3
         #nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,adjustedBackgroundCellSize)
         # adjust refinement levels based on coarse, medium, fine settings
         if(refinement==0):
@@ -321,14 +322,15 @@ class stlAnalysis:
         #print(f"Max volume size: {backgroundCellSize**3}")
         #print(f"Min volume size: {minVolumeSize}")
         print(f"First layer thickness:{adjustedNearWallThickness}")
+        print(f"Final layer thickness:{finalLayerThickness}")
         print(f"YPlus:{adjustedYPlus}")
         print(f"Refinement Level:{refLevel}")
         print(f"Number of layers:{nLayers}")
-        return domain_size, nx, ny, nz, refLevel,adjustedNearWallThickness,nLayers
+        return domain_size, nx, ny, nz, refLevel,finalLayerThickness,nLayers
     
     @staticmethod
     def set_layer_thickness(meshSettings,thickness=0.01):
-        meshSettings['addLayersControls']['firstLayerThickness'] = thickness
+        meshSettings['addLayersControls']['finalLayerThickness'] = thickness
         minThickness = max(0.0001,thickness/100.)
         meshSettings['addLayersControls']['minThickness'] = minThickness
         return meshSettings

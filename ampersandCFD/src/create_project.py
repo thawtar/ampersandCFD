@@ -6,7 +6,7 @@ import os
 def create_project():
     project = ampersandProject()
     # Clear the screen
-    os.system('cls' if os.name == 'nt' else 'clear')
+    #os.system('cls' if os.name == 'nt' else 'clear')
     ampersandIO.printMessage(get_ampersand_header())
     project.set_project_directory(ampersandPrimitives.ask_for_directory())
     project_name = ampersandIO.get_input("Enter the project name: ")
