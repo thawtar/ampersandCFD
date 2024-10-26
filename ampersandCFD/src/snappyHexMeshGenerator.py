@@ -52,9 +52,9 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
             file \"{an_entry['name'][:-4]}.eMesh\";
             level {an_entry['featureLevel']};
         }}"""
-                if(an_entry['purpose'] == 'inlet' or an_entry['purpose'] == 'outlet'):
-                    patchType = 'patch'
-                    refinementSurfaces+= f"""
+            if(an_entry['purpose'] == 'inlet' or an_entry['purpose'] == 'outlet'):
+                patchType = 'patch'
+                refinementSurfaces+= f"""
         {an_entry['name'][:-4]}
         {{
             level (0 0);
@@ -71,9 +71,9 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
             }}
             
         }}""" 
-                elif(an_entry['purpose'] == 'cellZone'):
-                    patchType = 'cellZone'
-                    refinementSurfaces+= f"""
+            elif(an_entry['purpose'] == 'cellZone'):
+                patchType = 'cellZone'
+                refinementSurfaces+= f"""
         {an_entry['name'][:-4]}
         {{
             level (0 0);
@@ -84,12 +84,12 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
             
         }}""" 
                 # if refinementSurface or region, do not add here
-                elif(an_entry['purpose'] == 'refinementRegion' or an_entry['purpose'] == 'refinementSurface'):
-                    pass
+            elif(an_entry['purpose'] == 'refinementRegion' or an_entry['purpose'] == 'refinementSurface'):
+                pass
                 
-                else:
-                    patchType = 'wall'
-                    refinementSurfaces+= f"""
+            else:
+                patchType = 'wall'
+                refinementSurfaces+= f"""
         {an_entry['name'][:-4]}
         {{
             level (0 0);

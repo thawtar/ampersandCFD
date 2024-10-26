@@ -338,7 +338,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.write_settings()
 
     # Add a stl file to the project settings (self.meshSettings)
-    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges='true', 
+    def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges=True, 
                                  featureLevel=1,purpose='wall',property=None,bounds=None):
         already_exists = False # flag to check if the stl file already exists in the project
         idx = 0 # index of the stl file in the list
@@ -407,9 +407,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         stl_file['refineMax'] = ampersandIO.get_input("Max Refinement: ")
         featureEdges = ampersandIO.get_input("Refine Feature Edges?: (y/N) ")
         if(featureEdges == 'y'):
-            stl_file['featureEdges'] = 'true'
+            stl_file['featureEdges'] = True
         else:    
-            stl_file['featureEdges'] = 'false'
+            stl_file['featureEdges'] = False
         stl_file['featureLevel'] = ampersandIO.get_input("Feature Level: ")
         stl_file['nLayers'] = ampersandIO.get_input("Number of Layers: ")
 
@@ -439,7 +439,11 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 bounds = stlAnalysis.compute_bounding_box(stl_file)
                 bounds = tuple(bounds)
                 property = self.set_property(purpose)
-                self.add_stl_to_mesh_settings(stl_name,purpose=purpose,property=property,bounds=bounds)
+                if purpose == 'refinementRegion' or purpose == 'cellZone' or purpose == 'refinementSurface':
+                    featureEdges = 'false'
+                else:  
+                    featureEdges = 'true'
+                self.add_stl_to_mesh_settings(stl_name,purpose=purpose,property=property,featureEdges=featureEdges,bounds=bounds)
             # this is the path to the constant/triSurface inside project directory where STL will be copied
             stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
             try:
