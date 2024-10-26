@@ -339,17 +339,19 @@ class ampersandProject: # ampersandProject class to handle the project creation 
 
     # Add a stl file to the project settings (self.meshSettings)
     def add_stl_to_mesh_settings(self, stl_name,refMin=0, refMax=0, featureEdges=True, 
-                                 featureLevel=1,purpose='wall',property=None,bounds=None):
+                                 featureLevel=1,purpose='wall',property=None,bounds=None, nLayers=3):
         already_exists = False # flag to check if the stl file already exists in the project
         idx = 0 # index of the stl file in the list
         # Purpose is wall by default
         # Other purposes are patch, refinementRegion, refinementSurface, cellZone, baffles
+        """
         if self.refinement == 0:
             nLayers = 3
         elif self.refinement == 1:
             nLayers = 5
         else:
             nLayers = 7
+        """
         stl_ = {'name': stl_name, 'type':'triSurfaceMesh','purpose':purpose, 'refineMin': refMin, 'refineMax': refMax, 
                 'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers, 'property':property, 'bounds':bounds}
         
@@ -440,9 +442,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 bounds = tuple(bounds)
                 property = self.set_property(purpose)
                 if purpose == 'refinementRegion' or purpose == 'cellZone' or purpose == 'refinementSurface':
-                    featureEdges = 'false'
+                    featureEdges = False
                 else:  
-                    featureEdges = 'true'
+                    featureEdges = True
                 self.add_stl_to_mesh_settings(stl_name,purpose=purpose,property=property,featureEdges=featureEdges,bounds=bounds)
             # this is the path to the constant/triSurface inside project directory where STL will be copied
             stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
@@ -540,7 +542,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                                                                            onGround=self.onGround,internalFlow=self.internalFlow,
                                                                            refinement=self.refinement,halfModel=self.halfModel)
         featureLevel = max(refLevel,1)
-        self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel, featureLevel) 
+        self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel, featureLevel,nLayers=nLayers) 
         self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path,self.internalFlow)
         refinementBoxLevel = max(2,refLevel-3)
         self.meshSettings = stlAnalysis.addRefinementBoxToMesh(meshSettings=self.meshSettings, stl_path=stl_path,refLevel=refinementBoxLevel,internalFlow=self.internalFlow)

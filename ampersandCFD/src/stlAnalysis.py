@@ -340,7 +340,7 @@ class stlAnalysis:
 
     # to set mesh settings for blockMeshDict and snappyHexMeshDict 
     @staticmethod
-    def set_mesh_settings(meshSettings, domain_size, nx, ny, nz, refLevel,featureLevel=1):
+    def set_mesh_settings(meshSettings, domain_size, nx, ny, nz, refLevel,featureLevel=1,nLayers=None):
         meshSettings['domain'] = {'minx': domain_size[0], 'maxx': domain_size[1], 'miny': domain_size[2], 'maxy': domain_size[3], 'minz': domain_size[4], 'maxz': domain_size[5], 'nx': nx, 'ny': ny, 'nz': nz}
         refMin = max(1,refLevel)
         refMax = max(2,refLevel+1)
@@ -350,6 +350,8 @@ class stlAnalysis:
                 geometry['refineMax'] = refMax
                 #geometry['featureEdges'] = 'true'
                 geometry['featureLevel'] = featureLevel
+                if nLayers is not None:
+                    geometry['nLayers'] = nLayers
         return meshSettings
     
     @staticmethod
