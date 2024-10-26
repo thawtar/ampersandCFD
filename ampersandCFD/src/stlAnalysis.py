@@ -2,7 +2,8 @@ import os
 import vtk
 import numpy as np
 import math
-from stlToOpenFOAM import find_inside_point, is_point_inside
+from stlToOpenFOAM import find_inside_point, is_point_inside, read_stl_file
+from stlToOpenFOAM import extract_curvature_data, compute_curvature
 
 class stlAnalysis:
     def __init__(self):
@@ -248,6 +249,17 @@ class stlAnalysis:
     def calc_nLayer(yFirst=0.001,targetCellSize=0.1,expRatio=1.2):
         n = np.log(targetCellSize*0.4/yFirst)/np.log(expRatio)
         return int(np.ceil(n))
+    
+    # this function calculates the smallest curvature of the mesh
+    # This function calls stlToOpenFOAM functions to read the mesh and calculate curvature
+    @staticmethod
+    def calc_smallest_curvature(stlFile):
+        mesh = read_stl_file(stlFile)
+        curved_mesh = compute_curvature(mesh, curvature_type='mean')
+        curvature_values = extract_curvature_data(curved_mesh)
+        print(f"Curvature values: {curvature_values}")
+        min_curvature = np.min(curvature_values)
+        return min_curvature
 
 
     # to calculate the mesh settings for blockMeshDict and snappyHexMeshDict
@@ -267,7 +279,7 @@ class stlAnalysis:
             else:
                 backgroundCellSize = min(minSTLLength/3.,maxCellSize) # this is the size of largest blockMesh cells
             target_yPlus = 70
-            nLayers = 5
+            nLayers = 3
         elif(refinement==1):
             if(internalFlow):
                 backgroundCellSize = min(minSTLLength/12.,maxCellSize)
@@ -281,7 +293,7 @@ class stlAnalysis:
             else:
                 backgroundCellSize = min(minSTLLength/7.,maxCellSize)
             target_yPlus = 30
-            nLayers = 5
+            nLayers = 7
         else: # medium settings for default
             if(internalFlow):
                 backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
@@ -427,8 +439,10 @@ class stlAnalysis:
         return 0
 
 def main():
-    stl_file = "/Users/thawtar/Desktop/CFD_Monkey/STL/flange.stl"
-    stlAnalysis.set_stl_solid_name(stl_file)
+    stl_file = r"C:/Users/Ridwa/Desktop/CFD/ampersandTests\ahmed2\constant\triSurface\ahmed.stl"
+    minCurv = stlAnalysis.calc_smallest_curvature(stl_file)
+    print(minCurv)
+
 
 if __name__ == "__main__":
     main()
