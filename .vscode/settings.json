@@ -3,6 +3,8 @@
         "bedLoadModules.C": "cpp",
         "sandSlideModules.C": "cpp",
         "sedModules.C": "cpp",
-        "massBalanceModules.C": "cpp"
+        "massBalanceModules.C": "cpp",
+        "snappyLayerDriverSinglePass.C": "cpp",
+        "snappyLayerDriver.C": "cpp"
     }
 }

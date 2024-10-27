@@ -63,6 +63,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.characteristicLength = None # default characteristic length
         self.useFOs = False # default is not to use function objects
         self.current_modification = None # current modification to the project settings
+        self.inside_project_directory = False # flag to check if the current working directory is the project directory
         self.mod_options = ["Background Mesh","Add Geometry","Refinement Levels","Boundary Conditions","Fluid Properties", "Numerical Settings", 
                    "Simulation Control Settings","Turbulence Model","Post Processing Settings"]
 
@@ -197,6 +198,46 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 ampersandIO.printError(error)
         cwd = os.getcwd()
         ampersandIO.printMessage(f"Working directory: {cwd}")
+        self.inside_project_directory = True
+
+    # Check if the 0 directory exists in the project directory
+    def check_0_directory(self):
+        if not os.path.exists("0"):
+            ampersandIO.printMessage("0 directory does not exist.")
+            ampersandIO.printMessage("Checking for 0.orig directory")
+            if os.path.exists("0.orig"):
+                ampersandIO.printMessage("0.orig directory found. Copying to 0 directory")
+                shutil.copytree("0.orig", "0")
+            else:
+                ampersandIO.printMessage("0.orig directory not found. Aborting project creation.")
+                return -1
+        return 0
+    
+    # Check if the constant directory exists in the project directory
+    def check_constant_directory(self):
+        if not os.path.exists("constant"):
+            ampersandIO.printMessage("constant directory does not exist.")
+            ampersandIO.printError("constant directory is necessary for the project")
+            return -1
+        return 0
+    
+    # Check if the system directory exists in the project directory
+    def check_system_directory(self):
+        if not os.path.exists("system"):
+            ampersandIO.printMessage("system directory does not exist.")
+            ampersandIO.printError("system directory is necessary for the project")
+            return -1
+        return 0
+    
+    # Check if the constant/triSurface directory exists in the project directory
+    def check_triSurface_directory(self):
+        if not os.path.exists("constant/triSurface"):
+            ampersandIO.printMessage("triSurface directory does not exist.")
+            ampersandIO.printError("triSurface directory is necessary for the project")
+            return -1
+        # if exists, check if the stl files are present
+        stl_files = os.listdir("constant/triSurface")
+        
 
     # Create the project directory in the specified location.
     # 0, constant, system, constant/triSurface directories are created.
@@ -248,7 +289,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             'postProcessSettings': self.postProcessSettings
         }
         #print(self.meshSettings)
-        ampersandIO.printMessage("Writing settings to project_settings.yaml")
+        ampersandIO.printMessage("\n\nWriting settings to project_settings.yaml\n")
         ampersandPrimitives.dict_to_yaml(settings, 'project_settings.yaml')
 
     # If the project is already existing, load the settings from the project_settings.yaml file
@@ -642,9 +683,11 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             return -1
         if os.getcwd() != self.project_path:
             os.chdir(self.project_path)
-            
+
         # create the initial conditions file
         ampersandIO.printMessage("Creating boundary conditions")
+        # go inside the 0 directory
+        os.chdir("0")
         create_boundary_conditions(self.meshSettings, self.boundaryConditions)    
         # go back to the main directory 
         os.chdir("..")
@@ -659,8 +702,6 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         ampersandPrimitives.write_dict_to_file("turbulenceProperties", turbP)
         # go back to the main directory
         os.chdir("..")
-        # go inside the 0 directory
-        os.chdir("0")
         
         # go inside the system directory
         os.chdir("system")

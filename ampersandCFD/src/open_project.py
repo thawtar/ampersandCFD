@@ -14,6 +14,7 @@ def open_project():
     project.go_inside_directory()
     
     project.load_settings()
+    project.check_0_directory()
     ampersandIO.printMessage("Project loaded successfully")
     project.summarize_project()
     project.list_stl_files()

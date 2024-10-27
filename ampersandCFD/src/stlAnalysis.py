@@ -250,6 +250,32 @@ class stlAnalysis:
         n = np.log(targetCellSize*0.4/yFirst)/np.log(expRatio)
         return int(np.ceil(n))
     
+    @staticmethod
+    def calc_delta(U=1.0,nu=1e-6,L=1.0):
+        Re = U*L/nu
+        delta = 0.37*L/Re**(0.2)
+        return delta
+    
+    @staticmethod
+    # calculates N layers and final layer thickness
+    # yFirst: first layer thickness
+    # delta: boundary layer thickness
+    # expRatio: expansion ratio
+    def calc_layers(yFirst=0.001,delta=0.01,expRatio=1.2):
+        currentThickness = yFirst*2.0 # initial thickness. Twice the yPlus value
+        currentDelta = 0
+        N = 0
+        for i in range(1,50):
+            currentThickness = currentThickness*expRatio**(i)
+            currentDelta = currentDelta + currentThickness
+            if(currentDelta > delta):
+                N = i
+                break
+        finalLayerThickness = currentThickness
+       
+        return N,finalLayerThickness
+        
+
     # this function calculates the smallest curvature of the mesh
     # This function calls stlToOpenFOAM functions to read the mesh and calculate curvature
     @staticmethod
@@ -266,7 +292,7 @@ class stlAnalysis:
     @staticmethod
     def calc_mesh_settings(stlBoundingBox,nu=1e-6,rho=1000.,U=1.0,maxCellSize=0.5,sizeFactor=1.0,
                            expansion_ratio=1.5,onGround=False,internalFlow=False,refinement=1,
-                           nLayers=5,halfModel=False):
+                           nLayers=5,halfModel=False,thicknessRatio=0.3):
         maxSTLLength = stlAnalysis.getMaxSTLDim(stlBoundingBox)
         minSTLLength = stlAnalysis.getMinSTLDim(stlBoundingBox)
         if(maxCellSize < 0.001):
@@ -280,6 +306,7 @@ class stlAnalysis:
                 backgroundCellSize = min(minSTLLength/3.,maxCellSize) # this is the size of largest blockMesh cells
             target_yPlus = 70
             nLayers = 3
+            refLevel = 2
         elif(refinement==1):
             if(internalFlow):
                 backgroundCellSize = min(minSTLLength/12.,maxCellSize)
@@ -287,6 +314,7 @@ class stlAnalysis:
                 backgroundCellSize = min(minSTLLength/5.,maxCellSize)
             target_yPlus = 50
             nLayers = 5
+            refLevel = 4
         elif(refinement==2):
             if(internalFlow):
                 backgroundCellSize = min(minSTLLength/18.,maxCellSize)
@@ -294,6 +322,7 @@ class stlAnalysis:
                 backgroundCellSize = min(minSTLLength/7.,maxCellSize)
             target_yPlus = 30
             nLayers = 7
+            refLevel = 6
         else: # medium settings for default
             if(internalFlow):
                 backgroundCellSize = min(maxSTLLength/12.,maxCellSize)
@@ -301,42 +330,53 @@ class stlAnalysis:
                 backgroundCellSize = min(maxSTLLength/8.,maxCellSize)
             nLayers = 5
             target_yPlus = 70
+            refLevel = 4
         nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,backgroundCellSize)
-        #print(f"Nx Ny Nz (before): {nx},{ny},{nz}")
+        
         L = maxSTLLength # this is the characteristic length to be used in Re calculations
         target_y = stlAnalysis.calc_y(nu,rho,L,U,target_yPlus=target_yPlus) # this is the thickness of closest cell
-        targetCellSize = stlAnalysis.calc_cell_size(target_y,expRatio=expansion_ratio,thicknessRatio=0.3,nLayers=nLayers)
-        refLevel = stlAnalysis.calc_refinement_levels(backgroundCellSize,targetCellSize)
-        #adjustedBackgroundCellSize = targetCellSize*2.**refLevel
+        delta = stlAnalysis.calc_delta(U,nu,L)
+        nLayers,finalLayerThickness = stlAnalysis.calc_layers(yFirst=target_y,delta=delta,expRatio=expansion_ratio)
+        targetCellSize = stlAnalysis.calc_cell_size(target_y,expRatio=expansion_ratio,thicknessRatio=thicknessRatio,nLayers=nLayers)
+        refLevel = stlAnalysis.calc_refinement_levels(max_cell_size=backgroundCellSize,target_cell_size=targetCellSize)
+        
+        # adjust refinement levels based on coarse, medium, fine settings
+        
+        if(refinement==0):
+        
+            refLevel = max(2,refLevel)
+        elif(refinement==1):
+            refLevel = max(4,refLevel)
+        elif(refinement==2):
+            refLevel = max(6,refLevel)
+        else:
+            refLevel = max(3,refLevel)
         adjustedTargetCellSize = backgroundCellSize/2.**refLevel
         adjustedNearWallThickness = target_y #adjustedTargetCellSize*0.3/(expansion_ratio**nLayers)
         adjustedNearWallThickness = np.round(adjustedNearWallThickness,decimals=3)
-        nLayers = stlAnalysis.calc_nLayer(yFirst=adjustedNearWallThickness,targetCellSize=adjustedTargetCellSize,expRatio=expansion_ratio)
+        #nLayers = stlAnalysis.calc_nLayer(yFirst=adjustedNearWallThickness,targetCellSize=adjustedTargetCellSize,expRatio=expansion_ratio)
         adjustedYPlus = stlAnalysis.calc_yPlus(nu,L,U,adjustedNearWallThickness)
-        finalLayerThickness = adjustedTargetCellSize*0.3
-        #nx,ny,nz = stlAnalysis.calc_nx_ny_nz(domain_size,adjustedBackgroundCellSize)
-        # adjust refinement levels based on coarse, medium, fine settings
-        if(refinement==0):
-            refLevel = max(1,refLevel)
-        elif(refinement==1):
-            refLevel = max(2,refLevel)
-        elif(refinement==2):
-            refLevel = max(3,refLevel)
-        else:
-            refLevel = max(2,refLevel)
-        minVolumeSize = backgroundCellSize**3/(8.**refLevel*20.)
+        finalLayerThickness = adjustedTargetCellSize*thicknessRatio
+        
+       
+        #minVolumeSize = backgroundCellSize**3/(8.**refLevel*20.)
         # print the summary of results
         print("\n-----------------Mesh Settings-----------------")
         print(f"Domain size: {domain_size}")
         print(f"Nx Ny Nz: {nx},{ny},{nz}")
         print(f"Max cell size: {backgroundCellSize}")
         print(f"Min cell size: {adjustedTargetCellSize}")
+        print(f"Refinement Level:{refLevel}")
         #print(f"Max volume size: {backgroundCellSize**3}")
         #print(f"Min volume size: {minVolumeSize}")
+        print("\n-----------------Turbulence-----------------")
+        print(f"Target yPlus:{target_yPlus}")
+        print(f'Reynolds number:{U*L/nu}')
+        print(f"Boundary layer thickness:{delta}")
         print(f"First layer thickness:{adjustedNearWallThickness}")
         print(f"Final layer thickness:{finalLayerThickness}")
         print(f"YPlus:{adjustedYPlus}")
-        print(f"Refinement Level:{refLevel}")
+        
         print(f"Number of layers:{nLayers}")
         return domain_size, nx, ny, nz, refLevel,finalLayerThickness,nLayers
     
@@ -357,7 +397,7 @@ class stlAnalysis:
     def set_mesh_settings(meshSettings, domain_size, nx, ny, nz, refLevel,featureLevel=1,nLayers=None):
         meshSettings['domain'] = {'minx': domain_size[0], 'maxx': domain_size[1], 'miny': domain_size[2], 'maxy': domain_size[3], 'minz': domain_size[4], 'maxz': domain_size[5], 'nx': nx, 'ny': ny, 'nz': nz}
         refMin = max(1,refLevel)
-        refMax = max(2,refLevel+1)
+        refMax = max(2,refLevel)
         for geometry in meshSettings['geometry']:
             if geometry['type'] == 'triSurfaceMesh':
                 geometry['refineMin'] = refMin

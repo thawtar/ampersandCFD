@@ -12,11 +12,11 @@ class ampersandPrimitives:
     def list_stl_files(stl_files):
         i = 1
         ampersandIO.show_title("STL Files")
-        ampersandIO.printMessage(f"{'No.':>4}{'Name':<20}{'Purpose':>12}\t{'RefineMent':>15}{'Property':>10}")
+        ampersandIO.printMessage(f"{'No.'}\t{'Name'}\t{'Purpose'}\t{'RefineMent'}\t{'Property'}")
         for stl_file in stl_files:
             if(stl_file['property']==None):
                 stl_file['property'] = "None"
-            ampersandIO.printMessage(f"{i:>4}{stl_file['name']:<20}{stl_file['purpose']:12}\t({stl_file['refineMin']} {stl_file['refineMax']}){stl_file['property']:>10}")
+            ampersandIO.printMessage(f"{i}\t{stl_file['name']}\t{stl_file['purpose']}\t({stl_file['refineMin']} {stl_file['refineMax']})\t{stl_file['property']}")
             i += 1
 
     @staticmethod

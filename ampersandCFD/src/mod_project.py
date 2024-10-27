@@ -41,7 +41,8 @@ class mod_project:
 
 
     @staticmethod
-    def change_refinement_level(project):
+    # this is to change the global refinement level of the mesh
+    def change_macro_refinement_level(project):
         refLevels = ["coarse","medium","fine"]
         ampersandIO.printMessage("Current refinement level: "+refLevels[meshSettings['fineLevel']])
         #ampersandIO.printMessage("Refinement level is the number of cells in the smallest direction")
@@ -145,6 +146,14 @@ class mod_project:
         ampersandIO.printMessage(f"STL file {stl_name} not found in the project")
         return -1
     
+    @staticmethod
+    def change_stl_refinement_level(project,stl_file_number=0):
+        ampersandIO.printMessage("Changing refinement level")
+        refMin = ampersandIO.get_input_int("Enter new refMin: ")
+        refMax = ampersandIO.get_input_int("Enter new refMax: ")
+        project.stl_files[stl_file_number]['refMin'] = refMin
+        project.stl_files[stl_file_number]['refMax'] = refMax
+    
     #---------------------------------------------------------------------#
     # The functions called when modifications are to be made project #
     @staticmethod
@@ -165,11 +174,26 @@ class mod_project:
         ampersandIO.printMessage("Adding geometry")
         # TODO: Implement this function
         project.add_stl_file()
+        
+        project.add_stl_to_project()
+        project.list_stl_files()
 
     @staticmethod
     def change_refinement_levels(project):
         ampersandIO.printMessage("Changing refinement levels")
         # TODO: Implement this function
+        project.list_stl_files()
+        stl_file_number = ampersandIO.get_input("Enter the number of the file to change refinement level: ")
+        try:
+            stl_file_number = int(stl_file_number)
+        except ValueError:
+            ampersandIO.printMessage("Invalid input. Please try again.")
+        if stl_file_number < 0 or stl_file_number > len(project.stl_files):
+            ampersandIO.printMessage("Invalid input. Please try again.")
+        else:
+            mod_project.change_stl_refinement_level(project,stl_file_number)
+            return 0
+
 
     @staticmethod
     def change_boundary_conditions(project):
