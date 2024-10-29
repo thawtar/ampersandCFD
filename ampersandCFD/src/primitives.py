@@ -53,6 +53,16 @@ class ampersandPrimitives:
             return [ampersandPrimitives.sanitize_yaml(item) for item in data]
         else:
             return data
+        
+    # Function to remove duplicates in a YAML file
+    @staticmethod
+    def remove_duplicates_dict(data):
+        if isinstance(data, dict):
+            return {k: ampersandPrimitives.remove_duplicates_dict(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return list(set(data))
+        else:
+            return data
 
     @staticmethod
     def crlf_to_LF(file_path):

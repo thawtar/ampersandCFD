@@ -123,10 +123,21 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         new_list = []
         for d in self.stl_files:
             t = tuple(d.items())
-            if t not in seen:
-                seen.add(t)
-                new_list.append(d)
+            #print("d",d)
+            #print("t",t)
+            #print("seen",seen)
+            stl_name = d['name']
+            if stl_name in self.stl_names:
+                ampersandIO.printMessage(f"STL file {stl_name} already exists in the project, skipping the addition")
+                continue
+            new_list.append(d)
+            #if t not in seen:
+            #    seen.add(t)
+            #    new_list.append(d)
         self.stl_files = new_list
+        self.meshSettings['geometry'] = ampersandPrimitives.remove_duplicates_dict(self.meshSettings['geometry'])
+        #print("stl_files",self.stl_files)
+        #print("Mesh settings",self.meshSettings["geometry"])
 
     def set_project_directory(self, project_directory_path):
         if project_directory_path is None:
@@ -237,7 +248,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             return -1
         # if exists, check if the stl files are present
         stl_files = os.listdir("constant/triSurface")
-        
+
 
     # Create the project directory in the specified location.
     # 0, constant, system, constant/triSurface directories are created.
