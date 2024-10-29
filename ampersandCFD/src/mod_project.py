@@ -95,9 +95,9 @@ class mod_project:
         nx = project.meshSettings['domain']['nx']
         ny = project.meshSettings['domain']['ny']
         nz = project.meshSettings['domain']['nz']
-        ampersandIO.printMessage(f"Domain size:\tX\tY\tZ")
-        ampersandIO.printMessage(f"\tMin\t{minX}\t{minY}\t{minZ}")
-        ampersandIO.printMessage(f"\tMax\t{maxX}\t{maxY}\t{maxZ}")
+        ampersandIO.printMessage(f"Domain size:{'X':>10}{'Y':>10}{'Z':>10}")
+        ampersandIO.printMessage(f"Min         {minX:>10.3f}{minY:>10.3f}{minZ:>10.3f}")
+        ampersandIO.printMessage(f"Max         {maxX:>10.3f}{maxY:>10.3f}{maxZ:>10.3f}")
         ampersandIO.printMessage(f"Background mesh size: {nx}x{ny}x{nz} cells")
         ampersandIO.printMessage(f"Background cell size: {project.meshSettings['maxCellSize']} m")
     

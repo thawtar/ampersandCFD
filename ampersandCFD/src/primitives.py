@@ -9,14 +9,25 @@ class ampersandPrimitives:
         pass
 
     @staticmethod
-    def list_stl_files(stl_files):
+    def list_stl_files_org(stl_files):
         i = 1
         ampersandIO.show_title("STL Files")
-        ampersandIO.printMessage(f"{'No.'}\t{'Name'}\t{'Purpose'}\t{'RefineMent'}\t{'Property'}")
+        ampersandIO.printMessage(f"{'No.':<5}{'Name'}\t\t{'Purpose'}\t\t{'RefineMent'}\t{'Property'}")
         for stl_file in stl_files:
             if(stl_file['property']==None):
                 stl_file['property'] = "None"
-            ampersandIO.printMessage(f"{i}\t{stl_file['name']}\t{stl_file['purpose']}\t({stl_file['refineMin']} {stl_file['refineMax']})\t{stl_file['property']}")
+            ampersandIO.printMessage(f"{i:<5}{stl_file['name']}\t\t{stl_file['purpose']}\t\t({stl_file['refineMin']} {stl_file['refineMax']})\t{stl_file['property']}")
+            i += 1
+
+    @staticmethod
+    def list_stl_files(stl_files):
+        i = 1
+        ampersandIO.show_title("STL Files")
+        ampersandIO.printMessage(f"{'No.':<5}{'Name':<20}{'Purpose':<20}{'RefineMent':<15}{'Property':<15}")
+        for stl_file in stl_files:
+            if(stl_file['property']==None):
+                stl_file['property'] = "None"
+            ampersandIO.printMessage(f"{i:<5}{stl_file['name']:<20}{stl_file['purpose']:<20}({stl_file['refineMin']} {stl_file['refineMax']}{')':<11}{stl_file['property']:<15}")
             i += 1
 
     @staticmethod
