@@ -117,6 +117,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             return -1
         return 0
     
+    
     def remove_duplicate_stl_files(self):
         # detect duplicate dictionaries in the list
         seen = set()
@@ -135,7 +136,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             #    seen.add(t)
             #    new_list.append(d)
         self.stl_files = new_list
-        self.meshSettings['geometry'] = ampersandPrimitives.remove_duplicates_dict(self.meshSettings['geometry'])
+        self.meshSettings['geometry'] = ampersandPrimitives.remove_duplicate_dicts(self.meshSettings['geometry'])
         #print("stl_files",self.stl_files)
         #print("Mesh settings",self.meshSettings["geometry"])
 
@@ -335,6 +336,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.useFOs = self.postProcessSettings['FOs']
         project_name = self.project_path.split("/")[-1]
         self.project_name = project_name
+        # treat bounds as tuple
+        self.meshSettings["geometry"] = ampersandPrimitives.treat_bounds(self.meshSettings["geometry"])
 
         
     def show_settings(self):

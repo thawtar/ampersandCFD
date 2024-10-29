@@ -54,15 +54,37 @@ class ampersandPrimitives:
         else:
             return data
         
-    # Function to remove duplicates in a YAML file
+    # Function to remove duplicates in a YAML file  
     @staticmethod
-    def remove_duplicates_dict(data):
-        if isinstance(data, dict):
-            return {k: ampersandPrimitives.remove_duplicates_dict(v) for k, v in data.items()}
-        elif isinstance(data, list):
-            return list(set(data))
-        else:
-            return data
+    def remove_duplicate_dicts(dict_list):
+        seen = set()
+        unique_dicts = []
+        for d in dict_list:
+            # Convert dictionary to a frozenset of its items to make it hashable
+            print(d)
+            dict_tuple = frozenset(d.items())
+            if dict_tuple not in seen:
+                seen.add(dict_tuple)
+                unique_dicts.append(d)
+        return unique_dicts
+    
+    @staticmethod
+    def treat_bounds(geometry):
+        for anObject in geometry:
+            ampersandPrimitives.list_to_tuple_dict(anObject)
+            #print(anObject)
+        return geometry
+    
+    # Function to convert a list to a tuple inside a dictionary
+    @staticmethod
+    def list_to_tuple_dict(data):
+        for key, value in data.items():
+            if isinstance(value, dict):
+                ampersandPrimitives.list_to_tuple_dict(value)
+            elif isinstance(value, list):
+                data[key] = tuple(value)
+        return data
+
 
     @staticmethod
     def crlf_to_LF(file_path):
