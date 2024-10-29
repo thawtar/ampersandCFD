@@ -362,7 +362,7 @@ class stlAnalysis:
         #minVolumeSize = backgroundCellSize**3/(8.**refLevel*20.)
         # print the summary of results
         print("\n-----------------Mesh Settings-----------------")
-        print(f"Domain size: {domain_size}")
+        print(f"Domain size: x({domain_size[0]:6.3f}~{domain_size[1]:6.3f}) y({domain_size[2]:6.3f}~{domain_size[3]:6.3f}) z({domain_size[4]:6.3f}~{domain_size[5]:6.3f})")
         print(f"Nx Ny Nz: {nx},{ny},{nz}")
         print(f"Max cell size: {backgroundCellSize}")
         print(f"Min cell size: {adjustedTargetCellSize}")

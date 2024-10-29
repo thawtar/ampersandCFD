@@ -61,7 +61,7 @@ class ampersandPrimitives:
         unique_dicts = []
         for d in dict_list:
             # Convert dictionary to a frozenset of its items to make it hashable
-            print(d)
+            #print(d)
             dict_tuple = frozenset(d.items())
             if dict_tuple not in seen:
                 seen.add(dict_tuple)

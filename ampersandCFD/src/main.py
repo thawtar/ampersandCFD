@@ -37,7 +37,7 @@ def main():
 
 if __name__ == '__main__':
     # Specify the output YAML file
-    #main()
-    open_project()
+    main()
+    #open_project()
     #create_project()
 
