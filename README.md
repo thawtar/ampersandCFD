@@ -1,6 +1,5 @@
 # ampersandCFD
-A minimalist OpenFOAM case generator with a streamlined workflow
+Web based GUI for OpenFOAM
 
-You can use Ampersand to develop the OpenFOAM case files very easily by answering very simple YES/NO questions and multiple choice questions.
+This is Web based GUI for OpenFOAM. This software uses Python with Trame 3D/VTK library for OpenFOAM.
 
-You can see the demonstration of this code in this following YouTube video: https://www.youtube.com/watch?v=KoiBxDwSiP0&t=248s
