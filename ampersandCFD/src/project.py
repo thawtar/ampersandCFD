@@ -173,7 +173,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 self.project_path = project_path
                 return 0
             else:
-                ampersandIO.printMessage("Settings file not found. Creating a new project here.")
+                ampersandIO.printMessage("Settings file not found. Please open an Ampersand case directory.")
                 # TO DO: Add the code socket to create a new project here
                 return -1
         else:

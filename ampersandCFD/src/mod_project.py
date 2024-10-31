@@ -160,14 +160,25 @@ class mod_project:
     def change_background_mesh(project):
         ampersandIO.printMessage("Current background mesh")
         mod_project.summarize_background_mesh(project)
+        # ask whether to change domain size
+        change_domain_size = ampersandIO.get_input_bool("Change domain size (y/N)?: ")
         # ask new domain size
-        bounds = mod_project.ask_domain_size()
-        mod_project.change_domain_size(project,bounds)
+        if change_domain_size:
+            bounds = mod_project.ask_domain_size()
+            mod_project.change_domain_size(project,bounds)
+            ampersandIO.printMessage("Domain size changed")
         # ask new cell size
-        cellSize = mod_project.ask_cell_size()
-        project.meshSettings['maxCellSize'] = cellSize
-        # calculate new mesh size
-        mod_project.change_mesh_size(project,cellSize)
+        change_mesh_size = ampersandIO.get_input_bool("Change cell size (y/N)?: ")
+        if change_mesh_size:
+            cellSize = mod_project.ask_cell_size()
+            project.meshSettings['maxCellSize'] = cellSize
+            # calculate new mesh size
+            mod_project.change_mesh_size(project,cellSize)
+            ampersandIO.printMessage("Cell size changed")
+        if change_domain_size or change_mesh_size:
+            mod_project.summarize_background_mesh(project)
+        else:
+            ampersandIO.printMessage("No change in background mesh")
 
     @staticmethod
     def add_geometry(project):
