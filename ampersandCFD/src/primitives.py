@@ -8,6 +8,7 @@ class ampersandPrimitives:
     def __init__(self):
         pass
 
+    """
     @staticmethod
     def list_stl_files_org(stl_files):
         i = 1
@@ -18,6 +19,7 @@ class ampersandPrimitives:
                 stl_file['property'] = "None"
             ampersandIO.printMessage(f"{i:<5}{stl_file['name']}\t\t{stl_file['purpose']}\t\t({stl_file['refineMin']} {stl_file['refineMax']})\t{stl_file['property']}")
             i += 1
+    """
 
     @staticmethod
     def list_stl_files(stl_files):
@@ -29,6 +31,7 @@ class ampersandPrimitives:
                 stl_file['property'] = "None"
             ampersandIO.printMessage(f"{i:<5}{stl_file['name']:<20}{stl_file['purpose']:<20}({stl_file['refineMin']} {stl_file['refineMax']}{')':<11}{stl_file['property']:<15}")
             i += 1
+        return 0
 
     @staticmethod
     def change_patch_type(patches, patch_name, new_type='patch'):

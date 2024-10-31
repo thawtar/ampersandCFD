@@ -67,6 +67,18 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.mod_options = ["Background Mesh","Add Geometry","Refinement Levels","Boundary Conditions","Fluid Properties", "Numerical Settings", 
                    "Simulation Control Settings","Turbulence Model","Post Processing Settings"]
 
+    def summarize_boundary_conditions(self):
+        if self.internalFlow:
+            for stl_file in self.stl_files:
+                if stl_file['property'] == None:
+                    property = 'None'
+                else:
+                    property = stl_file['property']
+                ampersandIO.printMessage(f"{stl_file['name']}\t{stl_file['purpose']}\t{property}")
+        else:
+            for patch in self.meshSettings['bcPatches']:
+                ampersandIO.printMessage(f"{patch['name']}\t{patch['type']}\t{patch['property']}")
+    
     def summarize_project(self):
         trueFalse = {True: 'Yes', False: 'No'}
         ampersandIO.show_title("Project Summary")
@@ -597,6 +609,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             # if the flow is external and the geometry is on the ground, add a ground refinement box
             self.meshSettings = stlAnalysis.addGroundRefinementBoxToMesh(meshSettings=self.meshSettings, stl_path=stl_path,refLevel=refinementBoxLevel)
         self.meshSettings = stlAnalysis.set_layer_thickness(self.meshSettings, target_y)
+        # store the background mesh size for future reference
+        maxCellSize = abs((domain_size[1]-domain_size[0])/nx)
+        self.meshSettings['maxCellSize'] = maxCellSize
         #self.meshSettings = stlAnalysis.set_min_vol(self.meshSettings, minVol)
         return 0
     

@@ -183,6 +183,13 @@ class stlAnalysis:
         ny = (maxY-minY)/target_cell_size
         nz = (maxZ-minZ)/target_cell_size
         nx, ny, nz = int(math.ceil(nx)), int(math.ceil(ny)), int(math.ceil(nz))
+        # it is better to have even number of cells
+        if nx // 2 != 0:
+            nx += 1
+        if ny // 2 != 0:
+            ny += 1
+        if nz // 2 != 0:
+            nz += 1
         return (nx,ny,nz)
     
     # Function to read STL file and compute bounding box

@@ -151,8 +151,21 @@ class mod_project:
         ampersandIO.printMessage("Changing refinement level")
         refMin = ampersandIO.get_input_int("Enter new refMin: ")
         refMax = ampersandIO.get_input_int("Enter new refMax: ")
-        project.stl_files[stl_file_number]['refMin'] = refMin
-        project.stl_files[stl_file_number]['refMax'] = refMax
+        project.stl_files[stl_file_number]['refineMin'] = refMin
+        project.stl_files[stl_file_number]['refineMax'] = refMax
+        #stl_name = project.stl_files[stl_file_number]['name']
+        fileFound = False
+        for stl in project.meshSettings['geometry']:
+            if stl['name'] == project.stl_files[stl_file_number]['name']:
+                fileFound = True
+                stl['refineMin'] = refMin
+                stl['refineMax'] = refMax
+                stl['featureLevel'] = refMax
+                break
+        if not fileFound:
+            ampersandIO.printMessage("STL file not found in the geometry list")
+        #return project
+
     
     #---------------------------------------------------------------------#
     # The functions called when modifications are to be made project #
@@ -199,11 +212,12 @@ class mod_project:
             stl_file_number = int(stl_file_number)
         except ValueError:
             ampersandIO.printMessage("Invalid input. Please try again.")
-        if stl_file_number < 0 or stl_file_number > len(project.stl_files):
+        if stl_file_number <= 0 or stl_file_number > len(project.stl_files):
             ampersandIO.printMessage("Invalid input. Please try again.")
         else:
-            mod_project.change_stl_refinement_level(project,stl_file_number)
-            return 0
+            mod_project.change_stl_refinement_level(project,stl_file_number-1)
+        project.list_stl_files()
+        return 0
 
 
     @staticmethod
