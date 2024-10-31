@@ -359,7 +359,7 @@ def create_omega_file(meshSettings,boundaryConditions,nu=1.0e-5):
 
 def create_epsilon_file(meshSettings,boundaryConditions,nu=1.0e-5):
     header = ampersandPrimitives.createFoamHeader(className="volScalarField", objectName="epsilon")
-    dims = ampersandPrimitives.createDimensions(M=2,L=2,T=-3)
+    dims = ampersandPrimitives.createDimensions(M=0,L=2,T=-3)
     internalField = ampersandPrimitives.createInternalFieldScalar(type="uniform", value=1.0e-6)
     epsilon_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
 {"""
