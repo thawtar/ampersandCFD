@@ -22,12 +22,12 @@ You can use Ampersand for external and internal incompressible flows. The case f
 
 
 ### Quick Start
-1. **Case generation**: Go inside AmpersandCFD/src directory and run:
+1. **Case generation**: Go inside ampersandCFD/src directory and run:
 ```bash
    python main.py --create
 ```
 
-2. **Modifying generated case**: Go inside AmpersandCFD/src directory and run:
+2. **Modifying generated case**: Go inside ampersandCFD/src directory and run:
 ```bash
    python main.py --open
 ```
