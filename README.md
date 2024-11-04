@@ -32,6 +32,23 @@ You can use Ampersand for external and internal incompressible flows. The case f
    python main.py --open
 ```
 
+### Features
+1. **Streamlined workflow for external and internal flows**
+An easy to follow series of prompts and questions to create your OpenFOAM casefiles and meshes. You can choose whether external aerodynamics or internal flows inside various machinery and Ampersand will help you generate a suitable case directory for you.
+
+2. **Boundary conditions and simulation settings**
+Easily configure boundaries, geometry and physics. Stable and accurate discretization schemes and linear solvers are chosen for your simulations!
+
+### User Guide
+The user guide and related documentations are under construction. We will provide more detailed guides later.
+
+## Contributing 
+Contributions are welcome! Please see our contribution guide for details.
+
+## Support
+For questions or support, contact Thaw Tar (mr.thaw.tar1990@gmail.com) or open an issue.
+
+
 
 You can see the demonstration of this code in this following YouTube video:
 https://www.youtube.com/watch?v=KoiBxDwSiP0&t=248s
