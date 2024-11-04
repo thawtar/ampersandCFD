@@ -13,7 +13,7 @@ You can use Ampersand for external and internal incompressible flows. The case f
 2. **Installation**: Clone the repository and install dependencies.
 
 ```bash
-   git clone <https://github.com/thawtar/ampersandCFD.git>
+   git clone https://github.com/thawtar/ampersandCFD.git
    cd ampersandCFD
    pip install -r requirements.txt
 ```
