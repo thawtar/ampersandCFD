@@ -1,7 +1,5 @@
 numpy
-yaml
+pyyaml
 pandas
 matplotlib
 vtk
-tkinter
-trimesh

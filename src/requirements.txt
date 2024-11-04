@@ -1,7 +1,0 @@
-numpy
-yaml
-pandas
-matplotlib
-vtk
-tkinter
-trimesh
