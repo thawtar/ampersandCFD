@@ -1,7 +1,7 @@
 # ampersandCFD
 A streamlined OpenFOAM generation tool 
 
-![alt text](https://github.com/thawtar/ampersandCFD/blob/main/ampersandCFD/images/ampersand_ss.jpg)
+![alt text](https://github.com/thawtar/ampersandCFD/blob/dev/ampersandCFD/images/ampersand_ss.jpg)
 
 Ampersand is designed to provide users a simple and streamlined workflow for generating their OpenFOAM case files.
 
