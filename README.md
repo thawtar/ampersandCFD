@@ -33,29 +33,29 @@ You can use Ampersand for external and internal incompressible flows. The case f
 ```
 
 ### Features
-**Streamlined workflow for external and internal flows**
-
+1. **Streamlined workflow for external and internal flows**
 An easy to follow series of prompts and questions to create your OpenFOAM casefiles and meshes. You can choose whether external aerodynamics or internal flows inside various machinery and Ampersand will help you generate a suitable case directory for you.
 
-**Boundary conditions and simulation settings**
-
+2. **Boundary conditions and simulation settings**
 Easily configure boundaries, geometry and physics. Stable and accurate discretization schemes and linear solvers are chosen for your simulations!
 
 ### User Guide
 The user guide and related documentations are under construction. We will provide more detailed guides later.
 
-## Contributing 
+### Contributing 
 Contributions are welcome! Please see our contribution guide for details.
 
-## Support
+### Support
 For questions or support, contact Thaw Tar (mr.thaw.tar1990@gmail.com) or open an issue.
 
 
-
+### Demonstration 
 You can see the demonstration of this code in this following YouTube video:
 https://www.youtube.com/watch?v=KoiBxDwSiP0&t=248s
 
-#Some of the cases that are generated using Ampersand
+
+## Gallery 
+The OpenFOAM case files for the following meshes and CFD simulations are created using Ampersand.
 
 ![alt text](https://github.com/thawtar/ampersandCFD/blob/dev/ampersandCFD/images/ampersand_mixer_total.png)
 Multi-region mesh of a tank (Internal flow problem)
