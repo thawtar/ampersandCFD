@@ -57,11 +57,11 @@ https://www.youtube.com/watch?v=KoiBxDwSiP0&t=248s
 ## Gallery 
 The OpenFOAM case files for the following meshes and CFD simulations are created using Ampersand.
 
-![alt text](https://github.com/thawtar/ampersandCFD/blob/main/images/drivAer_steady_state_defects.png)
+![alt text](https://github.com/thawtar/ampersandCFD/blob/main/images/ampersand_mixer_total.png)
 
 Multi-region mesh of a tank (Internal flow problem)
 
-![alt text]
+![alt text](https://github.com/thawtar/ampersandCFD/blob/main/images/drivAer_steady_state_defects.png)
 DrivAer simulation (External flow)
 
 ![alt text](https://github.com/thawtar/ampersandCFD/blob/main/images/1729773467507.jpg)
