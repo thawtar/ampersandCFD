@@ -1,7 +1,7 @@
 # ampersandCFD
 A streamlined OpenFOAM generation tool 
 
-![alt text](https://github.com/thawtar/ampersandCFD/blob/dev/ampersandCFD/images/ampersand_ss.jpg)
+![alt text](https://github.com/thawtar/ampersandCFD/tree/main/images/ampersand_ss.jpg)
 
 ### Overview
 Ampersand is designed to provide users a simple and streamlined workflow for generating their OpenFOAM case files.
@@ -57,10 +57,11 @@ https://www.youtube.com/watch?v=KoiBxDwSiP0&t=248s
 ## Gallery 
 The OpenFOAM case files for the following meshes and CFD simulations are created using Ampersand.
 
-![alt text](https://github.com/thawtar/ampersandCFD/blob/dev/ampersandCFD/images/ampersand_mixer_total.png)
+![alt text](https://github.com/thawtar/ampersandCFD/tree/main/images/ampersand_mixer_total.png)
+
 Multi-region mesh of a tank (Internal flow problem)
 
-![alt text](https://github.com/thawtar/ampersandCFD/blob/dev/ampersandCFD/images/drivAer_steady_state_defects.png)
+![alt text](https://github.com/thawtar/ampersandCFD/tree/main/images/drivAer_steady_state_defects.png)
 DrivAer simulation (External flow)
 
 ![alt text](https://github.com/thawtar/ampersandCFD/blob/dev/ampersandCFD/images/1729773467507.jpg)
