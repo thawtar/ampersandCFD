@@ -344,6 +344,7 @@ class stlAnalysis:
         target_y = stlAnalysis.calc_y(nu,rho,L,U,target_yPlus=target_yPlus) # this is the thickness of closest cell
         delta = stlAnalysis.calc_delta(U,nu,L)
         nLayers,finalLayerThickness = stlAnalysis.calc_layers(yFirst=target_y,delta=delta,expRatio=expansion_ratio)
+        nLayers = max(2,nLayers)
         targetCellSize = stlAnalysis.calc_cell_size(target_y,expRatio=expansion_ratio,thicknessRatio=thicknessRatio,nLayers=nLayers)
         refLevel = stlAnalysis.calc_refinement_levels(max_cell_size=backgroundCellSize,target_cell_size=targetCellSize)
         
