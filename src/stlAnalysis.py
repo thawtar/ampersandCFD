@@ -308,7 +308,7 @@ class stlAnalysis:
                                                    onGround=onGround,internalFlow=internalFlow,halfModel=halfModel)
         if(refinement==0):
             if(internalFlow):
-                backgroundCellSize = min(minSTLLength/6.,maxCellSize)
+                backgroundCellSize = min(minSTLLength/8.,maxCellSize)
             else:
                 backgroundCellSize = min(minSTLLength/3.,maxCellSize) # this is the size of largest blockMesh cells
             target_yPlus = 70
@@ -324,7 +324,7 @@ class stlAnalysis:
             refLevel = 4
         elif(refinement==2):
             if(internalFlow):
-                backgroundCellSize = min(minSTLLength/18.,maxCellSize)
+                backgroundCellSize = min(minSTLLength/16.,maxCellSize)
             else:
                 backgroundCellSize = min(minSTLLength/7.,maxCellSize)
             target_yPlus = 30

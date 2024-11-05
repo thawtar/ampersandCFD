@@ -28,8 +28,15 @@ class ampersandPrimitives:
         ampersandIO.printMessage(f"{'No.':<5}{'Name':<20}{'Purpose':<20}{'RefineMent':<15}{'Property':<15}")
         for stl_file in stl_files:
             if(stl_file['property']==None):
+                stl_property = "None"
                 stl_file['property'] = "None"
-            ampersandIO.printMessage(f"{i:<5}{stl_file['name']:<20}{stl_file['purpose']:<20}({stl_file['refineMin']} {stl_file['refineMax']}{')':<11}{stl_file['property']:<15}")
+            elif isinstance(stl_file['property'], list):
+                stl_property = f"[{stl_file['property'][0]} {stl_file['property'][1]} {stl_file['property'][2]}]"
+            elif isinstance(stl_file['property'], tuple):
+                stl_property = f"[{stl_file['property'][0]} {stl_file['property'][1]} {stl_file['property'][2]}]"
+            else:
+                stl_property = stl_file['property']
+            ampersandIO.printMessage(f"{i:<5}{stl_file['name']:<20}{stl_file['purpose']:<20}({stl_file['refineMin']} {stl_file['refineMax']}{')':<11}{stl_property:<15}")
             i += 1
         return 0
 

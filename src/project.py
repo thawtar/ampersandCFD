@@ -657,7 +657,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.simulationSettings['deltaT'] = ampersandIO.get_input_float("Time step: ")
             self.simulationSettings['adjustTimeStep'] = 'no'
             self.simulationSettings['maxCo'] = 0.9
-            self.numericalSettings['ddtSchemes'] = 'Euler'
+            self.numericalSettings['ddtSchemes']['default'] = 'Euler'
             # if steady state, SIMPLEC is used. If transient, PIMPLE is used
             # for PIMPLE, the relaxation factors are set to 0.7 and p = 0.3
             self.numericalSettings['relaxationFactors']['p'] = 0.3
