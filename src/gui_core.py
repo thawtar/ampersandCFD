@@ -1,3 +1,22 @@
+"""
+-------------------------------------------------------------------------------
+  ***    *     *  ******   *******  ******    *****     ***    *     *  ******   
+ *   *   **   **  *     *  *        *     *  *     *   *   *   **    *  *     *  
+*     *  * * * *  *     *  *        *     *  *        *     *  * *   *  *     *  
+*******  *  *  *  ******   ****     ******    *****   *******  *  *  *  *     *  
+*     *  *     *  *        *        *   *          *  *     *  *   * *  *     *  
+*     *  *     *  *        *        *    *   *     *  *     *  *    **  *     *  
+*     *  *     *  *        *******  *     *   *****   *     *  *     *  ******   
+-------------------------------------------------------------------------------
+ * AmpersandCFD is a minimalist streamlined OpenFOAM generation tool.
+ * Copyright (c) 2024 THAW TAR
+ * All rights reserved.
+ *
+ * This software is licensed under the GNU General Public License version 3 (GPL-3.0).
+ * You may obtain a copy of the license at https://www.gnu.org/licenses/gpl-3.0.en.html
+ */
+"""
+
 # Description: This file contains the main class for the Ampersand CFD application. The class is decorated with the TrameApp decorator, which is used to create a Trame application. The class contains methods to handle the opening of a file, adding a box, adding a sphere, showing a wireframe, showing a surface, and showing a surface with edges. The class also contains a method to build the user interface of the application. The user interface contains a toolbar with three buttons, a drawer with buttons to open a file, add a box, and add a sphere, and a main content area with a VtkLocalView widget to display the 3D object. The class also contains a method to update the VtkLocalView widget with the new 3D object.
 from trame.app import get_server
 from trame.decorators import TrameApp, change, controller
