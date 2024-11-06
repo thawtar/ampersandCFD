@@ -650,7 +650,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.ask_transient()
         if self.transient:
             ampersandIO.printMessage("Transient simulation settings")
-            self.simulationSettings['solver'] = 'pimpleFoam'
+            self.simulationSettings['transient'] = True
+            self.simulationSettings['application'] = 'pimpleFoam'
             self.simulationFlowSettings['solver'] = 'pimpleFoam'
             self.simulationSettings['endTime'] = ampersandIO.get_input_float("End time: ")
             self.simulationSettings['writeInterval'] = ampersandIO.get_input_float("Write interval: ")
@@ -728,7 +729,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         os.chdir("system")
         # create the controlDict file
         ampersandIO.printMessage("Creating the system files")
-        controlDict = createControlDict(simulationSettings)
+        controlDict = createControlDict(self.simulationSettings)
         ampersandPrimitives.write_dict_to_file("controlDict", controlDict)
         blockMeshDict = generate_blockMeshDict(self.meshSettings)
         ampersandPrimitives.write_dict_to_file("blockMeshDict", blockMeshDict)
