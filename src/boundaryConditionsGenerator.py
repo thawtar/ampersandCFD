@@ -58,6 +58,15 @@ def create_u_file(meshSettings,boundaryConditions):
         type symmetry;
     }}
     """
+    # If internal flow and half domain, set the symmetry boundary conditions
+    # for the back patche
+    if(meshSettings['internalFlow'] == True and meshSettings['halfModel'] == True):
+        U_file += f"""
+    back
+    {{
+        type symmetry;
+    }}
+    """
     # If internal flow, set the boundary conditions for STL patches
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
@@ -134,6 +143,15 @@ def create_p_file(meshSettings,boundaryConditions):
     """
             if(patch['type'] == 'symmetry'):
                 p_file += f"""
+    {{
+        type symmetry;
+    }}
+    """
+    # If internal flow and half domain, set the symmetry boundary conditions
+    # for the back patche
+    if(meshSettings['internalFlow'] == True and meshSettings['halfModel'] == True):
+        p_file += f"""
+    back
     {{
         type symmetry;
     }}
@@ -216,6 +234,15 @@ def create_k_file(meshSettings,boundaryConditions,nu=1.0e-5):
     """
             if(patch['type'] == 'symmetry'):
                 k_file += f"""
+    {{
+        type symmetry;
+    }}
+    """
+    # If internal flow and half domain, set the symmetry boundary conditions
+    # for the back patche
+    if(meshSettings['internalFlow'] == True and meshSettings['halfModel'] == True):
+        k_file += f"""
+    back
     {{
         type symmetry;
     }}
@@ -310,6 +337,16 @@ def create_omega_file(meshSettings,boundaryConditions,nu=1.0e-5):
     """
             if(patch['type'] == 'symmetry'):
                 omega_file += f"""
+    {{
+        type symmetry;
+    }}
+    """
+                
+    # If internal flow and half domain, set the symmetry boundary conditions
+    # for the back patche
+    if(meshSettings['internalFlow'] == True and meshSettings['halfModel'] == True):
+        omega_file += f"""
+    back
     {{
         type symmetry;
     }}
@@ -410,6 +447,16 @@ def create_epsilon_file(meshSettings,boundaryConditions,nu=1.0e-5):
     }}
     """
                 
+    # If internal flow and half domain, set the symmetry boundary conditions
+    # for the back patche
+    if(meshSettings['internalFlow'] == True and meshSettings['halfModel'] == True):
+        epsilon_file += f"""
+    back
+    {{
+        type symmetry;
+    }}
+    """
+                
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             if(patch['purpose'] == 'wall'):
@@ -498,6 +545,16 @@ def create_nut_file(meshSettings,boundaryConditions):
         type symmetry;
     }}
     """
+    # If internal flow and half domain, set the symmetry boundary conditions
+    # for the back patche
+    if(meshSettings['internalFlow'] == True and meshSettings['halfModel'] == True):
+        nut_file += f"""
+    back
+    {{
+        type symmetry;
+    }}
+    """        
+
     for patch in meshSettings['geometry']:
         if(patch['type'] == 'triSurfaceMesh'):
             if(patch['purpose'] == 'wall'):
