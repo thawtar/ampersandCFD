@@ -83,7 +83,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.useFOs = False # default is not to use function objects
         self.current_modification = None # current modification to the project settings
         self.inside_project_directory = False # flag to check if the current working directory is the project directory
-        self.mod_options = ["Background Mesh","Add Geometry","Refinement Levels","Boundary Conditions","Fluid Properties", "Numerical Settings", 
+        self.mod_options = ["Background Mesh","Add Geometry","Refinement Levels","Mesh Point","Boundary Conditions","Fluid Properties", "Numerical Settings", 
                    "Simulation Control Settings","Turbulence Model","Post Processing Settings"]
 
     def summarize_boundary_conditions(self):
@@ -127,6 +127,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def modify_project(self):
         if self.current_modification=="Background Mesh":
             mod_project.change_background_mesh(self)
+        elif self.current_modification=="Mesh Point":
+            mod_project.change_mesh_point(self)
         elif self.current_modification=="Add Geometry":
             mod_project.add_geometry(self)
         elif self.current_modification=="Refinement Levels":

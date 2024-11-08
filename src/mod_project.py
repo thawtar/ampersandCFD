@@ -237,6 +237,16 @@ class mod_project:
             mod_project.change_stl_refinement_level(project,stl_file_number-1)
         project.list_stl_files()
         return 0
+    
+    @staticmethod
+    def change_mesh_point(project):
+        ampersandIO.printMessage("Changing mesh points")
+        currentMeshPoint = project.meshSettings['castellatedMeshControls']['locationInMesh']
+        ampersandIO.printMessage(f"Current mesh points: ({currentMeshPoint[0]},{currentMeshPoint[1]},{currentMeshPoint[2]})")
+
+        x,y,z = ampersandIO.get_input_vector("Enter new mesh points: ")
+        project.meshSettings['castellatedMeshControls']['locationInMesh'] = [x,y,z]
+        ampersandIO.printMessage(f"New mesh points: ({currentMeshPoint[0]},{currentMeshPoint[1]},{currentMeshPoint[2]})")
 
 
     @staticmethod
