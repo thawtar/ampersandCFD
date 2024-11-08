@@ -791,8 +791,16 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         if os.getcwd() != self.project_path:
             os.chdir(self.project_path)
 
+        # Remove the existing 0.orig directory if it exists.
+        # This is to prevent the error of copying the old 0.orig directory to 0 directory
+        if os.path.exists("0.orig"):
+            shutil.rmtree("0.orig")
         # create the initial conditions file
         ampersandIO.printMessage("Creating boundary conditions")
+        # check if the 0 directory exists
+        if not os.path.exists("0"):
+            # create the 0 directory
+            os.mkdir("0")
         # go inside the 0 directory
         os.chdir("0")
         create_boundary_conditions(self.meshSettings, self.boundaryConditions)    
