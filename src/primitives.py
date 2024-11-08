@@ -311,6 +311,12 @@ class ampersandIO:
         except:
             ampersandIO.printError("Invalid input. Please enter a number.")
             return ampersandIO.get_input_float(prompt)
+        
+    @staticmethod
+    def show_list(lst):
+        i = 1
+        for item in lst:
+            ampersandIO.printMessage(f"{i}. {item}")
     
     @staticmethod
     def print_numbered_list(lst):
@@ -382,6 +388,18 @@ class ampersandDataInput:
         rho = ampersandIO.get_input_float("Enter the density of the fluid (kg/m^3): ")
         nu = ampersandIO.get_input_float("Enter the kinematic viscosity of the fluid (m^2/s): ")
         return rho, nu
+    
+    @staticmethod
+    def get_turbulence_model():
+        turbulence_models = ['kOmegaSST', 'kEpsilon', ]
+        ampersandIO.show_title("Turbulence models")
+        for i in range(len(turbulence_models)):
+            ampersandIO.printMessage(f"{i+1}. {turbulence_models[i]}")
+        turbulence_model = ampersandIO.get_input_int("Choose the turbulence model: ")
+        if turbulence_model>len(turbulence_models) or turbulence_model<=0:
+            ampersandIO.printError("Invalid turbulence model. Defaulting to kOmegaSST.")
+            turbulence_model = 1
+        return turbulence_models[turbulence_model-1]
     
     @staticmethod
     def choose_fluid_properties():

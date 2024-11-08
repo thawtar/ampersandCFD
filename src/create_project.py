@@ -63,7 +63,8 @@ def create_project():
     
     project.useFOs = ampersandIO.get_input_bool("Use function objects for post-processing (y/N)?: ")
     project.set_post_process_settings()
-    project.list_stl_files()
+    #project.list_stl_files()
+    project.summarize_project()
     #project.analyze_stl_file()
     
     project.write_settings()

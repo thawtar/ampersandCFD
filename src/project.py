@@ -86,6 +86,10 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.mod_options = ["Background Mesh","Add Geometry","Refinement Levels","Mesh Point","Boundary Conditions","Fluid Properties", "Numerical Settings", 
                    "Simulation Control Settings","Turbulence Model","Post Processing Settings"]
 
+    #--------------------------------------------------------------------
+    # Methods to handle the project summary and changes
+    #--------------------------------------------------------------------
+    
     def summarize_boundary_conditions(self):
         if self.internalFlow:
             for stl_file in self.stl_files:
@@ -112,9 +116,46 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         if(self.internalFlow==False):
             ampersandIO.printMessage(f"On Ground: {trueFalse[self.onGround]}")
         ampersandIO.printMessage(f"Transient: {trueFalse[self.transient]}")
-        
+        self.summarize_background_mesh()
+        self.list_stl_files()
         #ampersandIO.printMessage("Boundary Conditions")
         #ampersandIO.print_dict(self.boundaryConditions)
+
+    # this will show the details of the background mesh
+    def summarize_background_mesh(self):
+        minX = self.meshSettings['domain']["minx"]
+        maxX = self.meshSettings['domain']["maxx"]
+        minY = self.meshSettings['domain']["miny"]
+        maxY = self.meshSettings['domain']["maxy"]
+        minZ = self.meshSettings['domain']["minz"]
+        maxZ = self.meshSettings['domain']["maxz"]
+        nx = self.meshSettings['domain']['nx']
+        ny = self.meshSettings['domain']['ny']
+        nz = self.meshSettings['domain']['nz']
+        ampersandIO.printMessage(f"Domain size:{'X':>10}{'Y':>10}{'Z':>10}")
+        ampersandIO.printMessage(f"Min         {minX:>10.3f}{minY:>10.3f}{minZ:>10.3f}")
+        ampersandIO.printMessage(f"Max         {maxX:>10.3f}{maxY:>10.3f}{maxZ:>10.3f}")
+        ampersandIO.printMessage(f"Background mesh size: {nx}x{ny}x{nz} cells")
+        ampersandIO.printMessage(f"Background cell size: {self.meshSettings['maxCellSize']} m")
+    
+    def change_stl_refinement_level(self,stl_file_number=0):
+        ampersandIO.printMessage("Changing refinement level")
+        refMin = ampersandIO.get_input_int("Enter new refMin: ")
+        refMax = ampersandIO.get_input_int("Enter new refMax: ")
+        self.stl_files[stl_file_number]['refineMin'] = refMin
+        self.stl_files[stl_file_number]['refineMax'] = refMax
+        #stl_name = project.stl_files[stl_file_number]['name']
+        fileFound = False
+        for stl in self.meshSettings['geometry']:
+            if stl['name'] == self.stl_files[stl_file_number]['name']:
+                fileFound = True
+                stl['refineMin'] = refMin
+                stl['refineMax'] = refMax
+                stl['featureLevel'] = refMax
+                break
+        if not fileFound:
+            ampersandIO.printMessage("STL file not found in the geometry list")
+        #return project
     
     def choose_modification(self):
         current_modification = ampersandIO.get_option_choice(prompt="Choose any option for project modification: ",
@@ -122,6 +163,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.current_modification = self.mod_options[current_modification]
         ampersandIO.printMessage(f"Current modification: {self.current_modification}")
         
+
 
 
     def modify_project(self):
@@ -456,7 +498,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     
 
     def ask_purpose(self):
-        purposes = ['wall', 'inlet','outlet', 'refinementRegion', 'refinementSurface', 'cellZone', 'baffles']
+        purposes = ['wall', 'inlet','outlet', 'refinementRegion', 'refinementSurface', 
+                    'cellZone', 'baffles','symmetry','cyclic','empty',]
         ampersandIO.printMessage(f"Enter purpose for this STL geometry")
         ampersandIO.print_numbered_list(purposes)
         purpose_no = ampersandIO.get_input_int("Enter purpose number: ")-1
@@ -665,6 +708,27 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def set_parallel(self):
         n_core = ampersandIO.get_input_int("Number of cores for parallel simulation: ")
         self.parallelSettings['numberOfSubdomains'] = n_core
+
+    # setting the purpose of a patch. Used for setting the boundary conditions
+    def set_purpose(self,patch,purpose='wall'):
+        purposes = ['wall', 'inlet','outlet', 'refinementRegion', 'refinementSurface', 
+                    'cellZone', 'baffles','symmetry','cyclic','empty',]
+        #purposes = ['wall', 'inlet','outlet', 'refinementRegion', 'refinementSurface', 'cellZone', 'baffles']
+        if purpose not in purposes:
+            ampersandIO.printMessage("Invalid purpose. Setting purpose to wall")
+            purpose = 'wall'
+        patch['purpose'] = purpose
+
+    # choose turbulence model for the simulation
+    def choose_turbulence_model(self):
+        turbulence_models = ['kOmegaSST', 'kEpsilon', 'SpalartAllmaras']
+        turbulence_model = ampersandDataInput.get_option_choice("Choose turbulence model: ", turbulence_models)
+        self.solverSettings['turbulenceModel'] = turbulence_model
+
+    # set the turbulence model for the simulation
+    def set_turbulence_model(self,turbulence_model='kOmegaSST'):
+        turbulence_model = ampersandDataInput.choose_turbulence_model()
+        self.solverSettings['turbulenceModel'] = turbulence_model
     
     
     def set_transient_settings(self):
