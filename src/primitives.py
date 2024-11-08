@@ -387,9 +387,14 @@ class ampersandDataInput:
     def choose_fluid_properties():
         fluids = {"Air":{'rho':1.225, 'nu':1.5e-5}, "Water":{'rho':1000, 'nu':1e-6}, }
         fluid_names = list(fluids.keys())
-        fluid_name = ampersandIO.get_input_int("Choose the fluid properties:\n" + "\n".join([f"{i+1}. {fluid_names[i]}" for i in range(len(fluid_names))]) + "\n")
+        ampersandIO.printMessage("Fluid properties")
+        ampersandIO.printMessage("0. Enter fluid properties manually")
+        for i in range(len(fluid_names)):
+            ampersandIO.printMessage(f"{i+1}. {fluid_names[i]}")
+        fluid_name = ampersandIO.get_input_int("Choose the fluid properties:" )
+        
         if(fluid_name>len(fluids) or fluid_name<=0):
-            ampersandIO.printMessage("Invalid fluid choice. Please input fluid properties manually.")
+            ampersandIO.printMessage("Please input fluid properties manually.")
             rho, nu = ampersandDataInput.get_physical_properties()
             return {'rho':rho, 'nu':nu}
         fluid = fluids[fluid_names[fluid_name-1]]
