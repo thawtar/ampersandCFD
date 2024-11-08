@@ -392,7 +392,7 @@ class stlAnalysis:
         # adjust refinement levels based on coarse, medium, fine settings
         
         adjustedNearWallThickness = finalLayerThickness/expansion_ratio**(nLayers-1)
-        adjustedYPlus = stlAnalysis.calc_yPlus(nu,L,U,adjustedNearWallThickness)
+        adjustedYPlus = stlAnalysis.calc_yPlus(nu,L,U,adjustedNearWallThickness/2.)
         
         
        

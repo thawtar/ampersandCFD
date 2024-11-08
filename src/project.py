@@ -718,6 +718,17 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             ampersandIO.printMessage("Invalid purpose. Setting purpose to wall")
             purpose = 'wall'
         patch['purpose'] = purpose
+
+    # choose turbulence model for the simulation
+    def choose_turbulence_model(self):
+        turbulence_models = ['kOmegaSST', 'kEpsilon', 'SpalartAllmaras']
+        turbulence_model = ampersandDataInput.get_option_choice("Choose turbulence model: ", turbulence_models)
+        self.solverSettings['turbulenceModel'] = turbulence_model
+
+    # set the turbulence model for the simulation
+    def set_turbulence_model(self,turbulence_model='kOmegaSST'):
+        turbulence_model = ampersandDataInput.choose_turbulence_model()
+        self.solverSettings['turbulenceModel'] = turbulence_model
     
     
     def set_transient_settings(self):
