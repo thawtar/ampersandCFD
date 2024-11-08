@@ -105,21 +105,8 @@ class mod_project:
 
     @staticmethod
     def summarize_background_mesh(project):
-        minX = project.meshSettings['domain']["minx"]
-        maxX = project.meshSettings['domain']["maxx"]
-        minY = project.meshSettings['domain']["miny"]
-        maxY = project.meshSettings['domain']["maxy"]
-        minZ = project.meshSettings['domain']["minz"]
-        maxZ = project.meshSettings['domain']["maxz"]
-        nx = project.meshSettings['domain']['nx']
-        ny = project.meshSettings['domain']['ny']
-        nz = project.meshSettings['domain']['nz']
-        ampersandIO.printMessage(f"Domain size:{'X':>10}{'Y':>10}{'Z':>10}")
-        ampersandIO.printMessage(f"Min         {minX:>10.3f}{minY:>10.3f}{minZ:>10.3f}")
-        ampersandIO.printMessage(f"Max         {maxX:>10.3f}{maxY:>10.3f}{maxZ:>10.3f}")
-        ampersandIO.printMessage(f"Background mesh size: {nx}x{ny}x{nz} cells")
-        ampersandIO.printMessage(f"Background cell size: {project.meshSettings['maxCellSize']} m")
-    
+        project.summarize_background_mesh()
+        
     @staticmethod
     def change_stl_purpose(stl_,meshSettings):
         stlFile = stl_['file']
@@ -167,23 +154,7 @@ class mod_project:
     
     @staticmethod
     def change_stl_refinement_level(project,stl_file_number=0):
-        ampersandIO.printMessage("Changing refinement level")
-        refMin = ampersandIO.get_input_int("Enter new refMin: ")
-        refMax = ampersandIO.get_input_int("Enter new refMax: ")
-        project.stl_files[stl_file_number]['refineMin'] = refMin
-        project.stl_files[stl_file_number]['refineMax'] = refMax
-        #stl_name = project.stl_files[stl_file_number]['name']
-        fileFound = False
-        for stl in project.meshSettings['geometry']:
-            if stl['name'] == project.stl_files[stl_file_number]['name']:
-                fileFound = True
-                stl['refineMin'] = refMin
-                stl['refineMax'] = refMax
-                stl['featureLevel'] = refMax
-                break
-        if not fileFound:
-            ampersandIO.printMessage("STL file not found in the geometry list")
-        #return project
+        project.change_stl_refinement_level(stl_file_number)
 
     
     #---------------------------------------------------------------------#

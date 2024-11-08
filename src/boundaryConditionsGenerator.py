@@ -35,7 +35,10 @@ def create_u_file(meshSettings,boundaryConditions):
     dims = ampersandPrimitives.createDimensions(M=0,L=1,T=-1)
     internalField = ampersandPrimitives.createInternalFieldVector(type="uniform", value=boundaryConditions['velocityInlet']['u_value'])
     U_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
-{"""
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+"""
+    
     # Loop through patches for each boundary condition
     # If external flow, set the boundary conditions for blockMesh patches
     if(meshSettings['internalFlow'] == False):
@@ -125,7 +128,9 @@ def create_p_file(meshSettings,boundaryConditions):
     dims = ampersandPrimitives.createDimensions(M=0,L=2,T=-2)
     internalField = ampersandPrimitives.createInternalFieldScalar(type="uniform", value=0)
     p_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
-{"""
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+"""
     # Loop through patches for each boundary condition
     if(meshSettings['internalFlow'] == False):
         for patch in meshSettings['patches']:
@@ -213,7 +218,9 @@ def create_k_file(meshSettings,boundaryConditions,nu=1.0e-5):
     dims = ampersandPrimitives.createDimensions(M=0,L=2,T=-2)
     internalField = ampersandPrimitives.createInternalFieldScalar(type="uniform", value=1.0e-6)
     k_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
-{"""
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+"""
     # Loop through patches for each boundary condition
     if(meshSettings['internalFlow'] == False):
         for patch in meshSettings['patches']:
@@ -313,7 +320,9 @@ def create_omega_file(meshSettings,boundaryConditions,nu=1.0e-5):
     dims = ampersandPrimitives.createDimensions(M=0,L=0,T=-1)
     internalField = ampersandPrimitives.createInternalFieldScalar(type="uniform", value=1.0e-6)
     omega_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
-{"""
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+"""
     # Loop through patches for each boundary condition
     if(meshSettings['internalFlow'] == False):
         for patch in meshSettings['patches']:
@@ -418,7 +427,9 @@ def create_epsilon_file(meshSettings,boundaryConditions,nu=1.0e-5):
     dims = ampersandPrimitives.createDimensions(M=0,L=2,T=-3)
     internalField = ampersandPrimitives.createInternalFieldScalar(type="uniform", value=1.0e-6)
     epsilon_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
-{"""
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+"""
     # Loop through patches for each boundary condition
     if(meshSettings['internalFlow'] == False):
         for patch in meshSettings['patches']:
@@ -523,7 +534,9 @@ def create_nut_file(meshSettings,boundaryConditions):
     dims = ampersandPrimitives.createDimensions(M=0,L=2,T=-1)
     internalField = ampersandPrimitives.createInternalFieldScalar(type="uniform", value=0)
     nut_file = f""+header+dims+internalField+"\n"+"""\nboundaryField 
-{"""
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+"""
     # Loop through patches for each boundary condition
     if(meshSettings['internalFlow'] == False):
         for patch in meshSettings['patches']:
