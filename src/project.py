@@ -238,7 +238,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # useful for opening existing projects and modifying the settings
     def set_project_path(self,project_path):
         if project_path is None:
-            ampersandIO.printMessage("No project path selected. Aborting project creation.")
+            ampersandIO.printMessage("No project path selected. Aborting project creation/modification.")
             exit()
         if os.path.exists(project_path):
             settings_file = os.path.join(project_path, "project_settings.yaml")

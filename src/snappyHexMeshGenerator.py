@@ -105,6 +105,24 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
                 # if refinementSurface or region, do not add here
             elif(an_entry['purpose'] == 'refinementRegion' or an_entry['purpose'] == 'refinementSurface'):
                 pass
+
+            elif(an_entry['purpose'] == 'baffle'):
+                patchType = 'wall'
+                refinementSurfaces+= f"""
+        {an_entry['name'][:-4]}
+        {{
+            level (0 0);
+            regions
+            {{
+                {an_entry['name'][:-4]}
+                {{
+                    faceType baffles;
+                    faceZone {an_entry['name'][:-4]};
+                    level ({an_entry['refineMin']} {an_entry['refineMax']});
+                    
+                }}
+            }}
+        }}"""
                 
             else:
                 patchType = 'wall'
