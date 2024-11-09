@@ -307,7 +307,7 @@ class stlAnalysis:
     def calc_layers_from_cell_size(yFirst=0.001,targetCellSize=0.1,expRatio=1.2):
         
         firstLayerThickness = yFirst*2.0
-        finalLayerThickness = targetCellSize*0.7
+        finalLayerThickness = targetCellSize*0.35
         nLayers = int(np.log(finalLayerThickness/firstLayerThickness)/np.log(expRatio))
         nLayers = max(1,nLayers)
         return nLayers,finalLayerThickness
