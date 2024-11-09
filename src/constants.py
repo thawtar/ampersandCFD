@@ -83,7 +83,7 @@ meshSettings = {
                         'multiRegionFeatureSnap': 'false'},
 
     'addLayersControls': {'relativeSizes': 'false',
-                            'expansionRatio': 1.35,
+                            'expansionRatio': 1.4,
                             'finalLayerThickness': 0.3,
                             'firstLayerThickness': 0.001,
                             'minThickness': 1e-7,

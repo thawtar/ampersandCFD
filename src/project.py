@@ -338,6 +338,16 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             ampersandIO.printMessage("U and p files found in postProcess directory")
             return 1
         return 0
+    
+    def check_forces_files(self):
+        if(not os.path.exists("postProcessing/forces/0")):
+            ampersandIO.printMessage("forces directory does not exist")
+            return 0
+        forces_files = os.listdir("postProcessing/forces/0")
+        if 'force.dat' in forces_files:
+            ampersandIO.printMessage("force.dat found in forces directory")
+            return 1
+        return 0
 
 
     # Create the project directory in the specified location.
@@ -488,14 +498,14 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         idx = 0 # index of the stl file in the list
         # Purpose is wall by default
         # Other purposes are patch, refinementRegion, refinementSurface, cellZone, baffles
-        """
+        
         if self.refinement == 0:
             nLayers = 3
         elif self.refinement == 1:
             nLayers = 5
         else:
             nLayers = 7
-        """
+        
         stl_ = {'name': stl_name, 'type':'triSurfaceMesh','purpose':purpose, 'refineMin': refMin, 'refineMax': refMax, 
                 'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers, 'property':property, 'bounds':bounds}
         

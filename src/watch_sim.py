@@ -148,6 +148,35 @@ def watch_field(U_file, p_file):
     plt.savefig('p_probe.png')
     plt.show()
 
+def watch_forces(force_file):
+    # read the log file
+    with open(force_file) as f:
+        lines = f.readlines()
+    # extract velocity data
+    time = []
+    Fx = []
+    Fy = []
+    Fz = []
+
+    
+    for line in lines:
+        if '#' not in line:
+            time.append(float(line.split()[0]))
+            Fx.append(float(line.split()[1]))
+            Fy.append(float(line.split()[2]))
+            Fz.append(float(line.split()[3]))
+
+
+    # plot the field values
+    plt.figure()
+    plt.plot(time, Fx, label='Fx')
+    plt.plot(time, Fy, label='Fy')
+    plt.plot(time, Fz, label='Fz')
+    plt.legend()
+    
+    # save the figure
+    plt.savefig('forces.png')
+    plt.show()
 
 def watch_residuals_live(logfile, interval=500):
     while True:
@@ -177,7 +206,10 @@ def watch_sim():
         watch_residuals('log.simpleFoam')
     if project.check_post_process_files():
         watch_field('postProcessing/probe/0/U', 'postProcessing/probe/0/p')
-    
+    if project.check_forces_files():
+        watch_forces('postProcessing/forces/0/force.dat')
+    return 0
+
 if __name__ == '__main__':
     watch_sim()
     #watch_residuals('log.simpleFoam')
