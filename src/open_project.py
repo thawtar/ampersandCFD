@@ -40,7 +40,7 @@ def open_project():
     project.check_0_directory()
     ampersandIO.printMessage("Project loaded successfully")
     project.summarize_project()
-    project.list_stl_files()
+    #project.list_stl_files()
     modify_project = ampersandIO.get_input_bool("Do you want to modify the project settings (y/N)?: ")
     project_modified = False # flag to check if the project has been modified
     while modify_project:

@@ -317,6 +317,28 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         # if exists, check if the stl files are present
         stl_files = os.listdir("constant/triSurface")
 
+    # to check whether log files are present in the project directory
+    def check_log_files(self):
+        log_files = os.listdir()
+        if 'log.simpleFoam' in log_files:
+            ampersandIO.printMessage("Simulation log file found")
+            return 1
+        if 'log.pimpleFoam' in log_files:
+            ampersandIO.printMessage("Simulation log file found")
+            return 1
+        return 0
+    
+    # to check whether the U and p files are present in the postProcess directory
+    def check_post_process_files(self):
+        if(not os.path.exists("postProcessing/probe/0")):
+            ampersandIO.printMessage("postProcess directory does not exist")
+            return 0
+        postProcess_files = os.listdir("postProcessing/probe/0")
+        if 'U' in postProcess_files and 'p' in postProcess_files:
+            ampersandIO.printMessage("U and p files found in postProcess directory")
+            return 1
+        return 0
+
 
     # Create the project directory in the specified location.
     # 0, constant, system, constant/triSurface directories are created.
@@ -791,8 +813,16 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         if os.getcwd() != self.project_path:
             os.chdir(self.project_path)
 
+        # Remove the existing 0.orig directory if it exists.
+        # This is to prevent the error of copying the old 0.orig directory to 0 directory
+        if os.path.exists("0.orig"):
+            shutil.rmtree("0.orig")
         # create the initial conditions file
         ampersandIO.printMessage("Creating boundary conditions")
+        # check if the 0 directory exists
+        if not os.path.exists("0"):
+            # create the 0 directory
+            os.mkdir("0")
         # go inside the 0 directory
         os.chdir("0")
         create_boundary_conditions(self.meshSettings, self.boundaryConditions)    
