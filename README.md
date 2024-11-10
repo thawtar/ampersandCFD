@@ -9,8 +9,10 @@ Ampersand is designed to provide users a simple and streamlined workflow for gen
 You can use Ampersand for external and internal incompressible flows. The case file generation procedure is very simple. You need to locate your STL file and answer a few YES/NO and multiple choice questions. Ampersand will take care of the rest including mesh size and y+, boundary conditions and numerical schemes.
 
 ### Installation
-1. **Requirements**: OpenFOAM, Python 3.x, additional dependencies (list here).
+1. **Requirements**: OpenFOAM (ESI version), Python 3.x, additional dependencies (list here).
 2. **Installation**: Clone the repository and install dependencies.
+
+3. **OpenFOAM Version**: Currently Ampersand only supports OpenFOAM ESI versions (OpenFOAM.com) such as v2206, v2212 and later. Earlier versions such as v1912 or v2006 should work too, although these versions were not tested yet.
 
 ```bash
    git clone https://github.com/thawtar/ampersandCFD.git
