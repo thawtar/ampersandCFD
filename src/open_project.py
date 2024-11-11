@@ -45,7 +45,7 @@ def open_project():
     project_modified = False # flag to check if the project has been modified
     while modify_project:
         project.load_settings()
-        project.choose_modification()
+        project.choose_modification_categorized()
         project.modify_project()
         project.write_settings()
         project_modified = True

@@ -163,8 +163,20 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.current_modification = self.mod_options[current_modification]
         ampersandIO.printMessage(f"Current modification: {self.current_modification}")
         
-
-
+    def choose_modification_categorized(self):
+        options = ['Mesh','Boundary Conditions','Fluid Properties','Numerical Settings','Simulation Control Settings','Turbulence Model','Post Processing Settings']
+        current_modification = ampersandIO.get_option_choice(prompt="Choose any option for project modification: ",
+                                      options=options,title="\nModify Project Settings")
+        mesh_options = ['Background Mesh','Mesh Point','Add Geometry','Refinement Levels']
+        if current_modification < 0 or current_modification > len(options)-1:
+            ampersandIO.printMessage("Invalid option. Aborting operation")
+            return -1
+        if current_modification == 0:
+            self.current_modification = mesh_options[ampersandIO.get_option_choice(prompt="Choose any option for mesh modification: ",
+                                      options=mesh_options,title="\nModify Mesh Settings")]
+        else:
+            self.current_modification = options[current_modification]
+        
 
     def modify_project(self):
         if self.current_modification=="Background Mesh":
