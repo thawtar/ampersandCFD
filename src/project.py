@@ -559,9 +559,13 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             U = ampersandDataInput.get_inlet_values()
             property = tuple(U)
             ampersandIO.printMessage(f"Setting property of {purpose} to {property}")
-        elif purpose == 'refinementRegion' or purpose == 'cellZone':
+        elif purpose == 'refinementRegion' :
             refLevel = ampersandIO.get_input_int("Enter refinement level: ")
             property = refLevel
+        elif purpose == 'cellZone':
+            refLevel = ampersandIO.get_input_int("Enter refinement level: ")
+            createPatches = ampersandIO.get_input_bool("Create patches for this cellZone? (y/N): ")
+            property = (refLevel, createPatches,0) # 0 is just a placeholder for listing the patches
         elif purpose == 'refinementSurface':
             refLevel = ampersandIO.get_input_int("Enter refinement level: ")
             property = refLevel
@@ -608,7 +612,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 bounds = stlAnalysis.compute_bounding_box(stl_file)
                 bounds = tuple(bounds)
                 property = self.set_property(purpose)
-                if purpose == 'refinementRegion' or purpose == 'cellZone' or purpose == 'refinementSurface':
+                if purpose == 'refinementRegion' or purpose == 'refinementSurface':
                     featureEdges = False
                 else:  
                     featureEdges = True

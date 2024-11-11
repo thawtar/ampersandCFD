@@ -92,7 +92,20 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
         }}""" 
             elif(an_entry['purpose'] == 'cellZone'):
                 patchType = 'cellZone'
-                refinementSurfaces+= f"""
+                if an_entry['property'][1] == True: # patches will be added
+                    refinementSurfaces+= f"""
+        {an_entry['name'][:-4]}
+        {{
+            level (0 0);
+            cellZone {an_entry['name'][:-4]};
+            faceZone {an_entry['name'][:-4]};
+            cellZoneInside inside;
+            boundary internal;
+            faceType boundary;
+            
+        }}"""
+                else: # no patches. Just cellZone
+                    refinementSurfaces+= f"""
         {an_entry['name'][:-4]}
         {{
             level (0 0);
@@ -176,12 +189,19 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
             mode distance;
             levels ((1E-4 {an_entry['property']})); 
         }}"""
-            elif(an_entry['purpose'] == 'refinementRegion' or an_entry['purpose'] == 'cellZone'):
+            elif(an_entry['purpose'] == 'refinementRegion'):
                 refinementRegions += f"""
         {an_entry['name'][:-4]}
         {{
             mode inside;
             levels ((1E15 {an_entry['property']})); 
+        }}"""
+            elif(an_entry['purpose'] == 'cellZone'):
+                refinementRegions += f"""
+        {an_entry['name'][:-4]}
+        {{
+            mode inside;
+            levels ((1E15 {an_entry['property'][0]})); 
         }}"""
             
         else:
