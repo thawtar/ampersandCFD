@@ -307,7 +307,7 @@ class stlAnalysis:
     def calc_layers_from_cell_size(yFirst=0.001,targetCellSize=0.1,expRatio=1.2):
         
         firstLayerThickness = yFirst*2.0
-        finalLayerThickness = targetCellSize*0.7
+        finalLayerThickness = targetCellSize*0.35
         nLayers = int(np.log(finalLayerThickness/firstLayerThickness)/np.log(expRatio))
         nLayers = max(1,nLayers)
         return nLayers,finalLayerThickness
@@ -338,7 +338,10 @@ class stlAnalysis:
                                                    onGround=onGround,internalFlow=internalFlow,halfModel=halfModel)
         if(refinement==0):
             if(internalFlow):
-                backgroundCellSize = min(minSTLLength/8.,maxCellSize)
+                if maxSTLLength/minSTLLength > 10: # if the geometry is very slender
+                    backgroundCellSize = min(maxSTLLength/50.,maxCellSize)
+                else:
+                    backgroundCellSize = min(minSTLLength/8.,maxCellSize)
             else:
                 backgroundCellSize = min(minSTLLength/3.,maxCellSize) # this is the size of largest blockMesh cells
             target_yPlus = 70
@@ -346,7 +349,10 @@ class stlAnalysis:
             refLevel = 2
         elif(refinement==1):
             if(internalFlow):
-                backgroundCellSize = min(minSTLLength/12.,maxCellSize)
+                if maxSTLLength/minSTLLength > 10: # if the geometry is very slender
+                    backgroundCellSize = min(maxSTLLength/70.,maxCellSize)
+                else:
+                    backgroundCellSize = min(minSTLLength/12.,maxCellSize)
             else:
                 backgroundCellSize = min(minSTLLength/5.,maxCellSize)
             target_yPlus = 50
@@ -354,7 +360,10 @@ class stlAnalysis:
             refLevel = 4
         elif(refinement==2):
             if(internalFlow):
-                backgroundCellSize = min(minSTLLength/16.,maxCellSize)
+                if maxSTLLength/minSTLLength > 10: # if the geometry is very slender
+                    backgroundCellSize = min(maxSTLLength/90.,maxCellSize)
+                else:
+                    backgroundCellSize = min(minSTLLength/16.,maxCellSize)
             else:
                 backgroundCellSize = min(minSTLLength/7.,maxCellSize)
             target_yPlus = 30
@@ -433,6 +442,10 @@ class stlAnalysis:
     @staticmethod
     def set_mesh_settings(meshSettings, domain_size, nx, ny, nz, refLevel,featureLevel=1,nLayers=None):
         meshSettings['domain'] = {'minx': domain_size[0], 'maxx': domain_size[1], 'miny': domain_size[2], 'maxy': domain_size[3], 'minz': domain_size[4], 'maxz': domain_size[5], 'nx': nx, 'ny': ny, 'nz': nz}
+        #meshSettings['domain']['nx'] = nx
+        #meshSettings['domain']['ny'] = ny
+        #meshSettings['domain']['nz'] = nz
+
         refMin = max(1,refLevel)
         refMax = max(2,refLevel)
         for geometry in meshSettings['geometry']:

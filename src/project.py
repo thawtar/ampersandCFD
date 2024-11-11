@@ -85,7 +85,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.inside_project_directory = False # flag to check if the current working directory is the project directory
         self.mod_options = ["Background Mesh","Add Geometry","Refinement Levels","Mesh Point","Boundary Conditions","Fluid Properties", "Numerical Settings", 
                    "Simulation Control Settings","Turbulence Model","Post Processing Settings"]
-
+        self.minX, self.maxX, self.minY, self.maxY, self.minZ, self.maxZ = -1e-3, 1e-3, -1e-3, 1e-3, -1e-3, 1e-3
     #--------------------------------------------------------------------
     # Methods to handle the project summary and changes
     #--------------------------------------------------------------------
@@ -238,7 +238,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # useful for opening existing projects and modifying the settings
     def set_project_path(self,project_path):
         if project_path is None:
-            ampersandIO.printMessage("No project path selected. Aborting project creation.")
+            ampersandIO.printMessage("No project path selected. Aborting project creation/modification.")
             exit()
         if os.path.exists(project_path):
             settings_file = os.path.join(project_path, "project_settings.yaml")
@@ -336,6 +336,16 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         postProcess_files = os.listdir("postProcessing/probe/0")
         if 'U' in postProcess_files and 'p' in postProcess_files:
             ampersandIO.printMessage("U and p files found in postProcess directory")
+            return 1
+        return 0
+    
+    def check_forces_files(self):
+        if(not os.path.exists("postProcessing/forces/0")):
+            ampersandIO.printMessage("forces directory does not exist")
+            return 0
+        forces_files = os.listdir("postProcessing/forces/0")
+        if 'force.dat' in forces_files:
+            ampersandIO.printMessage("force.dat found in forces directory")
             return 1
         return 0
 
@@ -488,14 +498,14 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         idx = 0 # index of the stl file in the list
         # Purpose is wall by default
         # Other purposes are patch, refinementRegion, refinementSurface, cellZone, baffles
-        """
+        
         if self.refinement == 0:
             nLayers = 3
         elif self.refinement == 1:
             nLayers = 5
         else:
             nLayers = 7
-        """
+        
         stl_ = {'name': stl_name, 'type':'triSurfaceMesh','purpose':purpose, 'refineMin': refMin, 'refineMax': refMax, 
                 'featureEdges':featureEdges, 'featureLevel':featureLevel, 'nLayers':nLayers, 'property':property, 'bounds':bounds}
         
@@ -664,6 +674,17 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.halfModel = False
             self.meshSettings['halfModel'] = False
 
+    def set_max_domain_size(self,domain_size,nx,ny,nz):
+        self.minX = min(domain_size[0],self.minX)
+        self.maxX = max(domain_size[1],self.maxX)
+        self.minY = min(domain_size[2],self.minY)
+        self.maxY = max(domain_size[3],self.maxY)
+        self.minZ = min(domain_size[4],self.minZ)
+        self.maxZ = max(domain_size[5],self.maxZ)
+        #self.meshSettings['domain'] = {'minx':self.minX, 'maxx':self.maxX, 'miny':self.minY, 'maxy':self.maxY, 'minz':self.minZ, 'maxz':self.maxZ}
+        self.meshSettings['domain']['nx'] = nx
+        self.meshSettings['domain']['ny'] = ny
+        self.meshSettings['domain']['nz'] = nz
 
     def analyze_stl_file(self,stl_file_number=0):
         rho = self.physicalProperties['rho']
@@ -688,6 +709,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                                                                            refinement=self.refinement,halfModel=self.halfModel)
         featureLevel = max(refLevel,1)
         self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel, featureLevel,nLayers=nLayers) 
+        self.set_max_domain_size(domain_size,nx,ny,nz)
         self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path,self.internalFlow)
         refinementBoxLevel = max(2,refLevel-3)
         self.meshSettings = stlAnalysis.addRefinementBoxToMesh(meshSettings=self.meshSettings, stl_path=stl_path,refLevel=refinementBoxLevel,internalFlow=self.internalFlow)
