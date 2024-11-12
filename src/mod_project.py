@@ -220,10 +220,30 @@ class mod_project:
         ampersandIO.printMessage(f"New mesh points: ({currentMeshPoint[0]},{currentMeshPoint[1]},{currentMeshPoint[2]})")
 
 
+
     @staticmethod
     def change_boundary_conditions(project):
         ampersandIO.printMessage("Changing boundary conditions")
         # TODO: Implement this function
+        bcs = project.summarize_boundary_conditions()
+        #ampersandIO.printMessage("Current boundary conditions")
+        #ampersandIO.printMessage(bcs)
+        
+        bc_number = ampersandIO.get_input("Enter the number of the boundary to change: ")
+        try:
+            bc_number = int(bc_number)
+        except ValueError:
+            ampersandIO.printMessage("Invalid input. Please try again.")
+        if bc_number <= 0 or bc_number > len(bcs):
+            ampersandIO.printMessage("Invalid input. Please try again.")
+        else:
+            bc = bcs[bc_number-1]
+            ampersandIO.printMessage(f"Changing boundary condition for patch: {bc}")
+            newBcType = project.ask_boundary_type()
+            project.change_boundary_condition(bc,newBcType)
+
+            
+
 
     @staticmethod
     def change_numerical_settings(project):

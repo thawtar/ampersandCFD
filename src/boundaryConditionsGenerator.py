@@ -100,6 +100,14 @@ def create_u_file(meshSettings,boundaryConditions):
         value uniform {tuple_to_string(boundaryConditions['wall']['u_value'])};
     }}
     """
+            elif(patch['purpose'] == 'movingWall'):
+                U_file += f"""
+    "{patch['name'][:-4]}.*"
+    {{
+        type movingWallVelocity;
+        value uniform {tuple_to_string(boundaryConditions['wall']['u_value'])};
+    }}
+    """
             elif(patch['purpose'] == 'inlet'):
                 U_file += f"""
     "{patch['name'][:-4]}.*"

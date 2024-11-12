@@ -26,39 +26,78 @@ from headers import get_ampersand_header
 class ampersandPrimitives:
     def __init__(self):
         pass
-
-    """
-    @staticmethod
-    def list_stl_files_org(stl_files):
-        i = 1
-        ampersandIO.show_title("STL Files")
-        ampersandIO.printMessage(f"{'No.':<5}{'Name'}\t\t{'Purpose'}\t\t{'RefineMent'}\t{'Property'}")
-        for stl_file in stl_files:
-            if(stl_file['property']==None):
-                stl_file['property'] = "None"
-            ampersandIO.printMessage(f"{i:<5}{stl_file['name']}\t\t{stl_file['purpose']}\t\t({stl_file['refineMin']} {stl_file['refineMax']})\t{stl_file['property']}")
-            i += 1
-    """
-
+    
+    
+    
     @staticmethod
     def list_stl_files(stl_files):
         i = 1
         ampersandIO.show_title("STL Files")
+        
         ampersandIO.printMessage(f"{'No.':<5}{'Name':<20}{'Purpose':<20}{'RefineMent':<15}{'Property':<15}")
         for stl_file in stl_files:
             if(stl_file['property']==None):
                 stl_property = "None"
-                stl_file['property'] = "None"
+                if stl_file['purpose'] == 'wall':
+                    stl_property = f"nLayers: {stl_file['nLayers']}"
+                else:
+                    stl_property = "None"
+                #stl_file['property'] = "None"
             elif isinstance(stl_file['property'], list):
                 stl_property = f"[{stl_file['property'][0]} {stl_file['property'][1]} {stl_file['property'][2]}]"
             elif isinstance(stl_file['property'], tuple):
-                stl_property = f"[{stl_file['property'][0]} {stl_file['property'][1]} {stl_file['property'][2]}]"
+                if stl_file['purpose'] == 'inlet':
+                    stl_property = f"U: [{stl_file['property'][0]} {stl_file['property'][1]} {stl_file['property'][2]}]"
+                elif stl_file['purpose'] == 'cellZone':
+                    stl_property = f"Refinement: {stl_file['property'][0]}"
+                #stl_property = f"[{stl_file['property'][0]} {stl_file['property'][1]} {stl_file['property'][2]}]"
             else:
                 stl_property = stl_file['property']
             ampersandIO.printMessage(f"{i:<5}{stl_file['name']:<20}{stl_file['purpose']:<20}({stl_file['refineMin']} {stl_file['refineMax']}{')':<11}{stl_property:<15}")
             i += 1
+        ampersandIO.show_line()
         return 0
 
+    @staticmethod
+    def list_boundary_conditions(meshSettings):
+        i = 1
+        boundaries = []
+        ampersandIO.show_title("Boundary Conditions")
+        ampersandIO.printMessage(f"{'No.':<5}{'Name':<20}{'Purpose':<20}{'Value':<15}")
+        # for external flows, show the boundary conditions for domain first
+        if meshSettings['internalFlow'] == False:
+            for patchName in meshSettings['bcPatches'].keys():
+                patch = meshSettings['bcPatches'][patchName]
+                if patch['property'] == None:
+                    property = "None"
+                elif isinstance(patch['property'], list):
+                    property = f"[{patch['property'][0]} {patch['property'][1]} {patch['property'][2]}]"
+                elif isinstance(patch['property'], tuple):
+                    property = f"[{patch['property'][0]} {patch['property'][1]} {patch['property'][2]}]"
+                else:
+                    property = patch['property']
+                #ampersandIO.printMessage(f"{patch['name']}: {patch['purpose']}\t{patch['property']}")
+                ampersandIO.printMessage(f"{i:<5}{patchName:<20}{patch['purpose']:<20}{property:<15}")
+                i += 1
+                boundaries.append(patchName)
+        for patch in meshSettings['geometry']:
+            if patch['purpose'] != 'refinementRegion' and patch['purpose'] != 'refinementSurface':
+                #ampersandIO.printMessage(patch)
+                if patch['property'] == None:
+                    property = "None"
+                elif isinstance(patch['property'], list):
+                    property = f"[{patch['property'][0]} {patch['property'][1]} {patch['property'][2]}]"
+                elif isinstance(patch['property'], tuple):
+                    property = f"[{patch['property'][0]} {patch['property'][1]} {patch['property'][2]}]"
+                else:
+                    property = "None"
+                ampersandIO.printMessage(f"{i:<5}{patch['name']:<20}{patch['purpose']:<20}{property:<15}")
+                i += 1
+                boundaries.append(patch['name'])
+        return boundaries # return the number of boundarys
+            #ampersandIO.printMessage(f"{patch['name']}: {patch['purpose']}\t{patch['property']}")
+
+    
     @staticmethod
     def change_patch_type(patches, patch_name, new_type='patch'):
         patch_found = False
@@ -370,9 +409,13 @@ class ampersandIO:
         ampersandIO.printMessage("\n" + title  )
 
     @staticmethod
+    def show_line():
+        ampersandIO.printMessage("-"*60)
+
+    @staticmethod
     def printFormat(item_name, item_value):
         print(f"{item_name:12}\t{item_value}")
-    
+
 
 class ampersandDataInput:
     def __init__(self):

@@ -91,17 +91,19 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     #--------------------------------------------------------------------
     
     def summarize_boundary_conditions(self):
-        if self.internalFlow:
-            for stl_file in self.stl_files:
-                if stl_file['property'] == None:
-                    property = 'None'
-                else:
-                    property = stl_file['property']
-                ampersandIO.printMessage(f"{stl_file['name']}\t{stl_file['purpose']}\t{property}")
-        else:
-            for patch in self.meshSettings['bcPatches']:
-                ampersandIO.printMessage(f"{patch['name']}\t{patch['type']}\t{patch['property']}")
+        bcs = ampersandPrimitives.list_boundary_conditions(self.meshSettings)
+        return bcs
     
+    def ask_boundary_type(self):
+        bcTypes = ["inlet","outlet","wall","symmetry","cyclic","empty","movingWall",]
+        ampersandIO.printMessage("List of boundary types")
+        ampersandIO.print_numbered_list(bcTypes)
+        bcType = ampersandIO.get_input_int("Enter the number of the boundary type: ")
+        if bcType <= 0 or bcType > len(bcTypes):
+            ampersandIO.printMessage("Invalid boundary type. Setting to wall")
+            return "wall"
+        return bcTypes[bcType-1]
+
     def summarize_project(self):
         trueFalse = {True: 'Yes', False: 'No'}
         ampersandIO.show_title("Project Summary")
@@ -118,6 +120,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         ampersandIO.printMessage(f"Transient: {trueFalse[self.transient]}")
         self.summarize_background_mesh()
         self.list_stl_files()
+        #self.summarize_boundary_conditions()
         #ampersandIO.printMessage("Boundary Conditions")
         #ampersandIO.print_dict(self.boundaryConditions)
 
@@ -138,6 +141,34 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         ampersandIO.printMessage(f"Background mesh size: {nx}x{ny}x{nz} cells")
         ampersandIO.printMessage(f"Background cell size: {self.meshSettings['maxCellSize']} m")
     
+      
+    def change_boundary_condition(self,bcName,newBC):
+        if not self.internalFlow: # if it is external flow
+            bcPatches = self.meshSettings['patches']
+            for aPatch in self.meshSettings['patches']:
+                if bcName == aPatch['name']:
+                    aPatch['type'] = newBC
+                    ampersandIO.printMessage(f"Boundary condition {bcName} changed to {newBC}")
+                    return 0
+            if bcName in bcPatches:
+                self.meshSettings['patches'][bcName]['type'] = newBC
+                self.meshSettings['bcPatches'][bcName]['purpose'] = newBC
+                newProperty = self.set_property(newBC)
+                self.meshSettings['bcPatches'][bcName]['property'] = newProperty
+                ampersandIO.printMessage(f"Boundary condition {bcName} changed to {newBC}")
+                return 0
+            else:
+                ampersandIO.printMessage("Boundary condition not found in the list")
+        geometry = self.meshSettings['geometry']
+        for stl in geometry:
+            if stl['name'] == bcName:
+                stl['purpose'] = newBC
+                newProperty = self.set_property(newBC)
+                self.meshSettings['bcPatches'][bcName]['property'] = newProperty
+                ampersandIO.printMessage(f"Boundary condition of {bcName} changed to {newBC}")
+                return 0
+        return -1
+
     def change_stl_refinement_level(self,stl_file_number=0):
         ampersandIO.printMessage("Changing refinement level")
         refMin = ampersandIO.get_input_int("Enter new refMin: ")

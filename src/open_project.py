@@ -70,6 +70,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         ampersandIO.printMessage("\nKeyboardInterrupt detected! Aborting project creation")
         exit()
-    except Exception as error:
-        ampersandIO.printError(error)
-        exit()
+    #except Exception as error:
+    #    ampersandIO.printError(error)
+    #    exit()
