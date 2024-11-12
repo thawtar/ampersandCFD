@@ -732,7 +732,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         if(self.internalFlow==False and self.onGround==True):
             # if the flow is external and the geometry is on the ground, add a ground refinement box
             self.meshSettings = stlAnalysis.addGroundRefinementBoxToMesh(meshSettings=self.meshSettings, stl_path=stl_path,refLevel=refinementBoxLevel)
-        self.meshSettings = stlAnalysis.set_layer_thickness(self.meshSettings, target_y)
+        self.meshSettings = stlAnalysis.set_layer_thickness(self.meshSettings, 0.5) # set the layer thickness to 0.5 times the cell size
         # store the background mesh size for future reference
         maxCellSize = abs((domain_size[1]-domain_size[0])/nx)
         self.meshSettings['maxCellSize'] = maxCellSize

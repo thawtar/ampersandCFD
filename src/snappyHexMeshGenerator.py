@@ -61,7 +61,6 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
                 name {an_entry['name'][:-4]};
             }}
         }}
-
     }}"""
             # Add features and refinement surfaces
             if(an_entry['featureEdges']):
@@ -87,8 +86,7 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
                         type {patchType};
                     }}
                 }}
-            }}
-            
+            }} 
         }}""" 
             elif(an_entry['purpose'] == 'cellZone'):
                 patchType = 'cellZone'
@@ -102,7 +100,6 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
             cellZoneInside inside;
             boundary internal;
             faceType boundary;
-            
         }}"""
                 else: # no patches. Just cellZone
                     refinementSurfaces+= f"""
@@ -112,8 +109,7 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
             cellZone {an_entry['name'][:-4]};
             faceZone {an_entry['name'][:-4]};
             cellZoneInside inside;
-            boundary internal;
-            
+            boundary internal; 
         }}""" 
                 # if refinementSurface or region, do not add here
             elif(an_entry['purpose'] == 'refinementRegion' or an_entry['purpose'] == 'refinementSurface'):
@@ -132,7 +128,6 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
                     faceType baffles;
                     faceZone {an_entry['name'][:-4]};
                     level ({an_entry['refineMin']} {an_entry['refineMax']});
-                    
                 }}
             }}
         }}"""
@@ -153,8 +148,7 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
                         type {patchType};
                     }}
                 }}
-            }}
-            
+            }} 
         }}""" 
 
         # For searchable boxes, min and max are added
@@ -255,6 +249,20 @@ addLayers       {meshSettings['snappyHexSteps']['addLayers']};"""
             {{
                 nSurfaceLayers {an_entry['nLayers']};
             }}"""
+            elif(an_entry['purpose'] == 'baffle'): # If the surface is a baffle, add layers
+                layerControls += f"""
+            "{an_entry['name'][:-4]}.*"
+            {{
+                nSurfaceLayers {1};
+            }}"""
+            elif(an_entry['purpose'] == 'cellZone'):
+                layerControls += f"""
+            "{an_entry['name'][:-4]}.*"
+            {{
+                nSurfaceLayers {1};
+            }}"""
+            else:
+                pass
     layerControls += f"""
     }};
     expansionRatio {meshSettings['addLayersControls']['expansionRatio']};
