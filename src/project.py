@@ -176,6 +176,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.stl_files[stl_file_number]['refineMin'] = refMin
         self.stl_files[stl_file_number]['refineMax'] = refMax
         #stl_name = project.stl_files[stl_file_number]['name']
+        
         fileFound = False
         for stl in self.meshSettings['geometry']:
             if stl['name'] == self.stl_files[stl_file_number]['name']:
@@ -186,7 +187,10 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 break
         if not fileFound:
             ampersandIO.printMessage("STL file not found in the geometry list")
+        
         #return project
+
+    
     
     def choose_modification(self):
         current_modification = ampersandIO.get_option_choice(prompt="Choose any option for project modification: ",
@@ -199,6 +203,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         current_modification = ampersandIO.get_option_choice(prompt="Choose any option for project modification: ",
                                       options=options,title="\nModify Project Settings")
         mesh_options = ['Background Mesh','Mesh Point','Add Geometry','Refinement Levels']
+        
         if current_modification < 0 or current_modification > len(options)-1:
             ampersandIO.printMessage("Invalid option. Aborting operation")
             return -1
