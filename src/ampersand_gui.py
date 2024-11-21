@@ -1,77 +1,179 @@
-import tkinter
+from PySide6.QtWidgets import QApplication
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtWidgets import QVBoxLayout
+from PySide6.QtCore import QFile
+from PySide6.QtWidgets import QMainWindow
+from PySide6 import QtWidgets
+from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+import vtk
+import sys
+from time import sleep
 
-from tkinter import filedialog
-from project import ampersandProject
-from primitives import ampersandPrimitives, ampersandIO
-import ampersandAPI
-from headers import get_ampersand_header
-import os
+loader = QUiLoader()
 
-def ampersand_dialog():
-    print("AmpersandCFD")
-    root = tkinter.Tk()
+# This function reads STL file and extracts the surface patch names.
+def readSTL(stlFileName="cylinder.stl"):
+    surfaces = [] # to store the surfaces in the STL file
+    try:
+        f = open(stlFileName, "r")
+        for x in f:
+            
+            items = x.split(" ")
+            if(items[0]=='solid'):
+                surfaces.append(items[1][:-1])
+                #print(items[1][:-1])
+        f.close()
+    except:
+        print("Error while opening file: ",stlFileName)
+    return surfaces
+
+
+
+class mainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.load_ui()
     
-    #root.withdraw()
-    menu_bar = tkinter.Menu(root)
+    def load_ui(self):
+        ui_file = QFile("ampersandInputForm.ui")
+        ui_file.open(QFile.ReadOnly)
+        self.window = loader.load(ui_file, None)
+        ui_file.close()
+        self.setWindowTitle("Ampersand Input Form")
+        self.prepare_vtk()
+        self.prepare_subWindows()
+        self.prepare_events()
+      
     
-    # File menu
-    file_menu = tkinter.Menu(menu_bar, tearoff=0)
-    file_menu.add_command(label="Create", command=lambda: print("New File"))
-    file_menu.add_command(label="Open", command=lambda: ampersandAPI.open_project(ampersandPrimitives.ask_for_directory()))
-    file_menu.add_command(label="Save", command=lambda: print("Save File"))
-    file_menu.add_separator()
-    file_menu.add_command(label="Exit", command=root.quit)
-    menu_bar.add_cascade(label="File", menu=file_menu)
+    def __del__(self):
+        pass
+
+    def openCADDialog(self):
+        fname,ftype = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 
+        'c:\\',"CAD files (*.brep *.igs *.iges)")
+        if(fname==""):
+            return -1 # CAD file not loaded
+        else:
+            print("Current CAD File: ",fname)
+            return fname
+        
+    def openSTLDialog(self):
+        fname,ftype = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 
+        'c:\\',"STL files (*.stl *.obj)")
+        if(fname==""):
+            return -1 # STL file not loaded
+        else:
+            #print("Current STL File: ",fname)
+            return fname
+
+    def openSTL(self):
+        stlFileName = self.openSTLDialog()
+        if(stlFileName==-1):
+            pass
+        else:
+            #print("Copying stl file")
+            stl = stlFileName #self.copySTL(stlFileName=stlFileName)
+            if(stl!=-1):
+                self.showSTL(stlFile=stl)
+                self.loadSTL(stlFile=stl)
+
+    # manage sub windows
+    def prepare_subWindows(self):
+        self.createCaseWindow = None
+
+    def prepare_vtk(self):
+        # Prepare the VTK widget to show the STL
+        self.vl = QVBoxLayout()
+        self.vtkWidget = QVTKRenderWindowInteractor(self.window.widget)
+        self.vl.addWidget(self.vtkWidget)
+        self.ren = vtk.vtkRenderer()
+        self.vtkWidget.GetRenderWindow().AddRenderer(self.ren)
+        self.vtkWidget.resize(520,310)
+        self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
+
+    # this function will read STL file and show it in the VTK renderer
+    def showSTL(self,stlFile=r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"):
+        # Read stl
+        try:
+            self.reader = vtk.vtkSTLReader()
+            self.reader.SetFileName(stlFile)
+            self.render3D()
+        except:
+            print("Reading STL not successful. Try again")
+
+    def render3D(self):  # self.ren and self.iren must be used. other variables are local variables
+        # Create a mapper
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputConnection(self.reader.GetOutputPort())
+        # Create an actor
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
+        actor.GetProperty().EdgeVisibilityOn()
+        colors = vtk.vtkNamedColors()
+        self.ren.SetBackground(colors.GetColor3d("SlateGray"))
+        self.ren.AddActor(actor)
+        style = vtk.vtkInteractorStyleTrackballCamera()
+        self.iren.SetInteractorStyle(style)
+        camera = vtk.vtkCamera()
+        camera.SetPosition(0, 1, 0)
+        camera.SetFocalPoint(0, 0, 0)
+        camera.SetViewUp(0, 0, 1)
+        camera.Azimuth(30)
+        camera.Elevation(30)
+        self.ren.SetActiveCamera(camera)
+        self.ren.ResetCamera()
+        self.ren.ResetCameraClippingRange()
+        #renWin.Render()
+        self.iren.Start()
+
+    def loadSTL(self,stlFile = r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"):
+        self.updateStatusBar("Loading STL file")
+        #stlFile = r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"
+        surfaces = readSTL(stlFileName=stlFile)
+        print(surfaces)
+        for (i,aSurface) in enumerate(surfaces):
+            self.listWidgetObjList.insertItem(i,aSurface)
+        message = "Loaded STL file: "+stlFile
+        self.updateStatusBar(message) 
+
     
-    # Edit menu
-    edit_menu = tkinter.Menu(menu_bar, tearoff=0)
-    edit_menu.add_command(label="Undo", command=lambda: print("Undo"))
-    edit_menu.add_command(label="Redo", command=lambda: print("Redo"))
-    edit_menu.add_separator()
-    edit_menu.add_command(label="Cut", command=lambda: print("Cut"))
-    edit_menu.add_command(label="Copy", command=lambda: print("Copy"))
-    edit_menu.add_command(label="Paste", command=lambda: print("Paste"))
-    menu_bar.add_cascade(label="Edit", menu=edit_menu)
+    def updateStatusBar(self,message="Go!"):
+        self.window.statusbar.showMessage(message)
+
+    def readyStatusBar(self):
+        # pause 1 millisecond
+        sleep(0.001)
+        self.window.statusbar.showMessage("Ready")
+
+    def prepare_events(self):
+        # Initiate the button click maps
+        self.window.pushButtonSTLImport.clicked.connect(self.importSTL)
+        self.window.pushButtonSphere.clicked.connect(self.createSphere)
+
+        self.window.statusbar.showMessage("Ready")
+
+#----------------- Event Handlers -----------------#
+    def importSTL(self):
+        print("Open STL")
+        self.updateStatusBar("Opening STL")
+        self.openSTL()
     
-    # Help menu
-    help_menu = tkinter.Menu(menu_bar, tearoff=0)
-    help_menu.add_command(label="About", command=lambda: print("About"))
-    menu_bar.add_cascade(label="Help", menu=help_menu)
-
-    frame = tkinter.Frame(root)
-    frame.pack(pady=10)
-    frame2 = tkinter.Frame(root)
-    frame2.pack(pady=10)
-
-    frame3 = tkinter.Frame(root)
-    frame3.pack(pady=10)
-
-    import_stl_button = tkinter.Button(frame, text="Import STL", command=lambda: print("Import STL"))
-    import_stl_button.pack(side=tkinter.LEFT, padx=5)
-
-    sphere_button = tkinter.Button(frame, text="Sphere", command=lambda: print("Sphere"))
-    sphere_button.pack(side=tkinter.LEFT, padx=5)
-
-    box_button = tkinter.Button(frame, text="Box", command=lambda: print("Box"))
-    box_button.pack(side=tkinter.LEFT, padx=5)
-
-    flow_type = tkinter.StringVar(value="Internal")
-    tkinter.Label(frame, text="Flow Type:").pack(side=tkinter.LEFT, padx=5)
-    internal_flow_radio = tkinter.Radiobutton(frame2, text="Internal Flow", variable=flow_type, value="Internal")
-    internal_flow_radio.pack(side=tkinter.LEFT, padx=5)
-
-    external_flow_radio = tkinter.Radiobutton(frame2, text="External Flow", variable=flow_type, value="External")
-    external_flow_radio.pack(side=tkinter.LEFT, padx=5)
-
-    on_ground_var = tkinter.BooleanVar()
-    on_ground_check = tkinter.Checkbutton(frame2, text="On Ground", variable=on_ground_var)
-    on_ground_check.pack(side=tkinter.LEFT, padx=5)
-
-    run_simulation_button = tkinter.Button(frame2, text="Run Simulation", command=lambda: print("Run Simulation"))
-    run_simulation_button.pack(side=tkinter.LEFT, padx=5)
+    def createSphere(self):
+        print("Create Sphere")
+        self.updateStatusBar("Creating Sphere")
     
-    root.config(menu=menu_bar)
-    root.mainloop()
+    def chooseInternalFlow(self):
+        print("Choose Internal Flow")
+        self.updateStatusBar("Choosing Internal Flow")
+#-------------- End of Event Handlers -------------#
+
+
+def main():
+
+    app = QApplication(sys.argv)
+    w = mainWindow()
+    w.window.show()
+    app.exec()
 
 if __name__ == "__main__":
-    ampersand_dialog()
+    main()
