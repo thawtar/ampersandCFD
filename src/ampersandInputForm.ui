@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>885</width>
-    <height>555</height>
+    <width>1393</width>
+    <height>678</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -442,10 +442,13 @@
     <property name="geometry">
      <rect>
       <x>490</x>
-      <y>370</y>
-      <width>381</width>
+      <y>490</y>
+      <width>891</width>
       <height>131</height>
      </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
     </property>
     <property name="readOnly">
      <bool>true</bool>
@@ -456,8 +459,8 @@
      <rect>
       <x>490</x>
       <y>10</y>
-      <width>381</width>
-      <height>351</height>
+      <width>891</width>
+      <height>471</height>
      </rect>
     </property>
    </widget>
@@ -467,7 +470,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>885</width>
+     <width>1393</width>
      <height>22</height>
     </rect>
    </property>

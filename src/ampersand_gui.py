@@ -33,6 +33,7 @@ class mainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.load_ui()
+        self.surfaces = []
     
     def load_ui(self):
         ui_file = QFile("ampersandInputForm.ui")
@@ -88,7 +89,10 @@ class mainWindow(QMainWindow):
         self.vl.addWidget(self.vtkWidget)
         self.ren = vtk.vtkRenderer()
         self.vtkWidget.GetRenderWindow().AddRenderer(self.ren)
-        self.vtkWidget.resize(520,310)
+        self.vtkWidget.resize(891,471)
+        # change the background color to black
+        self.ren.SetBackground(0, 0, 0)
+        #self.ren.SetBackground(0.1, 0.2, 0.4)
         self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
 
     # this function will read STL file and show it in the VTK renderer
@@ -123,22 +127,34 @@ class mainWindow(QMainWindow):
         self.ren.SetActiveCamera(camera)
         self.ren.ResetCamera()
         self.ren.ResetCameraClippingRange()
+        # add coordinate axes
+        axes = vtk.vtkAxesActor()
+        self.ren.AddActor(axes)
+        self.ren.SetBackground(0.1, 0.2, 0.4)
+
         #renWin.Render()
         self.iren.Start()
 
     def loadSTL(self,stlFile = r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"):
         self.updateStatusBar("Loading STL file")
         #stlFile = r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"
-        surfaces = readSTL(stlFileName=stlFile)
-        print(surfaces)
-        for (i,aSurface) in enumerate(surfaces):
-            self.listWidgetObjList.insertItem(i,aSurface)
+        #surfaces = readSTL(stlFileName=stlFile)
+        
+        stl_name = stlFile.split("/")[-1]
+        if(stl_name in self.surfaces):
+            self.updateStatusBar("STL file already loaded")
+            return
+        self.surfaces.append(stl_name)
+        print(self.surfaces)
+        idx = len(self.surfaces)
+        self.window.listWidgetObjList.insertItem(idx,stl_name)
         message = "Loaded STL file: "+stlFile
         self.updateStatusBar(message) 
 
     
     def updateStatusBar(self,message="Go!"):
         self.window.statusbar.showMessage(message)
+        self.window.plainTextTerminal.appendPlainText(message)
 
     def readyStatusBar(self):
         # pause 1 millisecond
