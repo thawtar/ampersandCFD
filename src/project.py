@@ -165,7 +165,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 stl['purpose'] = newBC
                 newProperty = self.set_property(newBC)
                 self.meshSettings['bcPatches'][bcName]['property'] = newProperty
-                ampersandIO.printMessage(f"Boundary condition of {bcName} changed to {newBC}")
+                ampersandIO.printMessage(f"Boundary condition of {bcName} changed to {newBC}",GUIMode=self.GUIMode,window=self.window)
                 return 0
         return -1
 
@@ -196,7 +196,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         current_modification = ampersandIO.get_option_choice(prompt="Choose any option for project modification: ",
                                       options=self.mod_options,title="\nModify Project Settings")
         self.current_modification = self.mod_options[current_modification]
-        ampersandIO.printMessage(f"Current modification: {self.current_modification}")
+        ampersandIO.printMessage(f"Current modification: {self.current_modification}",GUIMode=self.GUIMode,window=self.window)
         
     def choose_modification_categorized(self):
         options = ['Mesh','Boundary Conditions','Fluid Properties','Numerical Settings','Simulation Control Settings','Turbulence Model','Post Processing Settings']
@@ -289,28 +289,28 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # useful for opening existing projects and modifying the settings
     def set_project_path(self,project_path):
         if project_path is None:
-            ampersandIO.printWarning("No project path selected. Aborting project creation/modification.")
+            ampersandIO.printWarning("No project path selected. Aborting project creation/modification.",GUIMode=self.GUIMode)
             exit()
         if os.path.exists(project_path):
             settings_file = os.path.join(project_path, "project_settings.yaml")
             if os.path.exists(settings_file):
-                ampersandIO.printMessage("Project found, loading project settings")
+                ampersandIO.printMessage("Project found, loading project settings",GUIMode=self.GUIMode,window=self.window)
                 self.existing_project = True
                 self.project_path = project_path
                 return 0
             else:
-                ampersandIO.printWarning("Settings file not found. Please open an Ampersand case directory.")
+                ampersandIO.printWarning("Settings file not found. Please open an Ampersand case directory.",GUIMode=self.GUIMode)
                 # TO DO: Add the code socket to create a new project here
                 return -1
         else:
-            ampersandIO.printWarning("Project path does not exist. Aborting project creation/opening.")
+            ampersandIO.printWarning("Project path does not exist. Aborting project creation/opening.",GUIMode=self.GUIMode)
             return -1
 
     def check_project_path(self): # check if the project path exists and if the project is already existing
         if os.path.exists(self.project_path):
             settings_file = os.path.join(self.project_path, "project_settings.yaml")
             if os.path.exists(settings_file):
-                ampersandIO.printWarning("Project already exists, loading project settings")
+                ampersandIO.printWarning("Project already exists, loading project settings",GUIMode=self.GUIMode)
                 self.existing_project = True
                 return 0
             else:
@@ -327,26 +327,26 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         except OSError as error:
                 ampersandIO.printError(error)
         cwd = os.getcwd()
-        ampersandIO.printMessage(f"Working directory: {cwd}")
+        ampersandIO.printMessage(f"Working directory: {cwd}",GUIMode=self.GUIMode,window=self.window)
         self.inside_project_directory = True
 
     # Check if the 0 directory exists in the project directory
     def check_0_directory(self):
         if not os.path.exists("0"):
-            ampersandIO.printWarning("0 directory does not exist.")
-            ampersandIO.printMessage("Checking for 0.orig directory")
+            ampersandIO.printWarning("0 directory does not exist.",GUIMode=self.GUIMode)
+            ampersandIO.printMessage("Checking for 0.orig directory",GUIMode=self.GUIMode,window=self.window)
             if os.path.exists("0.orig"):
-                ampersandIO.printMessage("0.orig directory found. Copying to 0 directory")
+                ampersandIO.printMessage("0.orig directory found. Copying to 0 directory",GUIMode=self.GUIMode,window=self.window)
                 shutil.copytree("0.orig", "0")
             else:
-                ampersandIO.printWarning("0.orig directory not found. Aborting project creation.")
+                ampersandIO.printWarning("0.orig directory not found. Aborting project creation.",GUIMode=self.GUIMode)
                 return -1
         return 0
     
     # Check if the constant directory exists in the project directory
     def check_constant_directory(self):
         if not os.path.exists("constant"):
-            ampersandIO.printWarning("constant directory does not exist.")
+            ampersandIO.printWarning("constant directory does not exist.",GUIMode=self.GUIMode)
             #ampersandIO.printError("constant directory is necessary for the project")
             return -1
         return 0
@@ -354,7 +354,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # Check if the system directory exists in the project directory
     def check_system_directory(self):
         if not os.path.exists("system"):
-            ampersandIO.printWarning("system directory does not exist.")
+            ampersandIO.printWarning("system directory does not exist.",GUIMode=self.GUIMode)
             #ampersandIO.printError("system directory is necessary for the project")
             return -1
         return 0
@@ -362,7 +362,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # Check if the constant/triSurface directory exists in the project directory
     def check_triSurface_directory(self):
         if not os.path.exists("constant/triSurface"):
-            ampersandIO.printWarning("triSurface directory does not exist.")
+            ampersandIO.printWarning("triSurface directory does not exist.",GUIMode=self.GUIMode)
             #ampersandIO.printError("triSurface directory is necessary for the project")
             return -1
         # if exists, check if the stl files are present
@@ -372,27 +372,27 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def check_log_files(self):
         log_files = os.listdir()
         if 'log.simpleFoam' in log_files:
-            ampersandIO.printMessage("Simulation log file found")
+            ampersandIO.printMessage("Simulation log file found",GUIMode=self.GUIMode,window=self.window)
             return 1
         if 'log.pimpleFoam' in log_files:
-            ampersandIO.printMessage("Simulation log file found")
+            ampersandIO.printMessage("Simulation log file found",GUIMode=self.GUIMode,window=self.window)
             return 1
         return 0
     
     # to check whether the U and p files are present in the postProcess directory
     def check_post_process_files(self):
         if(not os.path.exists("postProcessing/probe/0")):
-            ampersandIO.printWarning("postProcess directory does not exist")
+            ampersandIO.printWarning("postProcess directory does not exist",GUIMode=self.GUIMode)
             return 0
         postProcess_files = os.listdir("postProcessing/probe/0")
         if 'U' in postProcess_files and 'p' in postProcess_files:
-            ampersandIO.printMessage("U and p files found in postProcess directory")
+            ampersandIO.printMessage("U and p files found in postProcess directory",GUIMode=self.GUIMode,window=self.window)
             return 1
         return 0
     
     def check_forces_files(self):
         if(not os.path.exists("postProcessing/forces/0")):
-            ampersandIO.printWarning("forces directory does not exist")
+            ampersandIO.printWarning("forces directory does not exist",GUIMode=self.GUIMode)
             return 0
         forces_files = os.listdir("postProcessing/forces/0")
         if 'force.dat' in forces_files:
@@ -406,10 +406,10 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def create_project(self):
         # check if the project path exists
         if self.project_path is None:
-            ampersandIO.printError("No project path selected. Aborting project creation.")
+            ampersandIO.printError("No project path selected. Aborting project creation.",GUIMode=self.GUIMode)
             return -1
         if os.path.exists(self.project_path):
-            ampersandIO.printWarning("Project already exists. Skipping the creation of directories")
+            ampersandIO.printWarning("Project already exists. Skipping the creation of directories",GUIMode=self.GUIMode)
             self.existing_project = True
         else:
             ampersandIO.printMessage("Creating project directory")
@@ -423,7 +423,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         except OSError as error:
                 ampersandIO.printError(error)
         cwd = os.getcwd()
-        ampersandIO.printMessage(f"Working directory: {cwd}")
+        ampersandIO.printMessage(f"Working directory: {cwd}",GUIMode=self.GUIMode,window=self.window)
 
         # create 0, constant and system directory
         try:
@@ -432,7 +432,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             os.mkdir("system")
             os.mkdir("constant/triSurface")
         except OSError as error:
-            ampersandIO.printError("File system already exists. Skipping the creation of directories")   
+            ampersandIO.printError("File system already exists. Skipping the creation of directories",GUIMode=self.GUIMode)   
             return -1
         return 0 # return 0 if the project is created successfully 
 
@@ -451,12 +451,12 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             'postProcessSettings': self.postProcessSettings
         }
         #print(self.meshSettings)
-        ampersandIO.printMessage("\n\nWriting settings to project_settings.yaml\n")
+        ampersandIO.printMessage("Writing settings to project_settings.yaml",GUIMode=self.GUIMode,window=self.window)
         ampersandPrimitives.dict_to_yaml(settings, 'project_settings.yaml')
 
     # If the project is already existing, load the settings from the project_settings.yaml file
     def load_settings(self):
-        ampersandIO.printMessage("Loading project settings")
+        ampersandIO.printMessage("Loading project settings",GUIMode=self.GUIMode,window=self.window)
         settings = ampersandPrimitives.yaml_to_dict('project_settings.yaml')
         self.meshSettings = settings['meshSettings']
         self.physicalProperties = settings['physicalProperties']
