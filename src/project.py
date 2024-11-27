@@ -114,13 +114,13 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         trueFalse = {True: 'Yes', False: 'No'}
         ampersandIO.show_title("Project Summary")
         #ampersandIO.printMessage(f"Project directory: {self.project_directory_path}")
-        ampersandIO.printFormat("Project name", self.project_name)
-        ampersandIO.printFormat("Project path", self.project_path)
+        ampersandIO.printFormat("Project name", self.project_name, GUIMode=self.GUIMode,window=self.window)
+        ampersandIO.printFormat("Project path", self.project_path, GUIMode=self.GUIMode,window=self.window)
         
-        ampersandIO.printMessage(f"Internal Flow: {trueFalse[self.internalFlow]}")
+        ampersandIO.printMessage(f"Internal Flow: {trueFalse[self.internalFlow]}",GUIMode=self.GUIMode,window=self.window)
         if(self.internalFlow==False):
-            ampersandIO.printMessage(f"On Ground: {trueFalse[self.onGround]}")
-        ampersandIO.printMessage(f"Transient: {trueFalse[self.transient]}")
+            ampersandIO.printMessage(f"On Ground: {trueFalse[self.onGround]}",GUIMode=self.GUIMode,window=self.window)
+        ampersandIO.printMessage(f"Transient: {trueFalse[self.transient]}",GUIMode=self.GUIMode,window=self.window)
         self.summarize_background_mesh()
         self.list_stl_files()
         
@@ -256,14 +256,25 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         #print("stl_files",self.stl_files)
         #print("Mesh settings",self.meshSettings["geometry"])
 
-    def set_project_directory(self, project_directory_path,stopWhenError=True):
+    def set_project_directory(self, project_directory_path):
+        if self.GUIMode:
+            stopWhenError = False
+        else:
+            stopWhenError = True
         if project_directory_path is None:
             if stopWhenError:
                 ampersandIO.printMessage("No directory selected. Aborting project creation.")
                 exit()
             else:
                 return -1
-        assert os.path.exists(project_directory_path), "The chosen directory does not exist"
+        #assert os.path.exists(project_directory_path), "The chosen directory does not exist"
+        if not os.path.exists(project_directory_path):
+            if stopWhenError:
+                ampersandIO.printMessage("The chosen directory does not exist. Aborting project creation.")
+                exit()
+            else:
+                self.project_directory_path = None
+                return -1
         self.project_directory_path = project_directory_path
 
     def set_project_name(self, project_name):
@@ -682,7 +693,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             
     # this is a wrapper of the primitives 
     def list_stl_files(self):
-        ampersandPrimitives.list_stl_files(self.stl_files)
+        ampersandPrimitives.list_stl_files(self.stl_files,self.GUIMode,self.window)
 
     def list_stl_paths(self):
         stl_paths = []
@@ -930,7 +941,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         os.chdir("..")
         # go inside the constant directory
         os.chdir("constant")
-        ampersandIO.printMessage("Creating physical properties and turbulence properties")
+        ampersandIO.printMessage("Creating physical properties and turbulence properties",GUIMode=self.GUIMode,window=self.window)
         # create transportProperties file
         tranP = create_transportPropertiesDict(self.physicalProperties)
         # create turbulenceProperties file
@@ -943,7 +954,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         # go inside the system directory
         os.chdir("system")
         # create the controlDict file
-        ampersandIO.printMessage("Creating the system files")
+        ampersandIO.printMessage("Creating the system files",GUIMode=self.GUIMode,window=self.window)
         controlDict = createControlDict(self.simulationSettings)
         ampersandPrimitives.write_dict_to_file("controlDict", controlDict)
         blockMeshDict = generate_blockMeshDict(self.meshSettings)
@@ -963,7 +974,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         # go back to the main directory
         os.chdir("..")
         # create mesh script
-        ampersandIO.printMessage("Creating scripts for meshing and running the simulation")
+        ampersandIO.printMessage("Creating scripts for meshing and running the simulation",GUIMode=self.GUIMode,window=self.window)
         meshScript = ScriptGenerator.generate_mesh_script(self.simulationFlowSettings)
         ampersandPrimitives.write_dict_to_file("mesh", meshScript)
         # create simulation script
@@ -976,9 +987,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             os.chmod("run", 0o755)
         # go back to the main directory
         os.chdir("..")
-        ampersandIO.printMessage("\n-----------------------------------")
-        ampersandIO.printMessage("Project files created successfully!")
-        ampersandIO.printMessage("-----------------------------------\n")
+        ampersandIO.printMessage("\n-----------------------------------",GUIMode=self.GUIMode,window=self.window)
+        ampersandIO.printMessage("Project files created successfully!",GUIMode=self.GUIMode,window=self.window)
+        ampersandIO.printMessage("-----------------------------------\n",GUIMode=self.GUIMode,window=self.window)
         return 0
 
 

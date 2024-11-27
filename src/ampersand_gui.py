@@ -42,7 +42,9 @@ class mainWindow(QMainWindow):
         self.surfaces = []
         self.project_opened = False
         self.project = None #ampersandProject(GUIMode=True,window=self)
-        
+        self.minx,self.miny,self.minz = 0.0,0.0,0.0
+        self.maxx,self.maxy,self.maxz = 0.0,0.0,0.0
+        self.nx,self.ny,self.nz = 0,0,0
         # disable all the buttons and input fields
         self.disableButtons()
 
@@ -59,6 +61,8 @@ class mainWindow(QMainWindow):
         self.window.pushButtonBoundaryCondition.setEnabled(False)
         self.window.pushButtonNumerics.setEnabled(False)
         self.window.pushButtonControls.setEnabled(False)
+        self.window.pushButtonDomainAuto.setEnabled(False)
+        self.window.pushButtonDomainManual.setEnabled(False)
         #self.window.pushButtonCreate.setEnabled(False)
         #self.window.pushButtonOpen.setEnabled(False)
         self.window.pushButtonGenerate.setEnabled(False)
@@ -98,6 +102,8 @@ class mainWindow(QMainWindow):
         self.window.pushButtonCreate.setEnabled(True)
         self.window.pushButtonOpen.setEnabled(True)
         self.window.pushButtonGenerate.setEnabled(True)
+        self.window.pushButtonDomainAuto.setEnabled(True)
+        self.window.pushButtonDomainManual.setEnabled(True)
         self.window.lineEditMinX.setEnabled(True)
         self.window.lineEditMinY.setEnabled(True)
         self.window.lineEditMinZ.setEnabled(True)
@@ -239,6 +245,8 @@ class mainWindow(QMainWindow):
     def updatePropertyBox(self):
         # find the selected item in the list
         item = self.window.listWidgetObjList.currentItem()
+        idx = self.window.listWidgetObjList.row(item)
+        print("Selected Item: ",item.text())
 
 
     def updateStatusBar(self,message="Go!"):
@@ -260,6 +268,12 @@ class mainWindow(QMainWindow):
         self.window.pushButtonOpen.clicked.connect(self.openCase)
         self.window.actionExit.triggered.connect(self.close)
         self.window.pushButtonGenerate.clicked.connect(self.generateCase)
+        self.window.radioButtonInternal.clicked.connect(self.chooseInternalFlow)
+        self.window.radioButtonExternal.clicked.connect(self.chooseExternalFlow)
+        self.window.listWidgetObjList.itemClicked.connect(self.updatePropertyBox)
+        self.window.pushButtonDomainAuto.clicked.connect(self.autoDomain)
+        self.window.pushButtonDomainManual.clicked.connect(self.manualDomain)
+        #self.window.checkBoxOnGround.clicked.connect(self.chooseExternalFlow)
         self.window.statusbar.showMessage("Ready")
 
 #----------------- Event Handlers -----------------#
@@ -287,8 +301,23 @@ class mainWindow(QMainWindow):
 
     
     def chooseInternalFlow(self):
-        print("Choose Internal Flow")
+        #print("Choose Internal Flow")
+        self.project.internalFlow = True
+        self.project.meshSettings['internalFlow'] = True
+        self.window.checkBoxOnGround.setEnabled(False)
         self.updateStatusBar("Choosing Internal Flow")
+        sleep(0.001)
+        self.readyStatusBar()
+
+    def chooseExternalFlow(self):
+        self.project.internalFlow = False
+        self.project.meshSettings['internalFlow'] = False
+        self.window.checkBoxOnGround.setEnabled(True)
+        self.project.meshSettings['onGround'] = self.window.checkBoxOnGround.isChecked()
+        self.project.onGround = self.window.checkBoxOnGround.isChecked()
+        self.updateStatusBar("Choosing External Flow")
+        sleep(0.001)
+        self.readyStatusBar()
 
     def createCase(self):
         if self.project_opened:
@@ -299,24 +328,33 @@ class mainWindow(QMainWindow):
                 self.project.add_stl_to_project()
                 self.project.write_settings()
                 self.disableButtons()
-                self.vtkWidget.GetRenderWindow().RemoveAllViewProps()
+                self.ren.RemoveAllViewProps()
             elif yNC==-1: # if no
                 # close the project
                 self.project = None
                 self.project_opened = False
                 self.disableButtons()
-                self.vtkWidget.GetRenderWindow().RemoveAllViewProps()
+                self.ren.RemoveAllViewProps()
             else: # if cancel
                 return
             
         self.updateStatusBar("Creating New Case")
-        self.project = ampersandProject(GUIMode=True,window=self)
+        
         # clear vtk renderer
         self.ren.RemoveAllViewProps()
+        # clear the list widget
+        self.window.listWidgetObjList.clear()
+        self.project = ampersandProject(GUIMode=True,window=self)
+        
         self.project.set_project_directory(ampersandPrimitives.ask_for_directory(qt=True))
+        if self.project.project_directory_path == None:
+            ampersandIO.printMessage("No project directory selected.",GUIMode=True,window=self)
+            self.readyStatusBar()
+            return
         project_name = ampersandIO.get_input("Enter the project name: ",GUIMode=True)
         if project_name == None:
             ampersandIO.printError("Project Name not entered",GUIMode=True)
+            self.readyStatusBar()
             return
         self.project.set_project_name(project_name)
         
@@ -341,19 +379,22 @@ class mainWindow(QMainWindow):
                 self.project.add_stl_to_project()
                 self.project.write_settings()
                 self.disableButtons()
-                self.vtkWidget.GetRenderWindow().RemoveAllViewProps()
+                self.ren.RemoveAllViewProps()
             elif yNC==-1: # if no
                 # close the project
                 self.project = None
                 self.project_opened = False
                 self.disableButtons()
-                self.vtkWidget.GetRenderWindow().RemoveAllViewProps()
+                self.ren.RemoveAllViewProps()
             else: # if cancel
                 return
         self.updateStatusBar("Opening Case")
         self.project = ampersandProject(GUIMode=True,window=self)
+
         # clear vtk renderer
         self.ren.RemoveAllViewProps()
+        # clear the list widget
+        self.window.listWidgetObjList.clear()
         projectFound = self.project.set_project_path(ampersandPrimitives.ask_for_directory(qt=True))
         ampersandIO.printMessage(f"Project path: {self.project.project_path}",GUIMode=True,window=self)
         if projectFound==-1:
@@ -367,6 +408,7 @@ class mainWindow(QMainWindow):
         ampersandIO.printMessage("Project loaded successfully",GUIMode=True,window=self)
         self.project.summarize_project()
         self.enableButtons()
+        self.autoDomain()
         self.update_list()
         stl_file_paths = self.project.list_stl_paths()
         for stl_file in stl_file_paths:
@@ -387,6 +429,59 @@ class mainWindow(QMainWindow):
     
         self.project.write_settings()
         self.project.create_project_files()
+
+    
+    def autoDomain(self):
+        #self.project.analyze_stl_file()
+        minx = self.project.meshSettings['domain']['minx']
+        miny = self.project.meshSettings['domain']['miny']
+        minz = self.project.meshSettings['domain']['minz']
+        maxx = self.project.meshSettings['domain']['maxx']
+        maxy = self.project.meshSettings['domain']['maxy']
+        maxz = self.project.meshSettings['domain']['maxz']
+        nx = self.project.meshSettings['domain']['nx']
+        ny = self.project.meshSettings['domain']['ny']
+        nz = self.project.meshSettings['domain']['nz']
+        self.window.lineEditMinX.setText(str(minx))
+        self.window.lineEditMinY.setText(str(miny))
+        self.window.lineEditMinZ.setText(str(minz))
+        self.window.lineEditMaxX.setText(str(maxx))
+        self.window.lineEditMaxY.setText(str(maxy))
+        self.window.lineEditMaxZ.setText(str(maxz))
+        self.window.lineEdit_nX.setText(str(nx))
+        self.window.lineEdit_nY.setText(str(ny))
+        self.window.lineEdit_nZ.setText(str(nz))
+        
+    def manualDomain(self):
+        minx = float(self.window.lineEditMinX.text())
+        miny = float(self.window.lineEditMinY.text())
+        minz = float(self.window.lineEditMinZ.text())
+        maxx = float(self.window.lineEditMaxX.text())
+        maxy = float(self.window.lineEditMaxY.text())
+        maxz = float(self.window.lineEditMaxZ.text())
+        nx = int(self.window.lineEdit_nX.text())
+        ny = int(self.window.lineEdit_nY.text())
+        nz = int(self.window.lineEdit_nZ.text())
+        if(nx<=0 or ny<=0 or nz<=0):
+            ampersandIO.printError("Invalid Domain Size",GUIMode=True)
+            self.readyStatusBar()
+            return
+        if(minx>maxx or miny>maxy or minz>maxz):
+            ampersandIO.printError("Invalid Domain Size",GUIMode=True)
+            self.readyStatusBar()
+            return
+        self.project.meshSettings['domain']['minx'] = minx
+        self.project.meshSettings['domain']['miny'] = miny
+        self.project.meshSettings['domain']['minz'] = minz
+        self.project.meshSettings['domain']['maxx'] = maxx
+        self.project.meshSettings['domain']['maxy'] = maxy
+        self.project.meshSettings['domain']['maxz'] = maxz
+        self.project.meshSettings['domain']['nx'] = nx
+        self.project.meshSettings['domain']['ny'] = ny
+        self.project.meshSettings['domain']['nz'] = nz
+        self.updateStatusBar("Manual Domain Set")
+        self.readyStatusBar()
+        print("Domain: ",minx,miny,minz,maxx,maxy,maxz,nx,ny,nz)
 
         
 #-------------- End of Event Handlers -------------#

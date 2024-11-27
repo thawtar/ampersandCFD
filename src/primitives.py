@@ -35,9 +35,9 @@ class ampersandPrimitives:
     def list_stl_files(stl_files, GUIMode=False, window=None):
         if GUIMode:
             stl_names = [stl_file['name'] for stl_file in stl_files]
-            window.listWidgetObjList.clear()
+            #window.listWidgetObjList.clear()
             for i in range(len(stl_names)):
-                window.listWidgetObjList.insertItem(i,stl_names[i])
+                ampersandIO.printMessage(f"{i+1}. {stl_names[i]}", GUIMode, window) 
             return 0
         i = 1
         ampersandIO.show_title("STL Files")
@@ -466,8 +466,11 @@ class ampersandIO:
         ampersandIO.printMessage("-"*60)
 
     @staticmethod
-    def printFormat(item_name, item_value):
-        print(f"{item_name:12}\t{item_value}")
+    def printFormat(item_name, item_value, GUIMode=False, window=None):
+        if GUIMode:
+            window.updateStatusBar(f"{item_name}: {item_value}")
+        else:
+            print(f"{item_name:12}\t{item_value}")
 
 
 class ampersandDataInput:
