@@ -3,7 +3,7 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtCore import QFile
 from PySide6.QtWidgets import QDialog
-from PySide6.QtGui import QDoubleValidator
+from PySide6.QtGui import QDoubleValidator, QIntValidator
 from PySide6 import QtWidgets
 
 import sys
@@ -58,12 +58,13 @@ class sphereDialog(QDialog):
         pass
 
 class inputDialog(QDialog):
-    def __init__(self, prompt="Enter Input"):
+    def __init__(self, prompt="Enter Input",input_type="string"):
         super().__init__()
         
         self.input = None
         self.created = False
         self.prompt = prompt
+        self.input_type = input_type
         self.load_ui()
 
     def load_ui(self):
@@ -75,6 +76,12 @@ class inputDialog(QDialog):
         ui_file.close()
         self.window.setWindowTitle("Input Dialog")
         self.window.labelPrompt.setText(self.prompt)
+        if(self.input_type=="int"):
+            self.window.input.setValidator(QIntValidator())
+        elif(self.input_type=="float"):
+            self.window.input.setValidator(QDoubleValidator())
+        else:
+            pass
         self.prepare_events()
         
 
@@ -91,6 +98,59 @@ class inputDialog(QDialog):
         #print("Push Button Cancel Clicked")
         self.window.close()
 
+class vectorInputDialog(QDialog):
+    def __init__(self, prompt="Enter Input",input_type="float"):
+        super().__init__()
+        self.xx = 0.0
+        self.yy = 0.0
+        self.zz = 0.0
+        
+        self.created = False
+        self.prompt = prompt
+        self.input_type = input_type
+        self.load_ui()
+
+    def load_ui(self):
+        ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\vectorInputDialog.ui"
+        ui_file = QFile(ui_path)
+        #ui_file = QFile("inputDialog.ui")
+        ui_file.open(QFile.ReadOnly)
+        self.window = loader.load(ui_file, None)
+        ui_file.close()
+        self.window.setWindowTitle("Vector Input Dialog")
+        self.window.labelPrompt.setText(self.prompt)
+        if(self.input_type=="int"):
+            self.window.lineEditX.setValidator(QIntValidator())
+            self.window.lineEditY.setValidator(QIntValidator())
+            self.window.lineEditZ.setValidator(QIntValidator())
+        elif(self.input_type=="float"):
+            self.window.lineEditX.setValidator(QDoubleValidator())
+            self.window.lineEditY.setValidator(QDoubleValidator())
+            self.window.lineEditZ.setValidator(QDoubleValidator())
+        else:
+            pass
+        self.prepare_events()
+        
+
+    def prepare_events(self):
+        self.window.pushButtonOK.clicked.connect(self.on_pushButtonOK_clicked)
+        self.window.pushButtonCancel.clicked.connect(self.on_pushButtonCancel_clicked)
+    
+    def on_pushButtonOK_clicked(self):
+        self.xx = float(self.window.lineEditX.text())
+        self.yy = float(self.window.lineEditY.text())
+        self.zz = float(self.window.lineEditZ.text())
+        self.window.close()
+
+    def on_pushButtonCancel_clicked(self):
+        #print("Push Button Cancel Clicked")
+        self.window.close()
+
+class STLDialog(QDialog):
+    def __init__(self, prompt="Enter Input"):
+        super().__init__()
+        self.load_ui()
+
 #---------------------------------------------------------
 # Driver function for different dialog boxes
 #---------------------------------------------------------
@@ -106,15 +166,21 @@ def sphereDialogDriver():
         return None
     return (x,y,z,r)
 
-def inputDialogDriver(prompt="Enter Input"):
-    dialog = inputDialog(prompt=prompt)
+def inputDialogDriver(prompt="Enter Input",input_type="string"):
+    dialog = inputDialog(prompt=prompt,input_type=input_type)
     dialog.window.exec()
     dialog.window.show()
     input = dialog.input
     if(input==None):
-       
         return None
     return input
+
+def vectorInputDialogDriver(prompt="Enter Input",input_type="float"):
+    dialog = vectorInputDialog(prompt=prompt,input_type=input_type)
+    dialog.window.exec()
+    dialog.window.show()
+    xx,yy,zz = dialog.xx,dialog.yy,dialog.zz
+    return (xx,yy,zz)
     
 
 def main():

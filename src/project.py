@@ -57,6 +57,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.window = window
         else:
             self.window = None
+        self.current_stl_file = None   # current stl file being processed
         self.project_directory_path = None
         self.project_name = None
         self.user_name = None
@@ -632,9 +633,9 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.remove_duplicate_stl_files()
 
     def add_stl_file(self): # to only copy the STL file to the project directory and add it to the STL list
-        stl_file = ampersandPrimitives.ask_for_file([("STL Geometry", "*.stl"), ("OBJ Geometry", "*.obj")])
+        stl_file = ampersandPrimitives.ask_for_file([("STL Geometry", "*.stl"), ("OBJ Geometry", "*.obj")],self.GUIMode)
         if stl_file is None:
-            ampersandIO.printMessage("No file selected. Please select STL file if necessary.")
+            ampersandIO.printWarning("No file selected. Please select STL file if necessary.",GUIMode=self.GUIMode)
             return -1
         if os.path.exists(stl_file):
             # add the stl file to the project
@@ -643,14 +644,18 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             file_path_to_token = stl_file.split("/")
             stl_name = file_path_to_token[-1]
             if stl_name in self.stl_names:
-                ampersandIO.printMessage(f"STL file {stl_name} already exists in the project")
+                ampersandIO.printWarning(f"STL file {stl_name} already exists in the project",GUIMode=self.GUIMode)
                 return -1
             else: # this is to prevent the bug of having the same file added multiple times
-                
-                purpose = self.ask_purpose()
+                if self.GUIMode:
+                    purpose = "wall"
+                    property = None
+                else:
+                    purpose = self.ask_purpose()
+                    property = self.set_property(purpose)
                 bounds = stlAnalysis.compute_bounding_box(stl_file)
                 bounds = tuple(bounds)
-                property = self.set_property(purpose)
+                ampersandIO.printMessage(f"Bounds of the geometry: {bounds}",GUIMode=self.GUIMode,window=self.window)
                 if purpose == 'refinementRegion' or purpose == 'refinementSurface':
                     featureEdges = False
                 else:  
@@ -659,24 +664,25 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             # this is the path to the constant/triSurface inside project directory where STL will be copied
             stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
             try:
-                ampersandIO.printMessage(f"Copying {stl_name} to the project directory")
+                ampersandIO.printMessage(f"Copying {stl_name} to the project directory",GUIMode=self.GUIMode,window=self.window)
                 shutil.copy(stl_file, stl_path)
             except OSError as error:
-                ampersandIO.printError(error)
+                ampersandIO.printError(error,GUIMode=self.GUIMode)
                 return -1
             try:
                 stlAnalysis.set_stl_solid_name(stl_path)
             except Exception as error:
-                ampersandIO.printError(error)
+                ampersandIO.printError(error,GUIMode=self.GUIMode)
                 return -1
         else:
-            ampersandIO.printMessage("File does not exist. Aborting project creation.")
+            ampersandIO.printError("File does not exist. Aborting project creation.",GUIMode=self.GUIMode)
             return -1
+        self.current_stl_file = stl_path
         return 0
             
     # this is a wrapper of the primitives 
     def list_stl_files(self):
-        ampersandPrimitives.list_stl_files(self.stl_files)
+        ampersandPrimitives.list_stl_files(self.stl_files,self.GUIMode)
 
 
     def remove_stl_file(self,stl_file_number=0):
@@ -710,6 +716,10 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.internalFlow = False
         self.meshSettings['internalFlow'] = self.internalFlow
 
+    def set_flow_type(self,internalFlow=False):
+        self.internalFlow = internalFlow
+        self.meshSettings['internalFlow'] = self.internalFlow
+
     def ask_transient(self):
         transient = ampersandIO.get_input("Transient or Steady State (T/S)?: ")
         if transient.lower() == 't':
@@ -736,7 +746,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.maxY = max(domain_size[3],self.maxY)
         self.minZ = min(domain_size[4],self.minZ)
         self.maxZ = max(domain_size[5],self.maxZ)
-        #self.meshSettings['domain'] = {'minx':self.minX, 'maxx':self.maxX, 'miny':self.minY, 'maxy':self.maxY, 'minz':self.minZ, 'maxz':self.maxZ}
+
         self.meshSettings['domain']['nx'] = nx
         self.meshSettings['domain']['ny'] = ny
         self.meshSettings['domain']['nz'] = nz
@@ -749,14 +759,14 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         try:
             stl_file_number = int(stl_file_number)
         except ValueError:
-            ampersandIO.printMessage("Invalid input. Aborting operation")
+            ampersandIO.printError("Invalid input. Aborting operation",GUIMode=self.GUIMode)
             return -1
         if stl_file_number < 0 or stl_file_number > len(self.stl_files):
-            ampersandIO.printMessage("Invalid file number. Aborting operation")
+            ampersandIO.printError("Invalid file number. Aborting operation",GUIMode=self.GUIMode)
             return -1
         stl_file = self.stl_files[stl_file_number]
         stl_name = stl_file['name']
-        print(f"Analyzing {stl_name}")
+        ampersandIO.printMessage(f"Analyzing {stl_name}",GUIMode=self.GUIMode,window=self.window)
         stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
         domain_size, nx, ny, nz, refLevel,target_y,nLayers = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,U=U,maxCellSize=2.0,expansion_ratio=ER,

@@ -57,9 +57,18 @@ class mainWindow(QMainWindow):
         self.window.pushButtonBoundaryCondition.setEnabled(False)
         self.window.pushButtonNumerics.setEnabled(False)
         self.window.pushButtonControls.setEnabled(False)
-        self.window.pushButtonCreate.setEnabled(False)
-        self.window.pushButtonOpen.setEnabled(False)
-        self.window.pushButtonWrite.setEnabled(False)
+        #self.window.pushButtonCreate.setEnabled(False)
+        #self.window.pushButtonOpen.setEnabled(False)
+        self.window.pushButtonGenerate.setEnabled(False)
+        self.window.lineEditMinX.setEnabled(False)
+        self.window.lineEditMinY.setEnabled(False)
+        self.window.lineEditMinZ.setEnabled(False)
+        self.window.lineEditMaxX.setEnabled(False)
+        self.window.lineEditMaxY.setEnabled(False)
+        self.window.lineEditMaxZ.setEnabled(False)
+        self.window.lineEdit_nX.setEnabled(False)
+        self.window.lineEdit_nY.setEnabled(False)
+        self.window.lineEdit_nZ.setEnabled(False)
 
     def enableButtons(self):
         self.window.pushButtonSTLImport.setEnabled(True)
@@ -76,10 +85,17 @@ class mainWindow(QMainWindow):
         self.window.pushButtonControls.setEnabled(True)
         self.window.pushButtonCreate.setEnabled(True)
         self.window.pushButtonOpen.setEnabled(True)
-        self.window.pushButtonWrite.setEnabled(True)
+        self.window.pushButtonGenerate.setEnabled(True)
+        self.window.lineEditMinX.setEnabled(True)
+        self.window.lineEditMinY.setEnabled(True)
+        self.window.lineEditMinZ.setEnabled(True)
+        self.window.lineEditMaxX.setEnabled(True)
+        self.window.lineEditMaxY.setEnabled(True)
+        self.window.lineEditMaxZ.setEnabled(True)
+        self.window.lineEdit_nX.setEnabled(True)
+        self.window.lineEdit_nY.setEnabled(True)
+        self.window.lineEdit_nZ.setEnabled(True)
 
-
-    
     def load_ui(self):
         ui_file = QFile("ampersandInputForm.ui")
         ui_file.open(QFile.ReadOnly)
@@ -89,7 +105,6 @@ class mainWindow(QMainWindow):
         self.prepare_vtk()
         self.prepare_subWindows()
         self.prepare_events()
-
 
     def __del__(self):
         pass
@@ -121,8 +136,7 @@ class mainWindow(QMainWindow):
             stl = stlFileName #self.copySTL(stlFileName=stlFileName)
             if(stl!=-1):
                 self.showSTL(stlFile=stl)
-                self.loadSTL(stlFile=stl)
-
+                
     # manage sub windows
     def prepare_subWindows(self):
         self.createCaseWindow = None
@@ -175,17 +189,24 @@ class mainWindow(QMainWindow):
         # add coordinate axes
         axes = vtk.vtkAxesActor()
         self.ren.AddActor(axes)
+        # move the axes to the lower left corner
+        # I am not sure what Copilot does here
+        self.ren.GetActiveCamera().Azimuth(30)
+        self.ren.GetActiveCamera().Elevation(30)
+        self.ren.GetActiveCamera().Roll(-20)
+        self.ren.ResetCamera()
+        self.ren.ResetCameraClippingRange()
+        # set the background color
         self.ren.SetBackground(0.1, 0.2, 0.4)
+        
+
 
         #renWin.Render()
         self.iren.Start()
 
+    
     def loadSTL(self,stlFile = r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"):
-        #self.updateStatusBar("Loading STL file")
         ampersandIO.printMessage("Loading STL file")
-        #stlFile = r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"
-        #surfaces = readSTL(stlFileName=stlFile)
-        
         stl_name = stlFile.split("/")[-1]
         if(stl_name in self.surfaces):
             self.updateStatusBar("STL file already loaded")
@@ -196,6 +217,11 @@ class mainWindow(QMainWindow):
         self.window.listWidgetObjList.insertItem(idx,stl_name)
         message = "Loaded STL file: "+stlFile
         self.updateStatusBar(message) 
+
+    def update_list(self):
+        self.window.listWidgetObjList.clear()
+        for i in range(len(self.project.stl_files)):
+            self.window.listWidgetObjList.insertItem(i,self.project.stl_files[i]['name'])
 
 
     def updatePropertyBox(self):
@@ -217,14 +243,22 @@ class mainWindow(QMainWindow):
         self.window.pushButtonSTLImport.clicked.connect(self.importSTL)
         self.window.pushButtonSphere.clicked.connect(self.createSphere)
         self.window.actionNew_Case.triggered.connect(self.createCase)
+        self.window.actionOpen_Case.triggered.connect(self.openCase)
+        self.window.pushButtonCreate.clicked.connect(self.createCase)
+        self.window.pushButtonOpen.clicked.connect(self.openCase)
+        self.window.actionExit.triggered.connect(self.close)
+        self.window.pushButtonGenerate.clicked.connect(self.generateCase)
         self.window.statusbar.showMessage("Ready")
 
 #----------------- Event Handlers -----------------#
     def importSTL(self):
-        print("Open STL")
-        self.updateStatusBar("Opening STL")
-        self.openSTL()
-        self.readyStatusBar()
+        #self.updateStatusBar("Opening STL")
+        #self.openSTL()
+        #self.readyStatusBar()
+        self.project.add_stl_file()
+        self.showSTL(stlFile=self.project.current_stl_file)
+        self.update_list()
+        #self.project.list_stl_files()
     
     def createSphere(self):
         #print("Create Sphere")
@@ -245,7 +279,7 @@ class mainWindow(QMainWindow):
         self.updateStatusBar("Choosing Internal Flow")
 
     def createCase(self):
-        
+
         self.updateStatusBar("Creating Case")
         self.project.set_project_directory(ampersandPrimitives.ask_for_directory(qt=True))
         project_name = ampersandIO.get_input("Enter the project name: ",GUIMode=True)
@@ -264,6 +298,36 @@ class mainWindow(QMainWindow):
         # Now enable the buttons
         self.enableButtons()
         self.readyStatusBar()
+
+    def openCase(self):
+        self.updateStatusBar("Opening Case")
+        projectFound = self.project.set_project_path(ampersandPrimitives.ask_for_directory(qt=True))
+        ampersandIO.printMessage(f"Project path: {self.project.project_path}",GUIMode=True,window=self)
+        if projectFound==-1:
+            ampersandIO.printError("No project found. Exiting the program",GUIMode=True)
+            return -1
+        ampersandIO.printMessage("Loading the project",GUIMode=True,window=self)
+        self.project.go_inside_directory()
+        
+        self.project.load_settings()
+        self.project.check_0_directory()
+        ampersandIO.printMessage("Project loaded successfully",GUIMode=True,window=self)
+        self.project.summarize_project()
+
+    def generateCase(self):
+        self.updateStatusBar("Analyzing Case")
+        if(len(self.project.stl_files)>0):
+            self.project.analyze_stl_file()
+        self.updateStatusBar("Creating Project Files")
+        self.project.useFOs = True
+        self.project.set_post_process_settings()
+        #project.list_stl_files()
+        self.project.summarize_project()
+        #project.analyze_stl_file()
+    
+        self.project.write_settings()
+        self.project.create_project_files()
+
         
 #-------------- End of Event Handlers -------------#
 
