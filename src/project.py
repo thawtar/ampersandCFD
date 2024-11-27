@@ -50,8 +50,13 @@ from mod_project import mod_project
 
 class ampersandProject: # ampersandProject class to handle the project creation and manipulation
     # this class will contain the methods to handle the logic and program flow
-    def __init__(self):
+    def __init__(self,GUIMode=False,window=None):
         # project path = project_directory_path/user_name/project_name
+        self.GUIMode = GUIMode
+        if GUIMode and window != None:
+            self.window = window
+        else:
+            self.window = None
         self.project_directory_path = None
         self.project_name = None
         self.user_name = None
@@ -110,19 +115,14 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         #ampersandIO.printMessage(f"Project directory: {self.project_directory_path}")
         ampersandIO.printFormat("Project name", self.project_name)
         ampersandIO.printFormat("Project path", self.project_path)
-        #ampersandIO.printMessage(f"Project path: {self.project_path}")
-       
-        #ampersandIO.printMessage(f"Existing project: {self.existing_project}")
-        #ampersandIO.printMessage(f"STL files: {self.stl_names}")
+        
         ampersandIO.printMessage(f"Internal Flow: {trueFalse[self.internalFlow]}")
         if(self.internalFlow==False):
             ampersandIO.printMessage(f"On Ground: {trueFalse[self.onGround]}")
         ampersandIO.printMessage(f"Transient: {trueFalse[self.transient]}")
         self.summarize_background_mesh()
         self.list_stl_files()
-        #self.summarize_boundary_conditions()
-        #ampersandIO.printMessage("Boundary Conditions")
-        #ampersandIO.print_dict(self.boundaryConditions)
+        
 
     # this will show the details of the background mesh
     def summarize_background_mesh(self):
@@ -148,14 +148,14 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             for aPatch in self.meshSettings['patches']:
                 if bcName == aPatch['name']:
                     aPatch['type'] = newBC
-                    ampersandIO.printMessage(f"Boundary condition {bcName} changed to {newBC}")
+                    ampersandIO.printMessage(f"Boundary condition {bcName} changed to {newBC}",GUIMode=self.GUIMode,window=self.window)
                     return 0
             if bcName in bcPatches:
                 self.meshSettings['patches'][bcName]['type'] = newBC
                 self.meshSettings['bcPatches'][bcName]['purpose'] = newBC
                 newProperty = self.set_property(newBC)
                 self.meshSettings['bcPatches'][bcName]['property'] = newProperty
-                ampersandIO.printMessage(f"Boundary condition {bcName} changed to {newBC}")
+                ampersandIO.printMessage(f"Boundary condition {bcName} changed to {newBC}",GUIMode=self.GUIMode,window=self.window)
                 return 0
             else:
                 ampersandIO.printMessage("Boundary condition not found in the list")
@@ -274,14 +274,14 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # create the project path for the user and project name
     def create_project_path_user(self):
         if not self.project_directory_path:
-            ampersandIO.printMessage("No directory selected. Aborting project creation.")
+            ampersandIO.printWarning("No directory selected. Aborting project creation.",GUIMode=self.GUIMode)
             return -1
         self.project_path = os.path.join(self.project_directory_path, self.user_name, self.project_name)
         
     # To create the project path for a new project with the project name
     def create_project_path(self):
         if not self.project_directory_path:
-            ampersandIO.printMessage("No directory selected. Aborting project creation.")
+            ampersandIO.printWarning("No directory selected. Aborting project creation.")
             return -1
         self.project_path = os.path.join(self.project_directory_path, self.project_name)
     
@@ -289,7 +289,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # useful for opening existing projects and modifying the settings
     def set_project_path(self,project_path):
         if project_path is None:
-            ampersandIO.printMessage("No project path selected. Aborting project creation/modification.")
+            ampersandIO.printWarning("No project path selected. Aborting project creation/modification.")
             exit()
         if os.path.exists(project_path):
             settings_file = os.path.join(project_path, "project_settings.yaml")
@@ -299,18 +299,18 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 self.project_path = project_path
                 return 0
             else:
-                ampersandIO.printMessage("Settings file not found. Please open an Ampersand case directory.")
+                ampersandIO.printWarning("Settings file not found. Please open an Ampersand case directory.")
                 # TO DO: Add the code socket to create a new project here
                 return -1
         else:
-            ampersandIO.printMessage("Project path does not exist. Aborting project creation/opening.")
+            ampersandIO.printWarning("Project path does not exist. Aborting project creation/opening.")
             return -1
 
     def check_project_path(self): # check if the project path exists and if the project is already existing
         if os.path.exists(self.project_path):
             settings_file = os.path.join(self.project_path, "project_settings.yaml")
             if os.path.exists(settings_file):
-                ampersandIO.printMessage("Project already exists, loading project settings")
+                ampersandIO.printWarning("Project already exists, loading project settings")
                 self.existing_project = True
                 return 0
             else:
@@ -333,37 +333,37 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # Check if the 0 directory exists in the project directory
     def check_0_directory(self):
         if not os.path.exists("0"):
-            ampersandIO.printMessage("0 directory does not exist.")
+            ampersandIO.printWarning("0 directory does not exist.")
             ampersandIO.printMessage("Checking for 0.orig directory")
             if os.path.exists("0.orig"):
                 ampersandIO.printMessage("0.orig directory found. Copying to 0 directory")
                 shutil.copytree("0.orig", "0")
             else:
-                ampersandIO.printMessage("0.orig directory not found. Aborting project creation.")
+                ampersandIO.printWarning("0.orig directory not found. Aborting project creation.")
                 return -1
         return 0
     
     # Check if the constant directory exists in the project directory
     def check_constant_directory(self):
         if not os.path.exists("constant"):
-            ampersandIO.printMessage("constant directory does not exist.")
-            ampersandIO.printError("constant directory is necessary for the project")
+            ampersandIO.printWarning("constant directory does not exist.")
+            #ampersandIO.printError("constant directory is necessary for the project")
             return -1
         return 0
     
     # Check if the system directory exists in the project directory
     def check_system_directory(self):
         if not os.path.exists("system"):
-            ampersandIO.printMessage("system directory does not exist.")
-            ampersandIO.printError("system directory is necessary for the project")
+            ampersandIO.printWarning("system directory does not exist.")
+            #ampersandIO.printError("system directory is necessary for the project")
             return -1
         return 0
     
     # Check if the constant/triSurface directory exists in the project directory
     def check_triSurface_directory(self):
         if not os.path.exists("constant/triSurface"):
-            ampersandIO.printMessage("triSurface directory does not exist.")
-            ampersandIO.printError("triSurface directory is necessary for the project")
+            ampersandIO.printWarning("triSurface directory does not exist.")
+            #ampersandIO.printError("triSurface directory is necessary for the project")
             return -1
         # if exists, check if the stl files are present
         stl_files = os.listdir("constant/triSurface")
@@ -382,7 +382,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # to check whether the U and p files are present in the postProcess directory
     def check_post_process_files(self):
         if(not os.path.exists("postProcessing/probe/0")):
-            ampersandIO.printMessage("postProcess directory does not exist")
+            ampersandIO.printWarning("postProcess directory does not exist")
             return 0
         postProcess_files = os.listdir("postProcessing/probe/0")
         if 'U' in postProcess_files and 'p' in postProcess_files:
@@ -392,7 +392,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     
     def check_forces_files(self):
         if(not os.path.exists("postProcessing/forces/0")):
-            ampersandIO.printMessage("forces directory does not exist")
+            ampersandIO.printWarning("forces directory does not exist")
             return 0
         forces_files = os.listdir("postProcessing/forces/0")
         if 'force.dat' in forces_files:
@@ -406,10 +406,10 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def create_project(self):
         # check if the project path exists
         if self.project_path is None:
-            ampersandIO.printMessage("No project path selected. Aborting project creation.")
+            ampersandIO.printError("No project path selected. Aborting project creation.")
             return -1
         if os.path.exists(self.project_path):
-            ampersandIO.printMessage("Project already exists. Skipping the creation of directories")
+            ampersandIO.printWarning("Project already exists. Skipping the creation of directories")
             self.existing_project = True
         else:
             ampersandIO.printMessage("Creating project directory")

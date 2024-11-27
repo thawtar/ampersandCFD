@@ -331,6 +331,18 @@ class ampersandIO:
             window.updateStatusBar(*args)
         else:
             print(*args)
+
+    @staticmethod
+    def printWarning(*args, GUIMode=False):
+        if GUIMode:
+            #ampersandIO.printMessage(*args)
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.warning)
+            msg.setText("Warning")
+            msg.setInformativeText(*args)
+            msg.setWindowTitle("Warning")
+            msg.exec_()
+        print(*args)
     
     @staticmethod
     def printError(*args, GUIMode=False):

@@ -40,7 +40,7 @@ class mainWindow(QMainWindow):
         super().__init__()
         self.load_ui()
         self.surfaces = []
-        self.project = ampersandProject()
+        self.project = ampersandProject(GUIMode=True,window=self)
     
     def load_ui(self):
         ui_file = QFile("ampersandInputForm.ui")
@@ -217,8 +217,8 @@ class mainWindow(QMainWindow):
         self.project.set_project_name(project_name)
         
         self.project.create_project_path()
-        ampersandIO.printMessage("Creating the project")
-        ampersandIO.printMessage(f"Project path: {self.project.project_path}")
+        ampersandIO.printMessage("Creating the project",GUIMode=True,window=self)
+        ampersandIO.printMessage(f"Project path: {self.project.project_path}",GUIMode=True,window=self)
         self.project.create_project()
 #-------------- End of Event Handlers -------------#
 
