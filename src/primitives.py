@@ -22,6 +22,8 @@ import yaml
 import sys
 from tkinter import filedialog, Tk
 from headers import get_ampersand_header
+from PySide6.QtWidgets import QMessageBox
+from dialogBoxes import sphereDialogDriver, inputDialogDriver
 
 class ampersandPrimitives:
     def __init__(self):
@@ -166,11 +168,16 @@ class ampersandPrimitives:
 
 
     @staticmethod
-    def ask_for_directory():
-        root = Tk()
-        root.withdraw()  # Hide the main window
-        directory = filedialog.askdirectory(title="Select Project Directory")
-        return directory if directory else None
+    def ask_for_directory(qt=False):
+        if qt:
+            from PySide6.QtWidgets import QFileDialog
+            directory = QFileDialog.getExistingDirectory(None, "Select Project Directory")
+            return directory if directory else None
+        else:
+            root = Tk()
+            root.withdraw()  # Hide the main window
+            directory = filedialog.askdirectory(title="Select Project Directory")
+            return directory if directory else None
     
     @staticmethod
     def ask_for_file(filetypes=[("STL Geometry", "*.stl")]):
@@ -319,16 +326,30 @@ class ampersandIO:
         pass
 
     @staticmethod
-    def printMessage(*args):
-        print(*args)
+    def printMessage(*args,GUIMode=False,window=None):
+        if GUIMode and window!=None:
+            window.updateStatusBar(*args)
+        else:
+            print(*args)
     
     @staticmethod
-    def printError(*args):
+    def printError(*args, GUIMode=False):
+        if GUIMode:
+            #ampersandIO.printMessage(*args)
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText(*args)
+            msg.setWindowTitle("Error")
+            msg.exec_()
         print(*args, file=sys.stderr)
     
     @staticmethod
-    def get_input(prompt):
-        return input(prompt)
+    def get_input(prompt, GUIMode=False):
+        if GUIMode:
+            return inputDialogDriver(prompt)
+        else:
+            return input(prompt)
     
     @staticmethod
     def print_dict(data):

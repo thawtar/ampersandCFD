@@ -5,9 +5,15 @@ from PySide6.QtCore import QFile
 from PySide6.QtWidgets import QMainWindow
 from PySide6 import QtWidgets
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+from dialogBoxes import sphereDialogDriver, inputDialogDriver
 import vtk
 import sys
 from time import sleep
+
+# Connection to the Ampersand Backend
+from project import ampersandProject
+from primitives import ampersandPrimitives, ampersandIO
+
 
 loader = QUiLoader()
 
@@ -28,12 +34,13 @@ def readSTL(stlFileName="cylinder.stl"):
     return surfaces
 
 
-
+# This is the main window class
 class mainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.load_ui()
         self.surfaces = []
+        self.project = ampersandProject()
     
     def load_ui(self):
         ui_file = QFile("ampersandInputForm.ui")
@@ -44,8 +51,8 @@ class mainWindow(QMainWindow):
         self.prepare_vtk()
         self.prepare_subWindows()
         self.prepare_events()
-      
-    
+
+
     def __del__(self):
         pass
 
@@ -136,7 +143,8 @@ class mainWindow(QMainWindow):
         self.iren.Start()
 
     def loadSTL(self,stlFile = r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"):
-        self.updateStatusBar("Loading STL file")
+        #self.updateStatusBar("Loading STL file")
+        ampersandIO.printMessage("Loading STL file")
         #stlFile = r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"
         #surfaces = readSTL(stlFileName=stlFile)
         
@@ -151,7 +159,12 @@ class mainWindow(QMainWindow):
         message = "Loaded STL file: "+stlFile
         self.updateStatusBar(message) 
 
-    
+
+    def updatePropertyBox(self):
+        # find the selected item in the list
+        item = self.window.listWidgetObjList.currentItem()
+
+
     def updateStatusBar(self,message="Go!"):
         self.window.statusbar.showMessage(message)
         self.window.plainTextTerminal.appendPlainText(message)
@@ -165,7 +178,7 @@ class mainWindow(QMainWindow):
         # Initiate the button click maps
         self.window.pushButtonSTLImport.clicked.connect(self.importSTL)
         self.window.pushButtonSphere.clicked.connect(self.createSphere)
-
+        self.window.actionNew_Case.triggered.connect(self.createCase)
         self.window.statusbar.showMessage("Ready")
 
 #----------------- Event Handlers -----------------#
@@ -173,14 +186,40 @@ class mainWindow(QMainWindow):
         print("Open STL")
         self.updateStatusBar("Opening STL")
         self.openSTL()
+        self.readyStatusBar()
     
     def createSphere(self):
-        print("Create Sphere")
-        self.updateStatusBar("Creating Sphere")
+        #print("Create Sphere")
+        ampersandIO.printMessage("Creating Sphere",GUIMode=True,window=self)
+        # create a sphere dialog
+        sphereData = sphereDialogDriver()
+        if sphereData == None:
+            ampersandIO.printError("Sphere Dialog Box Closed",GUIMode=True)
+        else:
+            x,y,z,r = sphereData
+            print("Center: ",x,y,z)
+            print("Radius: ",r)
+        self.readyStatusBar()
+
     
     def chooseInternalFlow(self):
         print("Choose Internal Flow")
         self.updateStatusBar("Choosing Internal Flow")
+
+    def createCase(self):
+        
+        self.updateStatusBar("Creating Case")
+        self.project.set_project_directory(ampersandPrimitives.ask_for_directory(qt=True))
+        project_name = ampersandIO.get_input("Enter the project name: ",GUIMode=True)
+        if project_name == None:
+            ampersandIO.printError("Project Name not entered",GUIMode=True)
+            return
+        self.project.set_project_name(project_name)
+        
+        self.project.create_project_path()
+        ampersandIO.printMessage("Creating the project")
+        ampersandIO.printMessage(f"Project path: {self.project.project_path}")
+        self.project.create_project()
 #-------------- End of Event Handlers -------------#
 
 

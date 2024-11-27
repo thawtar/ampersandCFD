@@ -20,7 +20,7 @@
       <x>10</x>
       <y>10</y>
       <width>251</width>
-      <height>501</height>
+      <height>521</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -119,6 +119,9 @@
      <property name="text">
       <string>External Flow</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
     <widget class="QCheckBox" name="checkBoxOnGround">
      <property name="geometry">
@@ -168,6 +171,9 @@
        <height>24</height>
       </rect>
      </property>
+     <property name="placeholderText">
+      <string>1</string>
+     </property>
     </widget>
     <widget class="QLineEdit" name="lineEditMaxX">
      <property name="geometry">
@@ -177,6 +183,9 @@
        <width>31</width>
        <height>24</height>
       </rect>
+     </property>
+     <property name="placeholderText">
+      <string>1</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="lineEditMinY">
@@ -188,6 +197,9 @@
        <height>24</height>
       </rect>
      </property>
+     <property name="placeholderText">
+      <string>-1</string>
+     </property>
     </widget>
     <widget class="QLineEdit" name="lineEditMaxY">
      <property name="geometry">
@@ -197,6 +209,9 @@
        <width>31</width>
        <height>24</height>
       </rect>
+     </property>
+     <property name="placeholderText">
+      <string>1</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_8">
@@ -260,6 +275,9 @@
        <height>24</height>
       </rect>
      </property>
+     <property name="placeholderText">
+      <string>-1</string>
+     </property>
     </widget>
     <widget class="QLabel" name="label_6">
      <property name="geometry">
@@ -283,12 +301,15 @@
        <height>24</height>
       </rect>
      </property>
+     <property name="placeholderText">
+      <string>-1</string>
+     </property>
     </widget>
     <widget class="QPushButton" name="pushButtonBoundaryCondition">
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>320</y>
+       <y>340</y>
        <width>211</width>
        <height>31</height>
       </rect>
@@ -301,7 +322,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>400</y>
+       <y>420</y>
        <width>211</width>
        <height>31</height>
       </rect>
@@ -314,7 +335,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>360</y>
+       <y>380</y>
        <width>211</width>
        <height>31</height>
       </rect>
@@ -327,7 +348,7 @@
      <property name="geometry">
       <rect>
        <x>130</x>
-       <y>440</y>
+       <y>460</y>
        <width>91</width>
        <height>51</height>
       </rect>
@@ -340,7 +361,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>240</y>
+       <y>260</y>
        <width>211</width>
        <height>31</height>
       </rect>
@@ -353,7 +374,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>280</y>
+       <y>300</y>
        <width>211</width>
        <height>31</height>
       </rect>
@@ -366,13 +387,65 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>440</y>
+       <y>460</y>
        <width>91</width>
        <height>51</height>
       </rect>
      </property>
      <property name="text">
       <string>Create</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEditMaxX_2">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>230</y>
+       <width>31</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="placeholderText">
+      <string>1</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEditMaxY_2">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>230</y>
+       <width>31</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="placeholderText">
+      <string>1</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEditMaxZ_2">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>230</y>
+       <width>31</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="placeholderText">
+      <string>1</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_10">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>230</y>
+       <width>41</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>nElem</string>
      </property>
     </widget>
    </widget>
@@ -382,7 +455,7 @@
       <x>270</x>
       <y>10</y>
       <width>211</width>
-      <height>501</height>
+      <height>521</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -397,7 +470,7 @@
        <x>10</x>
        <y>30</y>
        <width>191</width>
-       <height>171</height>
+       <height>191</height>
       </rect>
      </property>
     </widget>
@@ -433,7 +506,7 @@
        <x>10</x>
        <y>250</y>
        <width>191</width>
-       <height>192</height>
+       <height>261</height>
       </rect>
      </property>
     </widget>

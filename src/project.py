@@ -255,10 +255,13 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         #print("stl_files",self.stl_files)
         #print("Mesh settings",self.meshSettings["geometry"])
 
-    def set_project_directory(self, project_directory_path):
+    def set_project_directory(self, project_directory_path,stopWhenError=True):
         if project_directory_path is None:
-            ampersandIO.printMessage("No directory selected. Aborting project creation.")
-            exit()
+            if stopWhenError:
+                ampersandIO.printMessage("No directory selected. Aborting project creation.")
+                exit()
+            else:
+                return -1
         assert os.path.exists(project_directory_path), "The chosen directory does not exist"
         self.project_directory_path = project_directory_path
 
