@@ -682,7 +682,15 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             
     # this is a wrapper of the primitives 
     def list_stl_files(self):
-        ampersandPrimitives.list_stl_files(self.stl_files,self.GUIMode)
+        ampersandPrimitives.list_stl_files(self.stl_files)
+
+    def list_stl_paths(self):
+        stl_paths = []
+        for stl_file in self.stl_files:
+            stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_file['name'])
+            #ampersandIO.printMessage(stl_path)
+            stl_paths.append(stl_path)
+        return stl_paths
 
 
     def remove_stl_file(self,stl_file_number=0):

@@ -5,7 +5,7 @@ from PySide6.QtCore import QFile
 from PySide6.QtWidgets import QMainWindow
 from PySide6 import QtWidgets
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-from dialogBoxes import sphereDialogDriver, inputDialogDriver
+from dialogBoxes import sphereDialogDriver, yesNoDialogDriver, yesNoCancelDialogDriver
 import vtk
 import sys
 from time import sleep
@@ -40,7 +40,9 @@ class mainWindow(QMainWindow):
         super().__init__()
         self.load_ui()
         self.surfaces = []
-        self.project = ampersandProject(GUIMode=True,window=self)
+        self.project_opened = False
+        self.project = None #ampersandProject(GUIMode=True,window=self)
+        
         # disable all the buttons and input fields
         self.disableButtons()
 
@@ -69,7 +71,17 @@ class mainWindow(QMainWindow):
         self.window.lineEdit_nX.setEnabled(False)
         self.window.lineEdit_nY.setEnabled(False)
         self.window.lineEdit_nZ.setEnabled(False)
-
+        # change color of widget 
+        self.window.widget.setStyleSheet('''background-color: lightgrey;''')
+        # change color of text box
+        
+        #self.window.plainTextTerminal.setStyleSheet('''
+        #    QPlainTextEdit {
+        #        background-color: lightgrey;
+        #        color: green;
+        #                                            }''')
+        self.window.plainTextTerminal.appendPlainText("Welcome to Ampersand CFD GUI")
+       
     def enableButtons(self):
         self.window.pushButtonSTLImport.setEnabled(True)
         self.window.pushButtonSphere.setEnabled(True)
@@ -279,8 +291,28 @@ class mainWindow(QMainWindow):
         self.updateStatusBar("Choosing Internal Flow")
 
     def createCase(self):
-
-        self.updateStatusBar("Creating Case")
+        if self.project_opened:
+            # ask yes or no or cancel
+            yNC = yesNoCancelDialogDriver("Save changes to current case files before creating a New Case","Save Changes")
+            if yNC==1: # if yes
+                # save the project
+                self.project.add_stl_to_project()
+                self.project.write_settings()
+                self.disableButtons()
+                self.vtkWidget.GetRenderWindow().RemoveAllViewProps()
+            elif yNC==-1: # if no
+                # close the project
+                self.project = None
+                self.project_opened = False
+                self.disableButtons()
+                self.vtkWidget.GetRenderWindow().RemoveAllViewProps()
+            else: # if cancel
+                return
+            
+        self.updateStatusBar("Creating New Case")
+        self.project = ampersandProject(GUIMode=True,window=self)
+        # clear vtk renderer
+        self.ren.RemoveAllViewProps()
         self.project.set_project_directory(ampersandPrimitives.ask_for_directory(qt=True))
         project_name = ampersandIO.get_input("Enter the project name: ",GUIMode=True)
         if project_name == None:
@@ -298,9 +330,30 @@ class mainWindow(QMainWindow):
         # Now enable the buttons
         self.enableButtons()
         self.readyStatusBar()
+        self.project_opened = True
 
     def openCase(self):
+        if self.project_opened:
+            # ask yes or no or cancel
+            yNC = yesNoCancelDialogDriver("Save changes to current case files before creating a New Case","Save Changes")
+            if yNC==1: # if yes
+                # save the project
+                self.project.add_stl_to_project()
+                self.project.write_settings()
+                self.disableButtons()
+                self.vtkWidget.GetRenderWindow().RemoveAllViewProps()
+            elif yNC==-1: # if no
+                # close the project
+                self.project = None
+                self.project_opened = False
+                self.disableButtons()
+                self.vtkWidget.GetRenderWindow().RemoveAllViewProps()
+            else: # if cancel
+                return
         self.updateStatusBar("Opening Case")
+        self.project = ampersandProject(GUIMode=True,window=self)
+        # clear vtk renderer
+        self.ren.RemoveAllViewProps()
         projectFound = self.project.set_project_path(ampersandPrimitives.ask_for_directory(qt=True))
         ampersandIO.printMessage(f"Project path: {self.project.project_path}",GUIMode=True,window=self)
         if projectFound==-1:
@@ -313,6 +366,13 @@ class mainWindow(QMainWindow):
         self.project.check_0_directory()
         ampersandIO.printMessage("Project loaded successfully",GUIMode=True,window=self)
         self.project.summarize_project()
+        self.enableButtons()
+        self.update_list()
+        stl_file_paths = self.project.list_stl_paths()
+        for stl_file in stl_file_paths:
+            self.showSTL(stlFile=stl_file)
+        self.readyStatusBar()
+        self.project_opened = True
 
     def generateCase(self):
         self.updateStatusBar("Analyzing Case")

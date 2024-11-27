@@ -5,6 +5,7 @@ from PySide6.QtCore import QFile
 from PySide6.QtWidgets import QDialog
 from PySide6.QtGui import QDoubleValidator, QIntValidator
 from PySide6 import QtWidgets
+from PySide6.QtWidgets import QMessageBox
 
 import sys
 from time import sleep
@@ -151,9 +152,29 @@ class STLDialog(QDialog):
         super().__init__()
         self.load_ui()
 
+
+
 #---------------------------------------------------------
 # Driver function for different dialog boxes
 #---------------------------------------------------------
+
+def yesNoDialogDriver(prompt="Save changes to current case files",title="Save Changes"):
+    msg = QMessageBox().question(None, title, prompt, QMessageBox.Yes | QMessageBox.No)
+    #msg.exec_()
+    if(msg==QMessageBox.Yes):
+        return True
+    else:
+        return False
+    
+def yesNoCancelDialogDriver(prompt="Save changes to current case files",title="Save Changes"):
+    msg = QMessageBox().question(None, title, prompt, QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+    #msg.exec_()
+    if(msg==QMessageBox.Yes):
+        return 1
+    elif(msg==QMessageBox.No):
+        return -1
+    else:
+        return 0
 
 def sphereDialogDriver():
     dialog = sphereDialog()
