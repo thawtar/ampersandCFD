@@ -20,7 +20,7 @@
       <x>10</x>
       <y>10</y>
       <width>251</width>
-      <height>521</height>
+      <height>581</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -318,7 +318,7 @@
       <string>Boundary Conditions</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonControl">
+    <widget class="QPushButton" name="pushButtonControls">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -448,6 +448,19 @@
       <string>nElem</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButtonWrite">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>520</y>
+       <width>191</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Write Files</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frame_3">
     <property name="geometry">
@@ -455,7 +468,7 @@
       <x>270</x>
       <y>10</y>
       <width>211</width>
-      <height>521</height>
+      <height>561</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -506,7 +519,7 @@
        <x>10</x>
        <y>250</y>
        <width>191</width>
-       <height>261</height>
+       <height>321</height>
       </rect>
      </property>
     </widget>

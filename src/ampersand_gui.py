@@ -41,6 +41,44 @@ class mainWindow(QMainWindow):
         self.load_ui()
         self.surfaces = []
         self.project = ampersandProject(GUIMode=True,window=self)
+        # disable all the buttons and input fields
+        self.disableButtons()
+
+    def disableButtons(self):
+        self.window.pushButtonSTLImport.setEnabled(False)
+        self.window.pushButtonSphere.setEnabled(False)
+        self.window.pushButtonBox.setEnabled(False)
+        self.window.pushButtonCylinder.setEnabled(False)
+        self.window.radioButtonInternal.setEnabled(False)
+        self.window.radioButtonExternal.setEnabled(False)
+        self.window.checkBoxOnGround.setEnabled(False)
+        self.window.pushButtonSTLProperties.setEnabled(False)
+        self.window.pushButtonPhysicalProperties.setEnabled(False)
+        self.window.pushButtonBoundaryCondition.setEnabled(False)
+        self.window.pushButtonNumerics.setEnabled(False)
+        self.window.pushButtonControls.setEnabled(False)
+        self.window.pushButtonCreate.setEnabled(False)
+        self.window.pushButtonOpen.setEnabled(False)
+        self.window.pushButtonWrite.setEnabled(False)
+
+    def enableButtons(self):
+        self.window.pushButtonSTLImport.setEnabled(True)
+        self.window.pushButtonSphere.setEnabled(True)
+        self.window.pushButtonBox.setEnabled(True)
+        self.window.pushButtonCylinder.setEnabled(True)
+        self.window.radioButtonInternal.setEnabled(True)
+        self.window.radioButtonExternal.setEnabled(True)
+        self.window.checkBoxOnGround.setEnabled(True)
+        self.window.pushButtonSTLProperties.setEnabled(True)
+        self.window.pushButtonPhysicalProperties.setEnabled(True)
+        self.window.pushButtonBoundaryCondition.setEnabled(True)
+        self.window.pushButtonNumerics.setEnabled(True)
+        self.window.pushButtonControls.setEnabled(True)
+        self.window.pushButtonCreate.setEnabled(True)
+        self.window.pushButtonOpen.setEnabled(True)
+        self.window.pushButtonWrite.setEnabled(True)
+
+
     
     def load_ui(self):
         ui_file = QFile("ampersandInputForm.ui")
@@ -220,6 +258,13 @@ class mainWindow(QMainWindow):
         ampersandIO.printMessage("Creating the project",GUIMode=True,window=self)
         ampersandIO.printMessage(f"Project path: {self.project.project_path}",GUIMode=True,window=self)
         self.project.create_project()
+        self.project.create_settings()
+        ampersandIO.printMessage("Preparing for mesh generation",GUIMode=True,window=self)
+        self.project.set_global_refinement_level()
+        # Now enable the buttons
+        self.enableButtons()
+        self.readyStatusBar()
+        
 #-------------- End of Event Handlers -------------#
 
 

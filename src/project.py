@@ -863,6 +863,11 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.refinement = ampersandDataInput.get_mesh_refinement_level()
         self.meshSettings['fineLevel'] = self.refinement
 
+    def set_global_refinement_level(self,refinement=0):
+        self.refinement = refinement
+        self.meshSettings['fineLevel'] = refinement
+
+
     def set_post_process_settings(self):
         if self.useFOs:
             self.postProcessSettings['FOs'] = True
