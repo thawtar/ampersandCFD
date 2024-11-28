@@ -301,8 +301,11 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     # useful for opening existing projects and modifying the settings
     def set_project_path(self,project_path):
         if project_path is None:
-            ampersandIO.printWarning("No project path selected. Aborting project creation/modification.",GUIMode=self.GUIMode)
-            exit()
+            if self.GUIMode==False:
+                ampersandIO.printWarning("No project path selected. Aborting project creation.",GUIMode=self.GUIMode)   
+            #ampersandIO.printWarning("No project path selected. Aborting project creation/modification.",GUIMode=self.GUIMode)
+            return -1
+            #exit()
         if os.path.exists(project_path):
             settings_file = os.path.join(project_path, "project_settings.yaml")
             if os.path.exists(settings_file):
@@ -311,11 +314,15 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 self.project_path = project_path
                 return 0
             else:
-                ampersandIO.printWarning("Settings file not found. Please open an Ampersand case directory.",GUIMode=self.GUIMode)
+                if self.GUIMode==False:
+                    ampersandIO.printWarning("Settings file not found. Please open an Ampersand case directory.",GUIMode=self.GUIMode)
+                #ampersandIO.printWarning("Settings file not found. Please open an Ampersand case directory.",GUIMode=self.GUIMode)
                 # TO DO: Add the code socket to create a new project here
                 return -1
         else:
-            ampersandIO.printWarning("Project path does not exist. Aborting project creation/opening.",GUIMode=self.GUIMode)
+            if self.GUIMode==False:
+                ampersandIO.printWarning("Project path does not exist. Aborting project creation/opening.",GUIMode=self.GUIMode)
+            #ampersandIO.printWarning("Project path does not exist. Aborting project creation/opening.",GUIMode=self.GUIMode)
             return -1
 
     def check_project_path(self): # check if the project path exists and if the project is already existing
@@ -807,6 +814,30 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         #self.meshSettings = stlAnalysis.set_min_vol(self.meshSettings, minVol)
         return 0
     
+    def adjust_domain_size(self):
+        # adjust the domain size based on the bounding box of the stl files
+        ampersandIO.printMessage("Adjusting domain size based on the bounding box of the stl files",GUIMode=self.GUIMode,window=self.window)
+        for stl_file in self.stl_files:
+            stl_name = stl_file['name']
+            stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
+            stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
+            xmin, xmax, ymin, ymax, zmin, zmax = stlBoundingBox                                                    
+            self.minX = min(xmin,self.minX)
+            self.maxX = max(xmax,self.maxX)
+            self.minY = min(ymin,self.minY)
+            self.maxY = max(ymax,self.maxY)
+            self.minZ = min(zmin,self.minZ)
+            self.maxZ = max(zmax,self.maxZ)
+            #self.meshSettings = stlAnalysis.set_mesh_location(self.meshSettings, stl_path,self.internalFlow)
+        # if the flow is internal, the domain size should be adjusted to include the entire geometry
+        
+        self.meshSettings['domain']['minX'] = self.minX
+        self.meshSettings['domain']['maxX'] = self.maxX
+        self.meshSettings['domain']['minY'] = self.minY
+        self.meshSettings['domain']['maxY'] = self.maxY
+        self.meshSettings['domain']['minZ'] = self.minZ
+        self.meshSettings['domain']['maxZ'] = self.maxZ
+           
     def set_inlet_values(self):
         if(not self.internalFlow): # external flow
             U = ampersandDataInput.get_inlet_values()

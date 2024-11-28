@@ -339,7 +339,7 @@ class ampersandIO:
     @staticmethod
     def printMessage(*args,GUIMode=False,window=None):
         if GUIMode and window!=None:
-            window.updateStatusBar(*args)
+            window.updateTerminal(*args)
         else:
             print(*args)
 
@@ -348,12 +348,13 @@ class ampersandIO:
         if GUIMode:
             #ampersandIO.printMessage(*args)
             msg = QMessageBox()
-            msg.setIcon(QMessageBox.warning)
+            msg.setIcon(QMessageBox.Warning)
             msg.setText("Warning")
             msg.setInformativeText(*args)
             msg.setWindowTitle("Warning")
             msg.exec_()
-        print(*args)
+        else:
+            print(*args)
     
     @staticmethod
     def printError(*args, GUIMode=False):
@@ -365,7 +366,8 @@ class ampersandIO:
             msg.setInformativeText(*args)
             msg.setWindowTitle("Error")
             msg.exec_()
-        print(*args, file=sys.stderr)
+        else:
+            print(*args, file=sys.stderr)
     
     @staticmethod
     def get_input(prompt, GUIMode=False):
