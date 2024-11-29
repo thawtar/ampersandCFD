@@ -195,8 +195,9 @@ class mainWindow(QMainWindow):
         self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
         #self.reader = vtk.vtkSTLReader()
         #self.render3D()
-        self.iren.Initialize()
-        self.iren.Start()
+        self.initializeVTK()
+        #self.iren.Initialize()
+        #self.iren.Start()
 
     # this function will read STL file and show it in the VTK renderer
     def showSTL(self,stlFile=r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src\pipe.stl"):
@@ -208,18 +209,18 @@ class mainWindow(QMainWindow):
         except:
             print("Reading STL not successful. Try again")
 
-    def render3D(self):  # self.ren and self.iren must be used. other variables are local variables
+    def initializeVTK(self):
         # Create a mapper
-        mapper = vtk.vtkPolyDataMapper()
-        mapper.SetInputConnection(self.reader.GetOutputPort())
+        #mapper = vtk.vtkPolyDataMapper()
+        #mapper.SetInputConnection(self.reader.GetOutputPort())
         # Create an actor
         actor = vtk.vtkActor()
-        actor.SetMapper(mapper)
+        #actor.SetMapper(mapper)
         actor.GetProperty().EdgeVisibilityOn()
         colors = vtk.vtkNamedColors()
         whiteColor = colors.GetColor3d("White")
         blackColor = colors.GetColor3d("Black")
-        deepBlue = colors.GetColor3d("DeepBlue")
+        #deepBlue = colors.GetColor3d("DeepBlue")
         #self.ren.SetBackground(colors.GetColor3d("SlateGray"))
         # set background color as gradient
         self.ren.GradientBackgroundOn()
@@ -236,8 +237,33 @@ class mainWindow(QMainWindow):
         self.iren.Initialize()
         # add coordinate axes
         axes = vtk.vtkAxesActor()
+        widget = vtkOrientationMarkerWidget()
+        #renderWindowInteractor = vtkRenderWindowInteractor()
+        rgba = [0] * 4
+        colors.GetColor('Carrot', rgba)
+        widget.SetOutlineColor(rgba[0], rgba[1], rgba[2])
+        widget.SetOrientationMarker(axes)
+        widget.SetInteractor(self.iren)
+        widget.SetViewport(0.0, 0.0, 0.4, 0.4)
+        widget.SetEnabled(1)
+        widget.InteractiveOn()
         self.ren.AddActor(axes)
         self.iren.Start()
+
+    def render3D(self):  # self.ren and self.iren must be used. other variables are local variables
+        # Create a mapper
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputConnection(self.reader.GetOutputPort())
+        # Create an actor
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
+        actor.GetProperty().EdgeVisibilityOn()
+        # set random colors to the actor
+        
+        actor.GetProperty().SetColor(0.5,0.5,0.5)
+        self.ren.AddActor(actor)
+        
+        #self.iren.Start()
 
     def add_object_to_VTK(self,object,objectName="sphere",opacity=0.5,removePrevious=False):
         # Create a mapper
@@ -415,7 +441,7 @@ class mainWindow(QMainWindow):
                 return
             
         self.updateStatusBar("Creating New Case")
-        
+
         # clear vtk renderer
         self.ren.RemoveAllViewProps()
         # clear the list widget
@@ -439,12 +465,17 @@ class mainWindow(QMainWindow):
         ampersandIO.printMessage(f"Project path: {self.project.project_path}",GUIMode=True,window=self)
         self.project.create_project()
         self.project.create_settings()
-        ampersandIO.printMessage("Preparing for mesh generation",GUIMode=True,window=self)
+        
         self.project.set_global_refinement_level()
         # Now enable the buttons
         self.enableButtons()
         self.readyStatusBar()
         self.project_opened = True
+        ampersandIO.printMessage(f"Project {project_name} created",GUIMode=True,window=self)
+        
+        # change window title
+        self.window.setWindowTitle(f"Case Creator: {project_name}")
+        self.readyStatusBar()
 
     def openCase(self):
         if self.project_opened:
@@ -494,6 +525,11 @@ class mainWindow(QMainWindow):
             self.showSTL(stlFile=stl_file)
         self.readyStatusBar()
         self.project_opened = True
+        ampersandIO.printMessage(f"Project {self.project.project_name} created",GUIMode=True,window=self)
+        
+        # change window title
+        self.setWindowTitle(f"Case Creator: {self.project.project_name}")
+        self.readyStatusBar()
 
     def generateCase(self):
         self.updateStatusBar("Analyzing Case")
@@ -567,8 +603,9 @@ class mainWindow(QMainWindow):
         self.project.meshSettings['domain']['ny'] = ny
         self.project.meshSettings['domain']['nz'] = nz
         self.updateStatusBar("Manual Domain Set")
+        self.add_box_to_VTK(minX=minx,minY=miny,minZ=minz,maxX=maxx,maxY=maxy,maxZ=maxz,boxName="Domain")
         self.readyStatusBar()
-        print("Domain: ",minx,miny,minz,maxx,maxy,maxz,nx,ny,nz)
+        #print("Domain: ",minx,miny,minz,maxx,maxy,maxz,nx,ny,nz)
 
         
 #-------------- End of Event Handlers -------------#

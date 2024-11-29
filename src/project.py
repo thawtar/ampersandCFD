@@ -797,7 +797,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
         domain_size, nx, ny, nz, refLevel,target_y,nLayers = stlAnalysis.calc_mesh_settings(stlBoundingBox, nu, rho,U=U,maxCellSize=2.0,expansion_ratio=ER,
                                                                            onGround=self.onGround,internalFlow=self.internalFlow,
-                                                                           refinement=self.refinement,halfModel=self.halfModel)
+                                                                           refinement=self.refinement,halfModel=self.halfModel,
+                                                                           GUI=self.GUIMode,window=self.window)
         featureLevel = max(refLevel,1)
         self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel, featureLevel,nLayers=nLayers) 
         self.set_max_domain_size(domain_size,nx,ny,nz)

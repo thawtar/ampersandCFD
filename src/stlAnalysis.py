@@ -408,22 +408,22 @@ class stlAnalysis:
        
         #minVolumeSize = backgroundCellSize**3/(8.**refLevel*20.)
         # print the summary of results
-        ampersandIO.printMessage("\n-----------------Mesh Settings-----------------")
-        ampersandIO.printMessage(f"Domain size: x({domain_size[0]:6.3f}~{domain_size[1]:6.3f}) y({domain_size[2]:6.3f}~{domain_size[3]:6.3f}) z({domain_size[4]:6.3f}~{domain_size[5]:6.3f})")
-        ampersandIO.printMessage(f"Nx Ny Nz: {nx},{ny},{nz}")
-        ampersandIO.printMessage(f"Max cell size: {backgroundCellSize}")
-        ampersandIO.printMessage(f"Min cell size: {targetCellSize}")
-        ampersandIO.printMessage(f"Refinement Level:{refLevel}")
+        ampersandIO.printMessage("\n-----------------Mesh Settings-----------------",GUIMode=GUI,window=window)
+        ampersandIO.printMessage(f"Domain size: x({domain_size[0]:6.3f}~{domain_size[1]:6.3f}) y({domain_size[2]:6.3f}~{domain_size[3]:6.3f}) z({domain_size[4]:6.3f}~{domain_size[5]:6.3f})",GUIMode=GUI,window=window)
+        ampersandIO.printMessage(f"Nx Ny Nz: {nx},{ny},{nz}",GUIMode=GUI,window=window)
+        ampersandIO.printMessage(f"Max cell size: {backgroundCellSize}",GUIMode=GUI,window=window)
+        ampersandIO.printMessage(f"Min cell size: {targetCellSize}",GUIMode=GUI,window=window)
+        ampersandIO.printMessage(f"Refinement Level:{refLevel}",GUIMode=GUI,window=window)
         
-        ampersandIO.printMessage("\n-----------------Turbulence-----------------")
-        ampersandIO.printMessage(f"Target yPlus:{target_yPlus}")
-        ampersandIO.printMessage(f'Reynolds number:{U*L/nu}')
-        ampersandIO.printMessage(f"Boundary layer thickness:{delta}")
-        ampersandIO.printMessage(f"First layer thickness:{adjustedNearWallThickness}")
-        ampersandIO.printMessage(f"Final layer thickness:{finalLayerThickness}")
-        ampersandIO.printMessage(f"YPlus:{adjustedYPlus}")
+        ampersandIO.printMessage("\n-----------------Turbulence-----------------",GUIMode=GUI,window=window)
+        ampersandIO.printMessage(f"Target yPlus:{target_yPlus}",GUIMode=GUI,window=window)
+        ampersandIO.printMessage(f'Reynolds number:{U*L/nu}',GUIMode=GUI,window=window)
+        ampersandIO.printMessage(f"Boundary layer thickness:{delta}",GUIMode=GUI,window=window)
+        ampersandIO.printMessage(f"First layer thickness:{adjustedNearWallThickness}",GUIMode=GUI,window=window)
+        ampersandIO.printMessage(f"Final layer thickness:{finalLayerThickness}",GUIMode=GUI,window=window)
+        ampersandIO.printMessage(f"YPlus:{adjustedYPlus}",GUIMode=GUI,window=window)
         
-        ampersandIO.printMessage(f"Number of layers:{nLayers}")
+        ampersandIO.printMessage(f"Number of layers:{nLayers}",GUIMode=GUI,window=window)
         return domain_size, nx, ny, nz, refLevel,finalLayerThickness,nLayers
     
     @staticmethod

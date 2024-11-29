@@ -37,7 +37,7 @@ class ampersandPrimitives:
             stl_names = [stl_file['name'] for stl_file in stl_files]
             #window.listWidgetObjList.clear()
             for i in range(len(stl_names)):
-                ampersandIO.printMessage(f"{i+1}. {stl_names[i]}", GUIMode, window) 
+                ampersandIO.printMessage(f"{i+1}. {stl_names[i]}",GUIMode=GUIMode,window=window) 
             return 0
         i = 1
         ampersandIO.show_title("STL Files")

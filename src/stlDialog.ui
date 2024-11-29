@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>300</width>
+    <height>215</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -120,8 +120,8 @@
   <widget class="QPushButton" name="pushButtonCancel">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>270</y>
+     <x>140</x>
+     <y>180</y>
      <width>75</width>
      <height>24</height>
     </rect>
@@ -133,8 +133,8 @@
   <widget class="QPushButton" name="pushButtonOK">
    <property name="geometry">
     <rect>
-     <x>110</x>
-     <y>270</y>
+     <x>60</x>
+     <y>180</y>
      <width>75</width>
      <height>24</height>
     </rect>
@@ -196,6 +196,19 @@
    </property>
    <property name="text">
     <string>(Refinement surface/region)</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>140</y>
+     <width>211</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Set velocity (Inlet)</string>
    </property>
   </widget>
  </widget>
