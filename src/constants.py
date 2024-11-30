@@ -48,10 +48,10 @@ meshSettings = {
     'bcPatches': {
         'inlet':    {'type': 'patch','purpose': 'inlet','property': (1,0,0)},
         'outlet':   {'type': 'patch','purpose': 'outlet','property': None},
-        'front':    {'type': 'wall','purpose': 'wall','property': None},
-        'back':     {'type': 'wall','purpose': 'wall','property': None},
-        'bottom':   {'type': 'wall','purpose': 'wall','property': None},
-        'top':      {'type': 'wall','purpose': 'wall','property': None},
+        'front':    {'type': 'symmetry','purpose': 'symmetry','property': None},
+        'back':     {'type': 'symmetry','purpose': 'symmetry','property': None},
+        'bottom':   {'type': 'symmetry','purpose': 'symmetry','property': None},
+        'top':      {'type': 'symmetry','purpose': 'symmetry','property': None},
 },
     'snappyHexSteps': {'castellatedMesh': 'true',
                        'snap': 'true',
@@ -82,7 +82,7 @@ meshSettings = {
                         'explicitFeatureSnap': 'true',
                         'multiRegionFeatureSnap': 'false'},
 
-    'addLayersControls': {'relativeSizes': 'false',
+    'addLayersControls': {'relativeSizes': 'true',
                             'expansionRatio': 1.4,
                             'finalLayerThickness': 0.3,
                             'firstLayerThickness': 0.001,

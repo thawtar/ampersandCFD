@@ -22,43 +22,90 @@ import yaml
 import sys
 from tkinter import filedialog, Tk
 from headers import get_ampersand_header
+from PySide6.QtWidgets import QMessageBox
+from dialogBoxes import sphereDialogDriver, inputDialogDriver, vectorInputDialogDriver
 
 class ampersandPrimitives:
     def __init__(self):
         pass
-
-    """
+    
+    
+    
     @staticmethod
-    def list_stl_files_org(stl_files):
+    def list_stl_files(stl_files, GUIMode=False, window=None):
+        if GUIMode:
+            stl_names = [stl_file['name'] for stl_file in stl_files]
+            #window.listWidgetObjList.clear()
+            for i in range(len(stl_names)):
+                ampersandIO.printMessage(f"{i+1}. {stl_names[i]}",GUIMode=GUIMode,window=window) 
+            return 0
         i = 1
         ampersandIO.show_title("STL Files")
-        ampersandIO.printMessage(f"{'No.':<5}{'Name'}\t\t{'Purpose'}\t\t{'RefineMent'}\t{'Property'}")
-        for stl_file in stl_files:
-            if(stl_file['property']==None):
-                stl_file['property'] = "None"
-            ampersandIO.printMessage(f"{i:<5}{stl_file['name']}\t\t{stl_file['purpose']}\t\t({stl_file['refineMin']} {stl_file['refineMax']})\t{stl_file['property']}")
-            i += 1
-    """
-
-    @staticmethod
-    def list_stl_files(stl_files):
-        i = 1
-        ampersandIO.show_title("STL Files")
+        
         ampersandIO.printMessage(f"{'No.':<5}{'Name':<20}{'Purpose':<20}{'RefineMent':<15}{'Property':<15}")
         for stl_file in stl_files:
             if(stl_file['property']==None):
                 stl_property = "None"
-                stl_file['property'] = "None"
+                if stl_file['purpose'] == 'wall':
+                    stl_property = f"nLayers: {stl_file['nLayers']}"
+                else:
+                    stl_property = "None"
+                #stl_file['property'] = "None"
             elif isinstance(stl_file['property'], list):
                 stl_property = f"[{stl_file['property'][0]} {stl_file['property'][1]} {stl_file['property'][2]}]"
             elif isinstance(stl_file['property'], tuple):
-                stl_property = f"[{stl_file['property'][0]} {stl_file['property'][1]} {stl_file['property'][2]}]"
+                if stl_file['purpose'] == 'inlet':
+                    stl_property = f"U: [{stl_file['property'][0]} {stl_file['property'][1]} {stl_file['property'][2]}]"
+                elif stl_file['purpose'] == 'cellZone':
+                    stl_property = f"Refinement: {stl_file['property'][0]}"
+                #stl_property = f"[{stl_file['property'][0]} {stl_file['property'][1]} {stl_file['property'][2]}]"
             else:
                 stl_property = stl_file['property']
             ampersandIO.printMessage(f"{i:<5}{stl_file['name']:<20}{stl_file['purpose']:<20}({stl_file['refineMin']} {stl_file['refineMax']}{')':<11}{stl_property:<15}")
             i += 1
+        ampersandIO.show_line()
         return 0
 
+    @staticmethod
+    def list_boundary_conditions(meshSettings):
+        i = 1
+        boundaries = []
+        ampersandIO.show_title("Boundary Conditions")
+        ampersandIO.printMessage(f"{'No.':<5}{'Name':<20}{'Purpose':<20}{'Value':<15}")
+        # for external flows, show the boundary conditions for domain first
+        if meshSettings['internalFlow'] == False:
+            for patchName in meshSettings['bcPatches'].keys():
+                patch = meshSettings['bcPatches'][patchName]
+                if patch['property'] == None:
+                    property = "None"
+                elif isinstance(patch['property'], list):
+                    property = f"[{patch['property'][0]} {patch['property'][1]} {patch['property'][2]}]"
+                elif isinstance(patch['property'], tuple):
+                    property = f"[{patch['property'][0]} {patch['property'][1]} {patch['property'][2]}]"
+                else:
+                    property = patch['property']
+                #ampersandIO.printMessage(f"{patch['name']}: {patch['purpose']}\t{patch['property']}")
+                ampersandIO.printMessage(f"{i:<5}{patchName:<20}{patch['purpose']:<20}{property:<15}")
+                i += 1
+                boundaries.append(patchName)
+        for patch in meshSettings['geometry']:
+            if patch['purpose'] != 'refinementRegion' and patch['purpose'] != 'refinementSurface':
+                #ampersandIO.printMessage(patch)
+                if patch['property'] == None:
+                    property = "None"
+                elif isinstance(patch['property'], list):
+                    property = f"[{patch['property'][0]} {patch['property'][1]} {patch['property'][2]}]"
+                elif isinstance(patch['property'], tuple):
+                    property = f"[{patch['property'][0]} {patch['property'][1]} {patch['property'][2]}]"
+                else:
+                    property = "None"
+                ampersandIO.printMessage(f"{i:<5}{patch['name']:<20}{patch['purpose']:<20}{property:<15}")
+                i += 1
+                boundaries.append(patch['name'])
+        return boundaries # return the number of boundarys
+            #ampersandIO.printMessage(f"{patch['name']}: {patch['purpose']}\t{patch['property']}")
+
+    
     @staticmethod
     def change_patch_type(patches, patch_name, new_type='patch'):
         patch_found = False
@@ -127,18 +174,28 @@ class ampersandPrimitives:
 
 
     @staticmethod
-    def ask_for_directory():
-        root = Tk()
-        root.withdraw()  # Hide the main window
-        directory = filedialog.askdirectory(title="Select Project Directory")
-        return directory if directory else None
+    def ask_for_directory(qt=False):
+        if qt:
+            from PySide6.QtWidgets import QFileDialog
+            directory = QFileDialog.getExistingDirectory(None, "Select Project Directory")
+            return directory if directory else None
+        else:
+            root = Tk()
+            root.withdraw()  # Hide the main window
+            directory = filedialog.askdirectory(title="Select Project Directory")
+            return directory if directory else None
     
     @staticmethod
-    def ask_for_file(filetypes=[("STL Geometry", "*.stl")]):
-        root = Tk()
-        root.withdraw()
-        file = filedialog.askopenfilename(title="Select File", filetypes=filetypes)
-        return file if file else None
+    def ask_for_file(filetypes=[("STL Geometry", "*.stl")], qt=False):
+        if qt:
+            from PySide6.QtWidgets import QFileDialog
+            file = QFileDialog.getOpenFileName(None, "Select File", filter="STL Geometry (*.stl)")
+            return file[0] if file[0] else None
+        else:
+            root = Tk()
+            root.withdraw()
+            file = filedialog.askopenfilename(title="Select File", filetypes=filetypes)
+            return file if file else None
     
     @staticmethod
     def check_dict(dict_):
@@ -280,16 +337,44 @@ class ampersandIO:
         pass
 
     @staticmethod
-    def printMessage(*args):
-        print(*args)
+    def printMessage(*args,GUIMode=False,window=None):
+        if GUIMode and window!=None:
+            window.updateTerminal(*args)
+        else:
+            print(*args)
+
+    @staticmethod
+    def printWarning(*args, GUIMode=False):
+        if GUIMode:
+            #ampersandIO.printMessage(*args)
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Warning")
+            msg.setInformativeText(*args)
+            msg.setWindowTitle("Warning")
+            msg.exec_()
+        else:
+            print(*args)
     
     @staticmethod
-    def printError(*args):
-        print(*args, file=sys.stderr)
+    def printError(*args, GUIMode=False):
+        if GUIMode:
+            #ampersandIO.printMessage(*args)
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText(*args)
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        else:
+            print(*args, file=sys.stderr)
     
     @staticmethod
-    def get_input(prompt):
-        return input(prompt)
+    def get_input(prompt, GUIMode=False):
+        if GUIMode:
+            return inputDialogDriver(prompt)
+        else:
+            return input(prompt)
     
     @staticmethod
     def print_dict(data):
@@ -297,20 +382,26 @@ class ampersandIO:
             print(f"{key}: {value}")
     
     @staticmethod
-    def get_input_int(prompt):
-        try:
-            return int(input(prompt))
-        except:
-            ampersandIO.printError("Invalid input. Please enter an integer.")
-            return ampersandIO.get_input_int(prompt)
+    def get_input_int(prompt, GUIMode=False):
+        if GUIMode:
+            return int(inputDialogDriver(prompt, input_type="int"))
+        else: 
+            try:
+                return int(input(prompt))
+            except:
+                ampersandIO.printError("Invalid input. Please enter an integer.")
+                return ampersandIO.get_input_int(prompt)
     
     @staticmethod  
-    def get_input_float(prompt):
-        try:
-            return float(input(prompt))
-        except:
-            ampersandIO.printError("Invalid input. Please enter a number.")
-            return ampersandIO.get_input_float(prompt)
+    def get_input_float(prompt, GUIMode=False):
+        if GUIMode:
+            return float(inputDialogDriver(prompt, input_type="float"))
+        else:
+            try:
+                return float(input(prompt))
+            except:
+                ampersandIO.printError("Invalid input. Please enter a number.")
+                return ampersandIO.get_input_float(prompt)
         
     @staticmethod
     def show_list(lst):
@@ -324,21 +415,24 @@ class ampersandIO:
             print(f"{i+1}. {lst[i]}")
     
     @staticmethod
-    def get_input_vector(prompt):
-        inp = input(prompt).split()
-        #output = [0.,0.,0.]
-        # Check if the input is a list of floats
-        try:
-            vec = list(map(float, inp))
-            if len(vec)!=3:
-                ampersandIO.printError("Invalid input. Please enter 3 numbers.")
+    def get_input_vector(prompt, GUIMode=False):
+        if GUIMode:
+            return vectorInputDialogDriver(prompt)
+        else:
+            inp = input(prompt).split()
+            #output = [0.,0.,0.]
+            # Check if the input is a list of floats
+            try:
+                vec = list(map(float, inp))
+                if len(vec)!=3:
+                    ampersandIO.printError("Invalid input. Please enter 3 numbers.")
+                    # Recursively call the function until a valid input is given
+                    return ampersandIO.get_input_vector(prompt)
+                return vec
+            except:
+                ampersandIO.printError("Invalid input. Please enter a list of numbers.")
                 # Recursively call the function until a valid input is given
                 return ampersandIO.get_input_vector(prompt)
-            return vec
-        except:
-            ampersandIO.printError("Invalid input. Please enter a list of numbers.")
-            # Recursively call the function until a valid input is given
-            return ampersandIO.get_input_vector(prompt)
         #return list(map(float, input(prompt).split()))
 
     
@@ -370,9 +464,16 @@ class ampersandIO:
         ampersandIO.printMessage("\n" + title  )
 
     @staticmethod
-    def printFormat(item_name, item_value):
-        print(f"{item_name:12}\t{item_value}")
-    
+    def show_line():
+        ampersandIO.printMessage("-"*60)
+
+    @staticmethod
+    def printFormat(item_name, item_value, GUIMode=False, window=None):
+        if GUIMode:
+            window.updateStatusBar(f"{item_name}: {item_value}")
+        else:
+            print(f"{item_name:12}\t{item_value}")
+
 
 class ampersandDataInput:
     def __init__(self):
