@@ -381,7 +381,10 @@ class mainWindow(QMainWindow):
         #self.updateStatusBar("Opening STL")
         #self.openSTL()
         #self.readyStatusBar()
-        self.project.add_stl_file()
+        stl_status = self.project.add_stl_file()
+        if stl_status==-1:
+            #ampersandIO.printError("STL file not loaded",GUIMode=True,window=self)
+            return
         #self.project.analyze_stl_file()
         self.project.add_stl_to_project()
         self.showSTL(stlFile=self.project.current_stl_file)
