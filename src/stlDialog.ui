@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
+    <width>285</width>
     <height>215</height>
    </rect>
   </property>
@@ -198,7 +198,7 @@
     <string>(Refinement surface/region)</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="pushButtonSetVelocity">
    <property name="geometry">
     <rect>
      <x>30</x>

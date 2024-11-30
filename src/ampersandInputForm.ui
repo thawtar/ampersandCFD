@@ -480,8 +480,8 @@
      <rect>
       <x>270</x>
       <y>10</y>
-      <width>211</width>
-      <height>561</height>
+      <width>271</width>
+      <height>581</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -495,7 +495,7 @@
       <rect>
        <x>10</x>
        <y>30</y>
-       <width>191</width>
+       <width>251</width>
        <height>191</height>
       </rect>
      </property>
@@ -531,7 +531,7 @@
       <rect>
        <x>10</x>
        <y>250</y>
-       <width>191</width>
+       <width>251</width>
        <height>321</height>
       </rect>
      </property>
@@ -540,9 +540,9 @@
    <widget class="QPlainTextEdit" name="plainTextTerminal">
     <property name="geometry">
      <rect>
-      <x>490</x>
+      <x>550</x>
       <y>490</y>
-      <width>891</width>
+      <width>831</width>
       <height>131</height>
      </rect>
     </property>
@@ -556,9 +556,9 @@
    <widget class="QWidget" name="widget" native="true">
     <property name="geometry">
      <rect>
-      <x>490</x>
+      <x>550</x>
       <y>10</y>
-      <width>891</width>
+      <width>831</width>
       <height>471</height>
      </rect>
     </property>
