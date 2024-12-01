@@ -631,6 +631,25 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             property = None
         return property
     
+    def set_property_gui(self,purpose='wall'):
+        if purpose == 'inlet':
+            U = ampersandDataInput.get_inlet_values(GUIMode=self.GUIMode,window=self.window)
+            property = tuple(U)
+            ampersandIO.printMessage(f"Setting property of {purpose} to {property}")
+        elif purpose == 'refinementRegion' :
+            refLevel = ampersandIO.get_input_int("Enter refinement level: ")
+            property = refLevel
+        elif purpose == 'cellZone':
+            refLevel = ampersandIO.get_input_int("Enter refinement level: ")
+            createPatches = ampersandIO.get_input_bool("Create patches for this cellZone? (y/N): ")
+            property = (refLevel, createPatches,0) # 0 is just a placeholder for listing the patches
+        elif purpose == 'refinementSurface':
+            refLevel = ampersandIO.get_input_int("Enter refinement level: ")
+            property = refLevel
+        else:
+            property = None
+        return property
+    
    
     def ask_stl_settings(self,stl_file):
         ampersandIO.printMessage(f"Settings of the {stl_file['name']} file")
@@ -643,6 +662,52 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             stl_file['featureEdges'] = False
         stl_file['featureLevel'] = ampersandIO.get_input("Feature Level: ")
         stl_file['nLayers'] = ampersandIO.get_input("Number of Layers: ")
+
+    def change_stl_property(self,stl_file_name,property):
+        for stl in self.meshSettings['geometry']:
+            if stl['name'] == stl_file_name: 
+                stl['property'] = property
+        
+    def get_stl_properties(self,stl_file_name):
+        #print(stl_file_name)
+        
+        for stl in self.stl_files:
+            #print(stl)
+            if stl['name'] == stl_file_name:
+                #print("Found")
+                purpose = stl['purpose']
+                refMin = stl['refineMin']
+                refMax = stl['refineMax']
+                featureEdges = stl['featureEdges']
+                featureLevel = stl['featureLevel']
+                
+                if isinstance(stl['nLayers'],int):
+                    nLayers = stl['nLayers']
+                else:
+                    nLayers = 0
+                property = stl['property']
+                bounds = stl['bounds']
+                return purpose,refMin,refMax,featureEdges,featureLevel,nLayers,property,bounds
+        return None
+    
+    def set_stl_properties(self,stl_file_name,stl_properties):
+        refMin,refMax,refLevel,nLayers,usage,edgeRefine,ami,property = stl_properties
+        #refMin,refMax,featureLevel,nLayers,property,bounds = stl_properties
+        usageToPurpose = {'Wall':'wall', 'Inlet':'inlet','Outlet':'outlet','Refinement_Region':'refinementRegion',
+                          'Refinement_Surface':'refinementSurface','Cell_Zone':'cellZone','Baffles':'baffles',
+                          'Symmetry':'symmetry','Cyclic':'cyclic','Empty':'empty'}
+        for stl in self.meshSettings['geometry']:
+            if stl['name'] == stl_file_name:
+                stl['purpose'] = usageToPurpose[usage]
+                stl['refineMin'] = refMin
+                stl['refineMax'] = refMax
+                stl['featureEdges'] = edgeRefine
+                stl['featureLevel'] = refMin
+                stl['nLayers'] = nLayers
+                stl['property'] = property
+                #stl['bounds'] = bounds
+                return 0
+        return -1
 
     def add_stl_to_project(self):
         for stl_file in self.stl_files:

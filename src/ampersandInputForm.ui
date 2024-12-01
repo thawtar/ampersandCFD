@@ -539,7 +539,7 @@
       <string>Property</string>
      </property>
     </widget>
-    <widget class="QTableView" name="tableViewProperties">
+    <widget class="QTableWidget" name="tableViewProperties">
      <property name="geometry">
       <rect>
        <x>10</x>
