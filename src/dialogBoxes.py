@@ -147,6 +147,8 @@ class vectorInputDialog(QDialog):
         #print("Push Button Cancel Clicked")
         self.window.close()
 
+
+
 class STLDialog(QDialog):
     def __init__(self, stl_name="stl_file.stl",stlProperties=None):
         super().__init__()
@@ -204,16 +206,8 @@ class STLDialog(QDialog):
         self.window.lineEditNLayers.setText("0")
         self.window.checkBoxAMI.setChecked(False)
         self.window.checkBoxAMI.setEnabled(False)
-
-    def prepare_events(self):
-        self.window.pushButtonOK.clicked.connect(self.on_pushButtonOK_clicked)
-        self.window.pushButtonCancel.clicked.connect(self.on_pushButtonCancel_clicked)
-        self.window.comboBoxUsage.currentIndexChanged.connect(self.changeUsage)
-        # when closed the dialog box
-        self.window.closeEvent = self.on_pushButtonCancel_clicked
-
-    def on_pushButtonOK_clicked(self):
-        print("Push Button OK Clicked")
+        # to store initial values
+        # these will be used as default values if cancel is clicked
         self.refMin = int(self.window.lineEditRefMin.text())
         self.refMax = int(self.window.lineEditRefMax.text())
         self.refLevel = int(self.window.lineEditRefLevel.text())
@@ -222,24 +216,34 @@ class STLDialog(QDialog):
         self.edgeRefine = self.window.checkBoxEdgeRefine.isChecked()
         self.ami = self.window.checkBoxAMI.isChecked()
 
-        #print("Refinement Min: ",self.refMin)
-        #print("Refinement Max: ",self.refMax)
-        #print("Refinement Level: ",self.refLevel)
-        #print("Number of Layers: ",self.nLayers)
-        #print("Usage: ",self.usage)
-        #print("Edge Refine: ",self.edgeRefine)
-        #print("AMI: ",self.ami)
+    def prepare_events(self):
+        self.window.pushButtonOK.clicked.connect(self.on_pushButtonOK_clicked)
+        self.window.pushButtonCancel.clicked.connect(self.on_pushButtonCancel_clicked)
+        self.window.comboBoxUsage.currentIndexChanged.connect(self.changeUsage)
+        # when closed the dialog box
+        #self.window.closeEvent = self.on_pushButtonCancel_clicked
+
+    def on_pushButtonOK_clicked(self):
+        #print("Push Button OK Clicked")
+        self.refMin = int(self.window.lineEditRefMin.text())
+        self.refMax = int(self.window.lineEditRefMax.text())
+        self.refLevel = int(self.window.lineEditRefLevel.text())
+        self.nLayers = int(self.window.lineEditNLayers.text())
+        self.usage = self.window.comboBoxUsage.currentText()
+        self.edgeRefine = self.window.checkBoxEdgeRefine.isChecked()
+        self.ami = self.window.checkBoxAMI.isChecked()
+        """
         if(self.usage=="Inlet"):
             xx,yy,zz = vectorInputDialogDriver(prompt="Enter Inlet Velocity Vector",input_type="float")
             print("Inlet Velocity: ",xx,yy,zz)
             self.xx = xx
             self.yy = yy
             self.zz = zz
+        """
         self.OK_clicked = True
         self.window.close()
 
     def on_pushButtonCancel_clicked(self):
-        #print("Push Button Cancel Clicked")
         self.OK_clicked = False
         self.window.close()
 
@@ -280,6 +284,9 @@ class STLDialog(QDialog):
             self.window.lineEditRefLevel.setEnabled(False)
             self.window.checkBoxAMI.setEnabled(True)
             self.window.checkBoxEdgeRefine.setEnabled(True)
+    
+    def __del__(self):
+        pass
         
 #---------------------------------------------------------
 # Driver function for different dialog boxes
@@ -335,8 +342,7 @@ def STLDialogDriver(stl_name="stl_file.stl",stlProperties=None):
     dialog = STLDialog(stl_name=stl_name,stlProperties=stlProperties)
     dialog.window.exec()
     dialog.window.show()
-    if(dialog.OK_clicked==False):
-        return None
+
     refMin = dialog.refMin
     refMax = dialog.refMax
     refLevel = dialog.refLevel
@@ -345,10 +351,9 @@ def STLDialogDriver(stl_name="stl_file.stl",stlProperties=None):
     edgeRefine = dialog.edgeRefine
     ami = dialog.ami
     if(dialog.usage=="Inlet"):
-        xx = dialog.xx
-        yy = dialog.yy
-        zz = dialog.zz
-        U = (xx,yy,zz)
+        # just give a temporary value. 
+        # The actual value will be changed in Boundary Condition Dialog
+        U = (1,0,0)
         return (refMin,refMax,refLevel,nLayers,usage,edgeRefine,ami,U)
     return (refMin,refMax,refLevel,nLayers,usage,edgeRefine,ami,None)
 

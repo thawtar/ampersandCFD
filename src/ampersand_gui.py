@@ -571,8 +571,8 @@ class mainWindow(QMainWindow):
 
     def generateCase(self):
         self.updateStatusBar("Analyzing Case")
-        if(len(self.project.stl_files)>0):
-            self.project.analyze_stl_file()
+        #if(len(self.project.stl_files)>0):
+        #    self.project.analyze_stl_file()
         self.updateStatusBar("Creating Project Files")
         self.project.useFOs = True
         self.project.set_post_process_settings()
@@ -589,8 +589,8 @@ class mainWindow(QMainWindow):
 
     def saveCase(self):
         self.updateStatusBar("Analyzing case before saving")
-        if(len(self.project.stl_files)>0):
-            self.project.analyze_stl_file()
+        #if(len(self.project.stl_files)>0):
+        #    self.project.analyze_stl_file()
         self.updateStatusBar("Saving Case")
         self.updateTerminal("Saving Case")
         self.project.useFOs = True
@@ -600,7 +600,6 @@ class mainWindow(QMainWindow):
         self.updateTerminal("Case saved")
         self.updateTerminal("--------------------")
         self.readyStatusBar()
-
     
     def autoDomain(self):
         
