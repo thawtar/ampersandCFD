@@ -718,7 +718,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def add_stl_file(self): # to only copy the STL file to the project directory and add it to the STL list
         stl_file = ampersandPrimitives.ask_for_file([("STL Geometry", "*.stl"), ("OBJ Geometry", "*.obj")],self.GUIMode)
         if stl_file is None:
-            ampersandIO.printWarning("No file selected. Please select STL file if necessary.",GUIMode=self.GUIMode)
+            #ampersandIO.printWarning("No file selected. Please select STL file if necessary.",GUIMode=self.GUIMode)
+            ampersandIO.printMessage("No file selected. Please select STL file if necessary.",GUIMode=self.GUIMode,window=self.window)
             return -1
         if os.path.exists(stl_file):
             # add the stl file to the project
@@ -727,7 +728,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             file_path_to_token = stl_file.split("/")
             stl_name = file_path_to_token[-1]
             if stl_name in self.stl_names:
-                ampersandIO.printWarning(f"STL file {stl_name} already exists in the project",GUIMode=self.GUIMode)
+                #ampersandIO.printWarning(f"STL file {stl_name} already exists in the project",GUIMode=self.GUIMode)
+                ampersandIO.printMessage(f"STL file {stl_name} already exists in the project",GUIMode=self.GUIMode,window=self.window)
                 return -1
             else: # this is to prevent the bug of having the same file added multiple times
                 if self.GUIMode:

@@ -25,13 +25,14 @@ from vtkmodules.vtkRenderingCore import (
 )
 # ------------------------------------------------- #
 import sys
+import os
 from time import sleep
 
 # Connection to the Ampersand Backend
 from project import ampersandProject
 from primitives import ampersandPrimitives, ampersandIO
 
-
+os.chdir(r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src")
 loader = QUiLoader()
 
 # This function reads STL file and extracts the surface patch names.
@@ -340,7 +341,6 @@ class mainWindow(QMainWindow):
         for i in range(len(self.project.stl_files)):
             self.window.listWidgetObjList.insertItem(i,self.project.stl_files[i]['name'])
 
-
     def updatePropertyBox(self):
         # find the selected item in the list
         item = self.window.listWidgetObjList.currentItem()
@@ -356,7 +356,7 @@ class mainWindow(QMainWindow):
             return
         purpose,refMin,refMax,featureEdges,featureLevel,nLayers,property,bounds = stl_properties
         #print("STL Properties: ",refMin,refMax,featureEdges,featureLevel,nLayers,property,bounds)
-        
+        return
         # update the property box
         self.window.tableViewProperties.setItem(0,0,QtWidgets.QTableWidgetItem("Refinement Min"))
         #self.window.tableViewProperties.setItem(0,0,QtWidgets.QTableWidgetItem(str(refMin)))
@@ -367,10 +367,6 @@ class mainWindow(QMainWindow):
         self.window.tableViewProperties.setItem(2,1,QtWidgets.QTableWidgetItem(str(property)))
         self.window.tableViewProperties.setItem(3,0,QtWidgets.QTableWidgetItem(str(bounds[0])))
         
-
-
-
-
     def updateStatusBar(self,message="Go!"):
         self.window.statusbar.showMessage(message)
         self.window.plainTextTerminal.appendPlainText(message)
@@ -617,6 +613,10 @@ class mainWindow(QMainWindow):
             onGround = self.window.checkBoxOnGround.isChecked()
         self.project.meshSettings['onGround'] = onGround
         self.project.onGround = onGround
+        if len(self.project.stl_files)==0:
+            self.updateTerminal("No STL files loaded")
+            self.readyStatusBar()
+            return
         self.project.analyze_stl_file()
         #print("On Ground: ",onGround)
         minx = self.project.meshSettings['domain']['minx']
@@ -675,9 +675,9 @@ class mainWindow(QMainWindow):
         stl = self.current_stl_file
         if stl==None:
             return
-        stlProperties = self.project.get_stl_properties(stl)
+        currentStlProperties = self.project.get_stl_properties(stl)
         # open STL properties dialog
-        stlProperties = STLDialogDriver(stl,stlProperties=stlProperties)
+        stlProperties = STLDialogDriver(stl,stlProperties=currentStlProperties)
         # The properties are:
         #refMin,refMax,refLevel,nLayers,usage,edgeRefine,ami,None
         print(stlProperties)
@@ -688,7 +688,7 @@ class mainWindow(QMainWindow):
         if status==-1:
             ampersandIO.printError("STL Properties not updated",GUIMode=True)   
         else:
-            self.updateStatusBar(f"{stl}: Properties Updated")
+            #self.updateStatusBar(f"{stl}: Properties Updated")
             self.updateTerminal(f"{stl} Properties Updated")
             self.readyStatusBar()
 #-------------- End of Event Handlers -------------#
