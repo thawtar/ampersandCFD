@@ -6,7 +6,8 @@ from PySide6.QtWidgets import QMainWindow
 from PySide6 import QtWidgets
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from dialogBoxes import sphereDialogDriver, yesNoDialogDriver, yesNoCancelDialogDriver
-from dialogBoxes import vectorInputDialogDriver, STLDialogDriver
+from dialogBoxes import vectorInputDialogDriver, STLDialogDriver, physicalPropertiesDialogDriver
+from dialogBoxes import boundaryConditionDialogDriver, numericsDialogDriver, controlsDialogDriver
 # ----------------- VTK Libraries ----------------- #
 import vtk
 import vtkmodules.vtkInteractionStyle
@@ -397,6 +398,10 @@ class mainWindow(QMainWindow):
         self.window.pushButtonDomainAuto.clicked.connect(self.autoDomain)
         self.window.pushButtonDomainManual.clicked.connect(self.manualDomain)
         self.window.pushButtonSTLProperties.clicked.connect(self.stlPropertiesDialog)
+        self.window.pushButtonPhysicalProperties.clicked.connect(self.physicalPropertiesDialog)
+        self.window.pushButtonBoundaryCondition.clicked.connect(self.boundaryConditionDialog)
+        self.window.pushButtonNumerics.clicked.connect(self.numericsDialog)
+        self.window.pushButtonControls.clicked.connect(self.controlsDialog)
         #self.window.checkBoxOnGround.clicked.connect(self.chooseExternalFlow)
         self.window.statusbar.showMessage("Ready")
 
@@ -428,7 +433,9 @@ class mainWindow(QMainWindow):
             print("Radius: ",r)
         self.readyStatusBar()
 
-    
+    def resizeEvent(self, event):
+        self.vtkWidget.resize(self.window.widget.size())
+
     def chooseInternalFlow(self):
         #print("Choose Internal Flow")
         self.project.internalFlow = True
@@ -564,7 +571,7 @@ class mainWindow(QMainWindow):
             self.window.checkBoxOnGround.setChecked(self.project.onGround)
         self.project_opened = True
         ampersandIO.printMessage(f"Project {self.project.project_name} created",GUIMode=True,window=self)
-        
+        self.window.setWindowTitle(f"Case Creator: {self.project.project_name}")
         # change window title
         self.setWindowTitle(f"Case Creator: {self.project.project_name}")
         self.readyStatusBar()
@@ -690,6 +697,20 @@ class mainWindow(QMainWindow):
             #self.updateStatusBar(f"{stl}: Properties Updated")
             self.updateTerminal(f"{stl} Properties Updated")
             self.readyStatusBar()
+
+    def physicalPropertiesDialog(self):
+        physicalProperties = physicalPropertiesDialogDriver()
+
+    def boundaryConditionDialog(self):
+        boundaryConditions = boundaryConditionDialogDriver()
+
+    def numericsDialog(self):
+        numerics = numericsDialogDriver()  
+
+    def controlsDialog(self):
+        controls = controlsDialogDriver()
+
+
 #-------------- End of Event Handlers -------------#
 
 

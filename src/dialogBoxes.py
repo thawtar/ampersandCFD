@@ -148,7 +148,6 @@ class vectorInputDialog(QDialog):
         self.window.close()
 
 
-
 class STLDialog(QDialog):
     def __init__(self, stl_name="stl_file.stl",stlProperties=None):
         super().__init__()
@@ -288,6 +287,105 @@ class STLDialog(QDialog):
     def __del__(self):
         pass
         
+
+class physicalPropertiesDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.load_ui()
+        self.OK_clicked = False
+        self.prepare_events()
+    
+    def load_ui(self):
+        ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\physicalPropertiesDialog.ui"
+        ui_file = QFile(ui_path)
+        #ui_file = QFile("inputDialog.ui")
+        ui_file.open(QFile.ReadOnly)
+        self.window = loader.load(ui_file, None)
+        ui_file.close()
+
+    def prepare_events(self):
+        self.window.pushButtonOK.clicked.connect(self.on_pushButtonOK_clicked)
+        self.window.pushButtonCancel.clicked.connect(self.on_pushButtonCancel_clicked)
+        self.window.pushButtonApply.clicked.connect(self.on_pushButtonApply_clicked)
+
+    def on_pushButtonOK_clicked(self):
+        #print("Push Button OK Clicked")
+        self.OK_clicked = True
+        self.window.close()
+
+    def on_pushButtonCancel_clicked(self):
+        self.window.close()
+
+    def on_pushButtonApply_clicked(self):
+        self.OK_clicked = True
+        #self.window.close()
+
+    def __del__(self):
+        pass
+
+class boundaryConditionDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.load_ui()
+        self.OK_clicked = False
+    
+    def load_ui(self):
+        ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\boundaryConditionDialog.ui"
+        ui_file = QFile(ui_path)
+        #ui_file = QFile("inputDialog.ui")
+        ui_file.open(QFile.ReadOnly)
+        self.window = loader.load(ui_file, None)
+        ui_file.close()
+
+    def on_pushButtonOK_clicked(self):
+        #print("Push Button OK Clicked")
+        self.OK_clicked = True
+        self.window.close()
+
+    def on_pushButtonCancel_clicked(self):
+        self.window.close()
+
+
+    def __del__(self):
+        pass
+
+class numericalSettingsDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.load_ui()
+        self.OK_clicked = False
+    
+    def load_ui(self):
+        ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\numericDialog.ui"
+        ui_file = QFile(ui_path)
+        #ui_file = QFile("inputDialog.ui")
+        ui_file.open(QFile.ReadOnly)
+        self.window = loader.load(ui_file, None)
+        ui_file.close()
+
+    def prepare_events(self):
+        self.window.pushButtonOK.clicked.connect(self.on_pushButtonOK_clicked)
+        self.window.pushButtonCancel.clicked.connect(self.on_pushButtonCancel_clicked)
+        self.window.pushButtonApply.clicked.connect(self.on_pushButtonApply_clicked)
+
+    def on_pushButtonOK_clicked(self):
+        #print("Push Button OK Clicked")
+        self.OK_clicked = True
+        self.window.close()
+
+    def on_pushButtonCancel_clicked(self):
+        self.window.close()
+
+    def on_pushButtonApply_clicked(self):
+        self.OK_clicked = True
+        #self.window.close()
+
+
+    def __del__(self):
+        pass
+
+
+
 #---------------------------------------------------------
 # Driver function for different dialog boxes
 #---------------------------------------------------------
@@ -356,6 +454,24 @@ def STLDialogDriver(stl_name="stl_file.stl",stlProperties=None):
         U = (1,0,0)
         return (refMin,refMax,refLevel,nLayers,usage,edgeRefine,ami,U)
     return (refMin,refMax,refLevel,nLayers,usage,edgeRefine,ami,None)
+
+def physicalPropertiesDialogDriver():
+    dialog = physicalPropertiesDialog()
+    dialog.window.exec()
+    dialog.window.show()
+
+def boundaryConditionDialogDriver():
+    dialog = boundaryConditionDialog()
+    dialog.window.exec()
+    dialog.window.show()
+
+def numericsDialogDriver():
+    dialog = numericalSettingsDialog()
+    dialog.window.exec()
+    dialog.window.show()
+
+def controlsDialogDriver():
+    pass
 
 def main():
     pass
