@@ -65,6 +65,7 @@ class mainWindow(QMainWindow):
         self.maxx,self.maxy,self.maxz = 0.0,0.0,0.0
         self.nx,self.ny,self.nz = 0,0,0
         self.current_stl_file = None
+        self.colorCounter = 0
         # disable all the buttons and input fields
         self.disableButtons()
 
@@ -150,26 +151,7 @@ class mainWindow(QMainWindow):
         else:
             #print("Current CAD File: ",fname)
             return fname
-        
-    def openSTLDialog(self):
-        fname,ftype = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 
-        'c:\\',"STL files (*.stl *.obj)")
-        if(fname==""):
-            return -1 # STL file not loaded
-        else:
-            #print("Current STL File: ",fname)
-            return fname
-
-    def openSTL(self):
-        stlFileName = self.openSTLDialog()
-        if(stlFileName==-1):
-            pass
-        else:
-            #print("Copying stl file")
-            stl = stlFileName #self.copySTL(stlFileName=stlFileName)
-            if(stl!=-1):
-                self.showSTL(stlFile=stl)
-                
+                       
     # manage sub windows
     def prepare_subWindows(self):
         self.createCaseWindow = None
@@ -217,7 +199,7 @@ class mainWindow(QMainWindow):
         #actor.SetMapper(mapper)
         actor.GetProperty().EdgeVisibilityOn()
         colors = vtk.vtkNamedColors()
-        whiteColor = colors.GetColor3d("White")
+        whiteColor = colors.GetColor3d("Grey")
         blackColor = colors.GetColor3d("Black")
         #deepBlue = colors.GetColor3d("DeepBlue")
         #self.ren.SetBackground(colors.GetColor3d("SlateGray"))
@@ -259,13 +241,17 @@ class mainWindow(QMainWindow):
         # Create an actor
         actor = vtk.vtkActor()
         actor.SetMapper(mapper)
-        actor.GetProperty().EdgeVisibilityOn()
+        #actor.GetProperty().EdgeVisibilityOn()
         # set random colors to the actor
-        
-        actor.GetProperty().SetColor(0.5,0.5,0.5)
+        colors = vtk.vtkNamedColors()
+        listOfColors = ["Pink","Red","Green","Blue","Yellow","Orange","Purple","Cyan","Magenta","Brown",]
+        if(self.colorCounter>9):
+            self.colorCounter = 0
+        actor.GetProperty().SetColor(colors.GetColor3d(listOfColors[self.colorCounter]))
         self.ren.AddActor(actor)
         axes = vtk.vtkAxesActor()
         self.ren.AddActor(axes)
+        self.colorCounter += 1
         
         #self.iren.Start()
 
@@ -382,7 +368,7 @@ class mainWindow(QMainWindow):
 
     def prepare_events(self):
         # Initiate the button click maps
-        self.window.pushButtonSTLImport.clicked.connect(self.importSTL)
+        self.window.pushButtonSTLImport.clicked.connect(self.importMultipleSTL)
         self.window.pushButtonSphere.clicked.connect(self.createSphere)
         self.window.actionNew_Case.triggered.connect(self.createCase)
         self.window.actionOpen_Case.triggered.connect(self.openCase)
@@ -419,6 +405,25 @@ class mainWindow(QMainWindow):
         self.showSTL(stlFile=self.project.current_stl_file)
         self.update_list()
         #self.project.list_stl_files()
+
+    def importMultipleSTL(self):
+        # show the file dialog
+        filters = "STL files (*.stl)"
+        fileDialog = QtWidgets.QFileDialog()
+        fileDialog.setFileMode(QtWidgets.QFileDialog.ExistingFiles)
+        stlList = fileDialog.getOpenFileNames(self,"Open STL files",r"C:\Users\mrtha\Desktop\GitHub\foamAutoGUI\src",filters)
+        print(stlList[0])
+        if(len(stlList[0])==0):
+            return
+        for stl in stlList[0]:
+            status = self.project.add_one_stl_file(stl)
+            if status==-1:
+                ampersandIO.printError(f"STL file {stl} not loaded",GUIMode=True,window=self)
+                #return
+            self.project.add_stl_to_project()
+            self.showSTL(stlFile=stl)
+        self.update_list()
+        self.readyStatusBar()
     
     def createSphere(self):
         #print("Create Sphere")
