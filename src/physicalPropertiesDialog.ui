@@ -178,7 +178,7 @@
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>80</y>
+      <y>110</y>
       <width>81</width>
       <height>22</height>
      </rect>
@@ -188,7 +188,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
+      <y>110</y>
       <width>101</width>
       <height>16</height>
      </rect>
@@ -204,7 +204,7 @@
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>50</y>
+      <y>80</y>
       <width>81</width>
       <height>22</height>
      </rect>
@@ -214,7 +214,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>50</y>
+      <y>80</y>
       <width>91</width>
       <height>20</height>
      </rect>
@@ -227,7 +227,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>110</y>
+      <y>140</y>
       <width>101</width>
       <height>16</height>
      </rect>
@@ -249,7 +249,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Fluid Properties</string>
+     <string>Fluid</string>
     </property>
    </widget>
    <widget class="QComboBox" name="comboBoxFluids">
@@ -269,7 +269,7 @@
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>110</y>
+      <y>140</y>
       <width>81</width>
       <height>22</height>
      </rect>
@@ -278,8 +278,21 @@
      <string/>
     </property>
    </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>91</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fluid Properties</string>
+    </property>
+   </widget>
   </widget>
-  <widget class="QPushButton" name="pushButtonCancel_2">
+  <widget class="QPushButton" name="pushButtonApply">
    <property name="geometry">
     <rect>
      <x>240</x>

@@ -389,6 +389,17 @@ class mainWindow(QMainWindow):
         self.window.pushButtonNumerics.clicked.connect(self.numericsDialog)
         self.window.pushButtonControls.clicked.connect(self.controlsDialog)
         #self.window.checkBoxOnGround.clicked.connect(self.chooseExternalFlow)
+        # change view on the VTK widget
+        self.window.pushButtonFitAll.clicked.connect(self.vtkFitAll)
+        self.window.pushButtonPlusX.clicked.connect(self.vtkPlusX)
+        self.window.pushButtonPlusY.clicked.connect(self.vtkPlusY)
+        self.window.pushButtonPlusZ.clicked.connect(self.vtkPlusZ)
+        self.window.pushButtonMinusX.clicked.connect(self.vtkMinusX)
+        self.window.pushButtonMinusY.clicked.connect(self.vtkMinusY)
+        self.window.pushButtonMinusZ.clicked.connect(self.vtkMinusZ)
+        self.window.pushButtonShowWire.clicked.connect(self.vtkShowWire)
+        self.window.pushButtonShowSurface.clicked.connect(self.vtkShowSurface)
+        self.window.pushButtonShowEdges.clicked.connect(self.vtkShowEdges)
         self.window.statusbar.showMessage("Ready")
 
 #----------------- Event Handlers -----------------#
@@ -714,6 +725,82 @@ class mainWindow(QMainWindow):
 
     def controlsDialog(self):
         controls = controlsDialogDriver()
+
+    def vtkFitAll(self):
+        print("Fitting all")
+        self.ren.ResetCamera()
+        self.vtkWidget.GetRenderWindow().Render()
+        #self.ren.ResetCamera()
+        #self.iren.Start()
+
+    def vtkPlusX(self):
+        print("Plus X side")
+        self.ren.GetActiveCamera().SetPosition(1, 0, 0)
+        self.ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
+        self.ren.GetActiveCamera().SetViewUp(0, 0, 1)
+        self.ren.ResetCamera()
+        self.vtkWidget.GetRenderWindow().Render()
+    
+    def vtkPlusY(self):
+        print("Plus Y side")
+        self.ren.GetActiveCamera().SetPosition(0, 1, 0)
+        self.ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
+        self.ren.GetActiveCamera().SetViewUp(0, 0, 1)
+        self.ren.ResetCamera()
+        self.vtkWidget.GetRenderWindow().Render()
+
+    def vtkPlusZ(self):
+        print("Plus Z side")
+        self.ren.GetActiveCamera().SetPosition(0, 0, 1)
+        self.ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
+        self.ren.GetActiveCamera().SetViewUp(0, 1, 0)
+        self.ren.ResetCamera()
+        self.vtkWidget.GetRenderWindow().Render()
+    
+    def vtkMinusX(self):
+        print("Minus X side")
+        self.ren.GetActiveCamera().SetPosition(-1, 0, 0)
+        self.ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
+        self.ren.GetActiveCamera().SetViewUp(0, 0, 1)
+        self.ren.ResetCamera()
+        self.vtkWidget.GetRenderWindow().Render()
+    
+    def vtkMinusY(self):
+        print("Minus Y side")
+        self.ren.GetActiveCamera().SetPosition(0, -1, 0)
+        self.ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
+        self.ren.GetActiveCamera().SetViewUp(0, 0, 1)
+        self.ren.ResetCamera()
+        self.vtkWidget.GetRenderWindow().Render()
+
+    def vtkMinusZ(self):
+        print("Minus Z side")
+        self.ren.GetActiveCamera().SetPosition(0, 0, -1)
+        self.ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
+        self.ren.GetActiveCamera().SetViewUp(0, 1, 0)
+        self.ren.ResetCamera()
+        self.vtkWidget.GetRenderWindow().Render()
+
+    def vtkShowWire(self):
+        print("Show Wire")
+        actors = self.ren.GetActors()
+        for actor in actors:
+            actor.GetProperty().SetRepresentationToWireframe()
+        self.vtkWidget.GetRenderWindow().Render()
+    
+    def vtkShowSurface(self):
+        print("Show Surface")
+        actors = self.ren.GetActors()
+        for actor in actors:
+            actor.GetProperty().SetRepresentationToSurface()
+        self.vtkWidget.GetRenderWindow().Render()
+
+    def vtkShowEdges(self):
+        print("Show Edges")
+        actors = self.ren.GetActors()
+        for actor in actors:
+            actor.GetProperty().EdgeVisibilityOn()
+        self.vtkWidget.GetRenderWindow().Render()
 
 
 #-------------- End of Event Handlers -------------#
