@@ -368,7 +368,7 @@ class mainWindow(QMainWindow):
 
     def prepare_events(self):
         # Initiate the button click maps
-        self.window.pushButtonSTLImport.clicked.connect(self.importMultipleSTL)
+        self.window.pushButtonSTLImport.clicked.connect(self.importSTL)
         self.window.pushButtonSphere.clicked.connect(self.createSphere)
         self.window.actionNew_Case.triggered.connect(self.createCase)
         self.window.actionOpen_Case.triggered.connect(self.openCase)
