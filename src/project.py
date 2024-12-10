@@ -92,6 +92,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.mod_options = ["Background Mesh","Add Geometry","Refinement Levels","Mesh Point","Boundary Conditions","Fluid Properties", "Numerical Settings", 
                    "Simulation Control Settings","Turbulence Model","Post Processing Settings"]
         self.minX, self.maxX, self.minY, self.maxY, self.minZ, self.maxZ = -1e-3, 1e-3, -1e-3, 1e-3, -1e-3, 1e-3
+        self.lenX, self.lenY, self.lenZ = 2e-3, 2e-3, 2e-3
     #--------------------------------------------------------------------
     # Methods to handle the project summary and changes
     #--------------------------------------------------------------------
@@ -894,6 +895,19 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.meshSettings['domain']['ny'] = ny
         self.meshSettings['domain']['nz'] = nz
 
+    def update_max_stl_length(self,bounds):
+        # update the characteristic length based on the bounding box of the stl files
+        # the characteristic length is the maximum dimension of the bounding box
+        xmin, xmax, ymin, ymax, zmin, zmax = bounds
+        dx = xmax - xmin
+        dy = ymax - ymin
+        dz = zmax - zmin
+        self.lenX = max(dx,self.lenX)
+        self.lenY = max(dy,self.lenY)
+        self.lenZ = max(dz,self.lenZ)
+        
+
+
     def analyze_stl_file(self,stl_file_number=0):
         rho = self.physicalProperties['rho']
         nu = self.physicalProperties['nu']
@@ -916,6 +930,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                                                                            onGround=self.onGround,internalFlow=self.internalFlow,
                                                                            refinement=self.refinement,halfModel=self.halfModel,
                                                                            GUI=self.GUIMode,window=self.window)
+        self.update_max_stl_length(stlBoundingBox)
         featureLevel = max(refLevel,1)
         self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel, featureLevel,nLayers=nLayers) 
         self.set_max_domain_size(domain_size,nx,ny,nz)

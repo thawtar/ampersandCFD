@@ -66,80 +66,79 @@ class mainWindow(QMainWindow):
         self.nx,self.ny,self.nz = 0,0,0
         self.current_stl_file = None
         self.colorCounter = 0
-        self.listOfColors = ["Pink","Red","Green","Blue","Yellow","Orange","Purple","Cyan","Magenta","Brown",]
         # disable all the buttons and input fields
-        self.disableButtons()
+        #self.disableButtons()
 
     def disableButtons(self):
-        self.window.pushButtonSTLImport.setEnabled(False)
-        self.window.pushButtonSphere.setEnabled(False)
-        self.window.pushButtonBox.setEnabled(False)
-        self.window.pushButtonCylinder.setEnabled(False)
-        self.window.radioButtonInternal.setEnabled(False)
-        self.window.radioButtonExternal.setEnabled(False)
-        self.window.checkBoxOnGround.setEnabled(False)
-        self.window.pushButtonSTLProperties.setEnabled(False)
-        self.window.pushButtonPhysicalProperties.setEnabled(False)
-        self.window.pushButtonBoundaryCondition.setEnabled(False)
-        self.window.pushButtonNumerics.setEnabled(False)
-        self.window.pushButtonControls.setEnabled(False)
-        self.window.pushButtonDomainAuto.setEnabled(False)
-        self.window.pushButtonDomainManual.setEnabled(False)
-        #self.window.pushButtonCreate.setEnabled(False)
-        #self.window.pushButtonOpen.setEnabled(False)
-        self.window.pushButtonGenerate.setEnabled(False)
-        self.window.pushButtonSave.setEnabled(False)
-        self.window.lineEditMinX.setEnabled(False)
-        self.window.lineEditMinY.setEnabled(False)
-        self.window.lineEditMinZ.setEnabled(False)
-        self.window.lineEditMaxX.setEnabled(False)
-        self.window.lineEditMaxY.setEnabled(False)
-        self.window.lineEditMaxZ.setEnabled(False)
-        self.window.lineEdit_nX.setEnabled(False)
-        self.window.lineEdit_nY.setEnabled(False)
-        self.window.lineEdit_nZ.setEnabled(False)
+        self.pushButtonSTLImport.setEnabled(False)
+        self.pushButtonSphere.setEnabled(False)
+        self.pushButtonBox.setEnabled(False)
+        self.pushButtonCylinder.setEnabled(False)
+        self.radioButtonInternal.setEnabled(False)
+        self.radioButtonExternal.setEnabled(False)
+        self.checkBoxOnGround.setEnabled(False)
+        self.pushButtonSTLProperties.setEnabled(False)
+        self.pushButtonPhysicalProperties.setEnabled(False)
+        self.pushButtonBoundaryCondition.setEnabled(False)
+        self.pushButtonNumerics.setEnabled(False)
+        self.pushButtonControls.setEnabled(False)
+        self.pushButtonDomainAuto.setEnabled(False)
+        self.pushButtonDomainManual.setEnabled(False)
+        #self.pushButtonCreate.setEnabled(False)
+        #self.pushButtonOpen.setEnabled(False)
+        self.pushButtonGenerate.setEnabled(False)
+        self.pushButtonSave.setEnabled(False)
+        self.lineEditMinX.setEnabled(False)
+        self.lineEditMinY.setEnabled(False)
+        self.lineEditMinZ.setEnabled(False)
+        self.lineEditMaxX.setEnabled(False)
+        self.lineEditMaxY.setEnabled(False)
+        self.lineEditMaxZ.setEnabled(False)
+        self.lineEdit_nX.setEnabled(False)
+        self.lineEdit_nY.setEnabled(False)
+        self.lineEdit_nZ.setEnabled(False)
         # change color of widget 
-        self.window.widget.setStyleSheet('''background-color: lightgrey;''')
-        self.window.plainTextTerminal.appendPlainText("Welcome to SplashFOAM Case Creator")
+        self.widget.setStyleSheet('''background-color: lightgrey;''')
+        self.plainTextTerminal.appendPlainText("Welcome to SplashFOAM Case Creator")
        
     def enableButtons(self):
-        self.window.pushButtonSTLImport.setEnabled(True)
-        self.window.pushButtonSphere.setEnabled(True)
-        self.window.pushButtonBox.setEnabled(True)
-        self.window.pushButtonCylinder.setEnabled(True)
-        self.window.radioButtonInternal.setEnabled(True)
-        self.window.radioButtonExternal.setEnabled(True)
-        self.window.checkBoxOnGround.setEnabled(True)
-        self.window.pushButtonSTLProperties.setEnabled(True)
-        self.window.pushButtonPhysicalProperties.setEnabled(True)
-        self.window.pushButtonBoundaryCondition.setEnabled(True)
-        self.window.pushButtonNumerics.setEnabled(True)
-        self.window.pushButtonControls.setEnabled(True)
-        self.window.pushButtonCreate.setEnabled(True)
-        self.window.pushButtonOpen.setEnabled(True)
-        self.window.pushButtonGenerate.setEnabled(True)
-        self.window.pushButtonSave.setEnabled(True)
-        self.window.pushButtonDomainAuto.setEnabled(True)
-        self.window.pushButtonDomainManual.setEnabled(True)
-        self.window.lineEditMinX.setEnabled(True)
-        self.window.lineEditMinY.setEnabled(True)
-        self.window.lineEditMinZ.setEnabled(True)
-        self.window.lineEditMaxX.setEnabled(True)
-        self.window.lineEditMaxY.setEnabled(True)
-        self.window.lineEditMaxZ.setEnabled(True)
-        self.window.lineEdit_nX.setEnabled(True)
-        self.window.lineEdit_nY.setEnabled(True)
-        self.window.lineEdit_nZ.setEnabled(True)
+        self.pushButtonSTLImport.setEnabled(True)
+        self.pushButtonSphere.setEnabled(True)
+        self.pushButtonBox.setEnabled(True)
+        self.pushButtonCylinder.setEnabled(True)
+        self.radioButtonInternal.setEnabled(True)
+        self.radioButtonExternal.setEnabled(True)
+        self.checkBoxOnGround.setEnabled(True)
+        self.pushButtonSTLProperties.setEnabled(True)
+        self.pushButtonPhysicalProperties.setEnabled(True)
+        self.pushButtonBoundaryCondition.setEnabled(True)
+        self.pushButtonNumerics.setEnabled(True)
+        self.pushButtonControls.setEnabled(True)
+        self.pushButtonCreate.setEnabled(True)
+        self.pushButtonOpen.setEnabled(True)
+        self.pushButtonGenerate.setEnabled(True)
+        self.pushButtonSave.setEnabled(True)
+        self.pushButtonDomainAuto.setEnabled(True)
+        self.pushButtonDomainManual.setEnabled(True)
+        self.lineEditMinX.setEnabled(True)
+        self.lineEditMinY.setEnabled(True)
+        self.lineEditMinZ.setEnabled(True)
+        self.lineEditMaxX.setEnabled(True)
+        self.lineEditMaxY.setEnabled(True)
+        self.lineEditMaxZ.setEnabled(True)
+        self.lineEdit_nX.setEnabled(True)
+        self.lineEdit_nY.setEnabled(True)
+        self.lineEdit_nZ.setEnabled(True)
 
     def load_ui(self):
         ui_file = QFile("ampersandInputForm.ui")
         ui_file.open(QFile.ReadOnly)
-        self.window = loader.load(ui_file, None)
+        loader.load(ui_file, self)
         ui_file.close()
         self.setWindowTitle("Ampersand Input Form")
-        self.prepare_vtk()
-        self.prepare_subWindows()
-        self.prepare_events()
+        #self.prepare_vtk()
+        #self.prepare_subWindows()
+        #self.prepare_events()
 
     def __del__(self):
         pass
@@ -160,7 +159,7 @@ class mainWindow(QMainWindow):
     def prepare_vtk(self):
         # Prepare the VTK widget to show the STL
         self.vl = QVBoxLayout()
-        self.vtkWidget = QVTKRenderWindowInteractor(self.window.widget)
+        self.vtkWidget = QVTKRenderWindowInteractor(self.widget)
         self.vl.addWidget(self.vtkWidget)
         self.ren = vtk.vtkRenderer()
         self.vtkWidget.GetRenderWindow().AddRenderer(self.ren)
@@ -187,9 +186,7 @@ class mainWindow(QMainWindow):
         try:
             self.reader = vtk.vtkSTLReader()
             self.reader.SetFileName(stlFile)
-            stl_name = os.path.basename(stlFile)
-            print("STL Name: ",stl_name)
-            self.render3D(actorName=stl_name)
+            self.render3D()
         except:
             print("Reading STL not successful. Try again")
 
@@ -221,7 +218,6 @@ class mainWindow(QMainWindow):
         self.iren.Initialize()
         # add coordinate axes
         axes = vtk.vtkAxesActor()
-        axes.SetTotalLength(0.1, 0.1, 0.1)
         self.ren.AddActor(axes)
         self.iren.Start()
         """
@@ -238,29 +234,23 @@ class mainWindow(QMainWindow):
         """
         
 
-    def render3D(self,actorName=None):  # self.ren and self.iren must be used. other variables are local variables
+    def render3D(self):  # self.ren and self.iren must be used. other variables are local variables
         # Create a mapper
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInputConnection(self.reader.GetOutputPort())
         # Create an actor
         actor = vtk.vtkActor()
         actor.SetMapper(mapper)
-        if actorName:
-            actor.SetObjectName(actorName)
-            print("Actor Name: ",actor.GetObjectName())
         #actor.GetProperty().EdgeVisibilityOn()
         # set random colors to the actor
         colors = vtk.vtkNamedColors()
-        
+        listOfColors = ["Pink","Red","Green","Blue","Yellow","Orange","Purple","Cyan","Magenta","Brown",]
         if(self.colorCounter>9):
             self.colorCounter = 0
-        actor.GetProperty().SetColor(colors.GetColor3d(self.listOfColors[self.colorCounter]))
+        actor.GetProperty().SetColor(colors.GetColor3d(listOfColors[self.colorCounter]))
         self.ren.AddActor(actor)
         axes = vtk.vtkAxesActor()
-        charLen = min(self.project.lenX,self.project.lenY,self.project.lenZ)*1.0
-        axes.SetTotalLength(charLen, charLen, charLen)
         self.ren.AddActor(axes)
-        
         self.colorCounter += 1
         
         #self.iren.Start()
@@ -329,27 +319,25 @@ class mainWindow(QMainWindow):
         self.surfaces.append(stl_name)
         print(self.surfaces)
         idx = len(self.surfaces)
-        self.window.listWidgetObjList.insertItem(idx,stl_name)
+        self.listWidgetObjList.insertItem(idx,stl_name)
         message = "Loaded STL file: "+stlFile
         self.updateStatusBar(message) 
 
     def update_list(self):
-        self.window.listWidgetObjList.clear()
+        self.listWidgetObjList.clear()
         for i in range(len(self.project.stl_files)):
-            self.window.listWidgetObjList.insertItem(i,self.project.stl_files[i]['name'])
+            self.listWidgetObjList.insertItem(i,self.project.stl_files[i]['name'])
 
-    
-
-    def listClicked(self):
+    def updatePropertyBox(self):
         # find the selected item in the list
-        item = self.window.listWidgetObjList.currentItem()
-        idx = self.window.listWidgetObjList.row(item)
+        item = self.listWidgetObjList.currentItem()
+        idx = self.listWidgetObjList.row(item)
         
         self.current_stl_file = item.text()
-        print("Selected Item: ",self.current_stl_file)
-        #actors = self.ren.GetActors()
-        self.vtkHilightSTL(self.current_stl_file)
-        
+        #print("Selected Item: ",self.current_stl_file)
+        # find the properties of the selected item
+        #print("Current STL File: ",self.current_stl_file)
+        #print(self.project.stl_files)
         stl_properties = self.project.get_stl_properties(self.current_stl_file)
         if stl_properties==None:
             return
@@ -357,67 +345,67 @@ class mainWindow(QMainWindow):
         #print("STL Properties: ",refMin,refMax,featureEdges,featureLevel,nLayers,property,bounds)
         return
         # update the property box
-        self.window.tableViewProperties.setItem(0,0,QtWidgets.QTableWidgetItem("Refinement Min"))
-        #self.window.tableViewProperties.setItem(0,0,QtWidgets.QTableWidgetItem(str(refMin)))
-        self.window.tableViewProperties.setItem(0,1,QtWidgets.QTableWidgetItem(str(refMax)))
-        self.window.tableViewProperties.setItem(1,0,QtWidgets.QTableWidgetItem(str(featureEdges)))
-        self.window.tableViewProperties.setItem(1,1,QtWidgets.QTableWidgetItem(str(featureLevel)))
-        self.window.tableViewProperties.setItem(2,0,QtWidgets.QTableWidgetItem(str(nLayers)))
-        self.window.tableViewProperties.setItem(2,1,QtWidgets.QTableWidgetItem(str(property)))
-        self.window.tableViewProperties.setItem(3,0,QtWidgets.QTableWidgetItem(str(bounds[0])))
+        self.tableViewProperties.setItem(0,0,QtWidgets.QTableWidgetItem("Refinement Min"))
+        #self.tableViewProperties.setItem(0,0,QtWidgets.QTableWidgetItem(str(refMin)))
+        self.tableViewProperties.setItem(0,1,QtWidgets.QTableWidgetItem(str(refMax)))
+        self.tableViewProperties.setItem(1,0,QtWidgets.QTableWidgetItem(str(featureEdges)))
+        self.tableViewProperties.setItem(1,1,QtWidgets.QTableWidgetItem(str(featureLevel)))
+        self.tableViewProperties.setItem(2,0,QtWidgets.QTableWidgetItem(str(nLayers)))
+        self.tableViewProperties.setItem(2,1,QtWidgets.QTableWidgetItem(str(property)))
+        self.tableViewProperties.setItem(3,0,QtWidgets.QTableWidgetItem(str(bounds[0])))
         
     def updateStatusBar(self,message="Go!"):
-        self.window.statusbar.showMessage(message)
-        self.window.plainTextTerminal.appendPlainText(message)
+        self.statusbar.showMessage(message)
+        self.plainTextTerminal.appendPlainText(message)
 
     def updateTerminal(self,message="Go!"):
-        self.window.plainTextTerminal.appendPlainText(message)
+        self.plainTextTerminal.appendPlainText(message)
 
     def readyStatusBar(self):
         # pause 1 millisecond
         sleep(0.001)
-        self.window.statusbar.showMessage("Ready")
+        self.statusbar.showMessage("Ready")
 
     def prepare_events(self):
-        #self.window.resizeEvent = self.resizeEventTriggered
-        #self.window.closeEvent = self.closeEventTriggered
+        #self.resizeEvent = self.resizeEventTriggered
+        #self.closeEvent = self.closeEventTriggered
         # Initiate the button click maps
-        self.window.pushButtonSTLImport.clicked.connect(self.importSTL)
-        self.window.pushButtonSphere.clicked.connect(self.createSphere)
-        self.window.actionNew_Case.triggered.connect(self.createCase)
-        self.window.actionOpen_Case.triggered.connect(self.openCase)
-        self.window.actionSave_Case.triggered.connect(self.saveCase)
-        self.window.pushButtonCreate.clicked.connect(self.createCase)
-        self.window.pushButtonOpen.clicked.connect(self.openCase)
-        self.window.actionExit.triggered.connect(self.close)
-        self.window.pushButtonGenerate.clicked.connect(self.generateCase)
-        self.window.pushButtonSave.clicked.connect(self.saveCase)
-        self.window.radioButtonInternal.clicked.connect(self.chooseInternalFlow)
-        self.window.radioButtonExternal.clicked.connect(self.chooseExternalFlow)
-        self.window.listWidgetObjList.itemClicked.connect(self.listClicked)
-        self.window.pushButtonDomainAuto.clicked.connect(self.autoDomain)
-        self.window.pushButtonDomainManual.clicked.connect(self.manualDomain)
-        self.window.pushButtonSTLProperties.clicked.connect(self.stlPropertiesDialog)
-        self.window.pushButtonPhysicalProperties.clicked.connect(self.physicalPropertiesDialog)
-        self.window.pushButtonBoundaryCondition.clicked.connect(self.boundaryConditionDialog)
-        self.window.pushButtonNumerics.clicked.connect(self.numericsDialog)
-        self.window.pushButtonControls.clicked.connect(self.controlsDialog)
-        #self.window.checkBoxOnGround.clicked.connect(self.chooseExternalFlow)
+        self.pushButtonSTLImport.clicked.connect(self.importSTL)
+        self.pushButtonSphere.clicked.connect(self.createSphere)
+        self.actionNew_Case.triggered.connect(self.createCase)
+        self.actionOpen_Case.triggered.connect(self.openCase)
+        self.actionSave_Case.triggered.connect(self.saveCase)
+        self.pushButtonCreate.clicked.connect(self.createCase)
+        self.pushButtonOpen.clicked.connect(self.openCase)
+        self.actionExit.triggered.connect(self.close)
+        self.pushButtonGenerate.clicked.connect(self.generateCase)
+        self.pushButtonSave.clicked.connect(self.saveCase)
+        self.radioButtonInternal.clicked.connect(self.chooseInternalFlow)
+        self.radioButtonExternal.clicked.connect(self.chooseExternalFlow)
+        self.listWidgetObjList.itemClicked.connect(self.updatePropertyBox)
+        self.pushButtonDomainAuto.clicked.connect(self.autoDomain)
+        self.pushButtonDomainManual.clicked.connect(self.manualDomain)
+        self.pushButtonSTLProperties.clicked.connect(self.stlPropertiesDialog)
+        self.pushButtonPhysicalProperties.clicked.connect(self.physicalPropertiesDialog)
+        self.pushButtonBoundaryCondition.clicked.connect(self.boundaryConditionDialog)
+        self.pushButtonNumerics.clicked.connect(self.numericsDialog)
+        self.pushButtonControls.clicked.connect(self.controlsDialog)
+        #self.checkBoxOnGround.clicked.connect(self.chooseExternalFlow)
         # change view on the VTK widget
-        self.window.pushButtonFitAll.clicked.connect(self.vtkFitAll)
-        self.window.pushButtonPlusX.clicked.connect(self.vtkPlusX)
-        self.window.pushButtonPlusY.clicked.connect(self.vtkPlusY)
-        self.window.pushButtonPlusZ.clicked.connect(self.vtkPlusZ)
-        self.window.pushButtonMinusX.clicked.connect(self.vtkMinusX)
-        self.window.pushButtonMinusY.clicked.connect(self.vtkMinusY)
-        self.window.pushButtonMinusZ.clicked.connect(self.vtkMinusZ)
-        self.window.pushButtonShowWire.clicked.connect(self.vtkShowWire)
-        self.window.pushButtonShowSurface.clicked.connect(self.vtkShowSurface)
-        self.window.pushButtonShowEdges.clicked.connect(self.vtkShowEdges)
+        self.pushButtonFitAll.clicked.connect(self.vtkFitAll)
+        self.pushButtonPlusX.clicked.connect(self.vtkPlusX)
+        self.pushButtonPlusY.clicked.connect(self.vtkPlusY)
+        self.pushButtonPlusZ.clicked.connect(self.vtkPlusZ)
+        self.pushButtonMinusX.clicked.connect(self.vtkMinusX)
+        self.pushButtonMinusY.clicked.connect(self.vtkMinusY)
+        self.pushButtonMinusZ.clicked.connect(self.vtkMinusZ)
+        self.pushButtonShowWire.clicked.connect(self.vtkShowWire)
+        self.pushButtonShowSurface.clicked.connect(self.vtkShowSurface)
+        self.pushButtonShowEdges.clicked.connect(self.vtkShowEdges)
 
-        #self.window.resizeEvent = self.resizeEvent
-        #self.window.closeEvent = self.closeEvent
-        self.window.statusbar.showMessage("Ready")
+        #self.resizeEvent = self.resizeEvent
+        #self.closeEvent = self.closeEvent
+        self.statusbar.showMessage("Ready")
 
 #----------------- Event Handlers -----------------#
     def importSTL(self):
@@ -468,9 +456,9 @@ class mainWindow(QMainWindow):
 
     def resizeEvent(self, event):
         print("Resizing")
-        self.window.resizeEvent(event)
-        #QtWidgets.QMainWindow.resizeEvent(self.window, event)
-        #self.vtkWidget.resize(self.window.widget.size())
+        #self.resizeEvent(event)
+        #QtWidgets.QMainWindow.resizeEvent(self, event)
+        #self.vtkWidget.resize(self.widget.size())
 
     def closeEventTriggered(self, event):
         print("Closing")
@@ -481,7 +469,7 @@ class mainWindow(QMainWindow):
         self.project.internalFlow = True
         self.project.meshSettings['internalFlow'] = True
         self.project.onGround = False
-        self.window.checkBoxOnGround.setEnabled(False)
+        self.checkBoxOnGround.setEnabled(False)
         self.updateStatusBar("Choosing Internal Flow")
         #sleep(0.001)
         self.readyStatusBar()
@@ -489,9 +477,9 @@ class mainWindow(QMainWindow):
     def chooseExternalFlow(self):
         self.project.internalFlow = False
         self.project.meshSettings['internalFlow'] = False
-        self.window.checkBoxOnGround.setEnabled(True)
-        self.project.meshSettings['onGround'] = self.window.checkBoxOnGround.isChecked()
-        self.project.onGround = self.window.checkBoxOnGround.isChecked()
+        self.checkBoxOnGround.setEnabled(True)
+        self.project.meshSettings['onGround'] = self.checkBoxOnGround.isChecked()
+        self.project.onGround = self.checkBoxOnGround.isChecked()
         self.updateStatusBar("Choosing External Flow")
         sleep(0.001)
         self.readyStatusBar()
@@ -520,7 +508,7 @@ class mainWindow(QMainWindow):
         # clear vtk renderer
         self.ren.RemoveAllViewProps()
         # clear the list widget
-        self.window.listWidgetObjList.clear()
+        self.listWidgetObjList.clear()
         self.project = ampersandProject(GUIMode=True,window=self)
         
         self.project.set_project_directory(ampersandPrimitives.ask_for_directory(qt=True))
@@ -551,7 +539,7 @@ class mainWindow(QMainWindow):
         ampersandIO.printMessage(f"Project {project_name} created",GUIMode=True,window=self)
         
         # change window title
-        self.window.setWindowTitle(f"Case Creator: {project_name}")
+        self.setWindowTitle(f"Case Creator: {project_name}")
         self.readyStatusBar()
 
     def openCase(self):
@@ -579,7 +567,7 @@ class mainWindow(QMainWindow):
         # clear vtk renderer
         self.ren.RemoveAllViewProps()
         # clear the list widget
-        self.window.listWidgetObjList.clear()
+        self.listWidgetObjList.clear()
         projectFound = self.project.set_project_path(ampersandPrimitives.ask_for_directory(qt=True))
         
         if projectFound==-1:
@@ -604,14 +592,14 @@ class mainWindow(QMainWindow):
             self.showSTL(stlFile=stl_file)
         self.readyStatusBar()
         if self.project.internalFlow:
-            self.window.radioButtonInternal.setChecked(True)
-            self.window.checkBoxOnGround.setEnabled(False)
+            self.radioButtonInternal.setChecked(True)
+            self.checkBoxOnGround.setEnabled(False)
         else:
-            self.window.radioButtonExternal.setChecked(True)
-            self.window.checkBoxOnGround.setChecked(self.project.onGround)
+            self.radioButtonExternal.setChecked(True)
+            self.checkBoxOnGround.setChecked(self.project.onGround)
         self.project_opened = True
         ampersandIO.printMessage(f"Project {self.project.project_name} created",GUIMode=True,window=self)
-        self.window.setWindowTitle(f"Case Creator: {self.project.project_name}")
+        self.setWindowTitle(f"Case Creator: {self.project.project_name}")
         # change window title
         self.setWindowTitle(f"Case Creator: {self.project.project_name}")
         self.readyStatusBar()
@@ -650,13 +638,13 @@ class mainWindow(QMainWindow):
     
     def autoDomain(self):
         
-        #internalFlow = self.window.radioButtonInternal.isChecked()
+        #internalFlow = self.radioButtonInternal.isChecked()
         #self.project.meshSettings['internalFlow'] = internalFlow
         #self.project.internalFlow = internalFlow
         if self.project.internalFlow==True:
             onGround = False
         else:
-            onGround = self.window.checkBoxOnGround.isChecked()
+            onGround = self.checkBoxOnGround.isChecked()
         self.project.meshSettings['onGround'] = onGround
         self.project.onGround = onGround
         if len(self.project.stl_files)==0:
@@ -674,27 +662,27 @@ class mainWindow(QMainWindow):
         nx = self.project.meshSettings['domain']['nx']
         ny = self.project.meshSettings['domain']['ny']
         nz = self.project.meshSettings['domain']['nz']
-        self.window.lineEditMinX.setText(f"{minx:.2f}")
-        self.window.lineEditMinY.setText(f"{miny:.2f}")
-        self.window.lineEditMinZ.setText(f"{minz:.2f}")
-        self.window.lineEditMaxX.setText(f"{maxx:.2f}")
-        self.window.lineEditMaxY.setText(f"{maxy:.2f}")
-        self.window.lineEditMaxZ.setText(f"{maxz:.2f}")
-        self.window.lineEdit_nX.setText(str(nx))
-        self.window.lineEdit_nY.setText(str(ny))
-        self.window.lineEdit_nZ.setText(str(nz))
+        self.lineEditMinX.setText(f"{minx:.2f}")
+        self.lineEditMinY.setText(f"{miny:.2f}")
+        self.lineEditMinZ.setText(f"{minz:.2f}")
+        self.lineEditMaxX.setText(f"{maxx:.2f}")
+        self.lineEditMaxY.setText(f"{maxy:.2f}")
+        self.lineEditMaxZ.setText(f"{maxz:.2f}")
+        self.lineEdit_nX.setText(str(nx))
+        self.lineEdit_nY.setText(str(ny))
+        self.lineEdit_nZ.setText(str(nz))
         self.add_box_to_VTK(minX=minx,minY=miny,minZ=minz,maxX=maxx,maxY=maxy,maxZ=maxz,boxName="Domain")
         
     def manualDomain(self):
-        minx = float(self.window.lineEditMinX.text())
-        miny = float(self.window.lineEditMinY.text())
-        minz = float(self.window.lineEditMinZ.text())
-        maxx = float(self.window.lineEditMaxX.text())
-        maxy = float(self.window.lineEditMaxY.text())
-        maxz = float(self.window.lineEditMaxZ.text())
-        nx = int(self.window.lineEdit_nX.text())
-        ny = int(self.window.lineEdit_nY.text())
-        nz = int(self.window.lineEdit_nZ.text())
+        minx = float(self.lineEditMinX.text())
+        miny = float(self.lineEditMinY.text())
+        minz = float(self.lineEditMinZ.text())
+        maxx = float(self.lineEditMaxX.text())
+        maxy = float(self.lineEditMaxY.text())
+        maxz = float(self.lineEditMaxZ.text())
+        nx = int(self.lineEdit_nX.text())
+        ny = int(self.lineEdit_nY.text())
+        nz = int(self.lineEdit_nZ.text())
         if(nx<=0 or ny<=0 or nz<=0):
             ampersandIO.printError("Invalid Domain Size",GUIMode=True)
             self.readyStatusBar()
@@ -751,14 +739,14 @@ class mainWindow(QMainWindow):
         controls = controlsDialogDriver()
 
     def vtkFitAll(self):
-        #print("Fitting all")
+        print("Fitting all")
         self.ren.ResetCamera()
         self.vtkWidget.GetRenderWindow().Render()
         #self.ren.ResetCamera()
         #self.iren.Start()
 
     def vtkPlusX(self):
-        #print("Plus X side")
+        print("Plus X side")
         self.ren.GetActiveCamera().SetPosition(1, 0, 0)
         self.ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
         self.ren.GetActiveCamera().SetViewUp(0, 0, 1)
@@ -766,7 +754,7 @@ class mainWindow(QMainWindow):
         self.vtkWidget.GetRenderWindow().Render()
     
     def vtkPlusY(self):
-        #print("Plus Y side")
+        print("Plus Y side")
         self.ren.GetActiveCamera().SetPosition(0, 1, 0)
         self.ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
         self.ren.GetActiveCamera().SetViewUp(0, 0, 1)
@@ -774,7 +762,7 @@ class mainWindow(QMainWindow):
         self.vtkWidget.GetRenderWindow().Render()
 
     def vtkPlusZ(self):
-        #print("Plus Z side")
+        print("Plus Z side")
         self.ren.GetActiveCamera().SetPosition(0, 0, 1)
         self.ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
         self.ren.GetActiveCamera().SetViewUp(0, 1, 0)
@@ -782,7 +770,7 @@ class mainWindow(QMainWindow):
         self.vtkWidget.GetRenderWindow().Render()
     
     def vtkMinusX(self):
-        #print("Minus X side")
+        print("Minus X side")
         self.ren.GetActiveCamera().SetPosition(-1, 0, 0)
         self.ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
         self.ren.GetActiveCamera().SetViewUp(0, 0, 1)
@@ -790,7 +778,7 @@ class mainWindow(QMainWindow):
         self.vtkWidget.GetRenderWindow().Render()
     
     def vtkMinusY(self):
-        #print("Minus Y side")
+        print("Minus Y side")
         self.ren.GetActiveCamera().SetPosition(0, -1, 0)
         self.ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
         self.ren.GetActiveCamera().SetViewUp(0, 0, 1)
@@ -798,7 +786,7 @@ class mainWindow(QMainWindow):
         self.vtkWidget.GetRenderWindow().Render()
 
     def vtkMinusZ(self):
-        #print("Minus Z side")
+        print("Minus Z side")
         self.ren.GetActiveCamera().SetPosition(0, 0, -1)
         self.ren.GetActiveCamera().SetFocalPoint(0, 0, 0)
         self.ren.GetActiveCamera().SetViewUp(0, 1, 0)
@@ -806,45 +794,24 @@ class mainWindow(QMainWindow):
         self.vtkWidget.GetRenderWindow().Render()
 
     def vtkShowWire(self):
-        #print("Show Wire")
+        print("Show Wire")
         actors = self.ren.GetActors()
         for actor in actors:
             actor.GetProperty().SetRepresentationToWireframe()
         self.vtkWidget.GetRenderWindow().Render()
     
     def vtkShowSurface(self):
-        #print("Show Surface")
+        print("Show Surface")
         actors = self.ren.GetActors()
         for actor in actors:
             actor.GetProperty().SetRepresentationToSurface()
-            actor.GetProperty().EdgeVisibilityOff()
         self.vtkWidget.GetRenderWindow().Render()
 
     def vtkShowEdges(self):
-        #print("Show Edges")
+        print("Show Edges")
         actors = self.ren.GetActors()
         for actor in actors:
-            actor.GetProperty().SetRepresentationToSurface()
             actor.GetProperty().EdgeVisibilityOn()
-        self.vtkWidget.GetRenderWindow().Render()
-
-    def vtkHilightSTL(self,stlFile):
-        idx = 0
-        actors = self.ren.GetActors()
-        colors = vtk.vtkNamedColors()
-        actor_found = None
-        for actor in actors:
-            if actor.GetObjectName() in self.project.stl_names:
-                #print("Actor Name: ",actor.GetObjectName())
-                #print(f"Iteration: {idx}")
-                if actor.GetObjectName() == stlFile:
-                    #print("Actor Found: ",actor.GetObjectName())
-                    actor_found = actor
-                    actor_found.GetProperty().SetColor(1.0, 0.0, 1.0)
-                else:
-                    # reset colors for other colors
-                    actor.GetProperty().SetColor(colors.GetColor3d(self.listOfColors[idx]))
-                idx += 1
         self.vtkWidget.GetRenderWindow().Render()
 
 
@@ -855,7 +822,7 @@ def main():
 
     app = QApplication(sys.argv)
     w = mainWindow()
-    w.window.show()
+    w.show()
     app.exec()
 
 if __name__ == "__main__":

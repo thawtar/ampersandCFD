@@ -220,7 +220,11 @@ class STLDialog(QDialog):
         self.window.pushButtonCancel.clicked.connect(self.on_pushButtonCancel_clicked)
         self.window.comboBoxUsage.currentIndexChanged.connect(self.changeUsage)
         # when closed the dialog box
-        #self.window.closeEvent = self.on_pushButtonCancel_clicked
+        #self.window.resizeEvent = self.show_closed
+        #self.window.closeEvent = self.show_closed
+
+    def show_closed(self):
+        print("STL Dialog Closed")
 
     def on_pushButtonOK_clicked(self):
         #print("Push Button OK Clicked")
