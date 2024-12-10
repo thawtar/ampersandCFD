@@ -1022,17 +1022,25 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         turbulence_model = ampersandDataInput.choose_turbulence_model()
         self.solverSettings['turbulenceModel'] = turbulence_model
     
+    def ask_transient_settings(self):
+        self.simulationSettings['endTime'] = ampersandIO.get_input_float("End time: ")
+        self.simulationSettings['writeInterval'] = ampersandIO.get_input_float("Write interval: ")
+        self.simulationSettings['deltaT'] = ampersandIO.get_input_float("Time step: ")
     
     def set_transient_settings(self):
-        self.ask_transient()
+        #self.ask_transient()
         if self.transient:
             ampersandIO.printMessage("Transient simulation settings")
             self.simulationSettings['transient'] = True
             self.simulationSettings['application'] = 'pimpleFoam'
             self.simulationFlowSettings['solver'] = 'pimpleFoam'
-            self.simulationSettings['endTime'] = ampersandIO.get_input_float("End time: ")
-            self.simulationSettings['writeInterval'] = ampersandIO.get_input_float("Write interval: ")
-            self.simulationSettings['deltaT'] = ampersandIO.get_input_float("Time step: ")
+            if not self.GUIMode:
+                self.ask_transient_settings()
+            else:
+                pass
+                #self.simulationSettings['endTime'] = ampersandIO.get_input_float("End time: ")
+                #self.simulationSettings['writeInterval'] = ampersandIO.get_input_float("Write interval: ")
+                #self.simulationSettings['deltaT'] = ampersandIO.get_input_float("Time step: ")
             self.simulationSettings['adjustTimeStep'] = 'no'
             self.simulationSettings['maxCo'] = 0.9
             self.numericalSettings['ddtSchemes']['default'] = 'Euler'
