@@ -328,10 +328,52 @@ class physicalPropertiesDialog(QDialog):
         pass
 
 class boundaryConditionDialog(QDialog):
-    def __init__(self):
+    def __init__(self,boundary=None):
         super().__init__()
+        self.boundary = boundary
+        self.purpose = boundary["purpose"]
         self.load_ui()
         self.OK_clicked = False
+
+    def prepare_events(self):
+        self.window.pushButtonOK.clicked.connect(self.on_pushButtonOK_clicked)
+        self.window.pushButtonCancel.clicked.connect(self.on_pushButtonCancel_clicked)
+        self.fill_velocity_types()
+        self.fill_pressure_types()
+        self.window.comboBoxVelocityStyle.currentIndexChanged.connect(self.changeVelocityStyle)
+        self.window.comboBoxPressure.currentIndexChanged.connect(self.changePressureType)
+        
+    def changeVelocityStyle(self):
+        if(self.window.comboBoxVelocityStyle.currentText()=="Components"):
+            self.window.lineEditVelMag.setEnabled(False)
+            self.window.lineU.setEnabled(True)
+            self.window.lineV.setEnabled(True)
+            self.window.lineW.setEnabled(True)
+        else:
+            self.window.lineEditVelMag.setEnabled(True)  
+            self.window.lineU.setEnabled(False)
+            self.window.lineV.setEnabled(False)
+            self.window.lineW.setEnabled(False) 
+
+    def fill_turbulence_types(self):
+        self.window.comboBoxTurbulence.addItem("Intensity and Length Scale")
+        self.window.comboBoxTurbulence.addItem("Intensity and Viscosity Ratio")
+        self.window.comboBoxTurbulence.addItem("Intensity and Hydraulic Diameter")
+        self.window.comboBoxTurbulence.addItem("Turbulent Kinetic Energy (k) and Specific Dissipation Rate (omega)")
+        self.window.comboBoxTurbulence.addItem("Turbulent Kinetic Energy (k) and Dissipation Rate (epsilon)")
+
+    def fill_velocity_types(self):
+        self.window.comboBoxVelocityStyle.addItem("Components")
+        self.window.comboBoxVelocityStyle.addItem("Normal to boundary")
+        self.window.comboBoxVelocityStyle.addItem("Parabolic Profile")
+        self.window.comboBoxVelocityStyle.setCurrentText("Components")
+        self.window.lineEditVelMag.setEnabled(False)
+
+    def fill_pressure_types(self):
+        self.window.comboBoxPressure.addItem("Gauge Pressure")
+        self.window.comboBoxPressure.addItem("Total Pressure")
+        self.window.comboBoxPressure.setCurrentText("Gauge Pressure")
+        #self.window.comboBoxPressure.addItem("Static Pressure")
     
     def load_ui(self):
         ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\boundaryConditionDialog.ui"
@@ -464,8 +506,8 @@ def physicalPropertiesDialogDriver():
     dialog.window.exec()
     dialog.window.show()
 
-def boundaryConditionDialogDriver():
-    dialog = boundaryConditionDialog()
+def boundaryConditionDialogDriver(boundary=None):
+    dialog = boundaryConditionDialog(boundary)
     dialog.window.exec()
     dialog.window.show()
 

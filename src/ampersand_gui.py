@@ -485,7 +485,7 @@ class mainWindow(QMainWindow):
         #print("Resizing")
         #print("Width: ",self.window.width())
         #print("Height: ",self.window.height())
-        terminalHeight = 230
+        terminalHeight = 250
         vtkWidgetWidth = self.window.width()-560
         vtkWidgetHeight = self.window.height()-terminalHeight-20
         terminalX = self.window.widget.pos().x()
@@ -498,7 +498,7 @@ class mainWindow(QMainWindow):
         self.window.plainTextTerminal.resize(self.window.width()-560,self.window.plainTextTerminal.height())
        
         self.window.plainTextTerminal.move(terminalX,terminalY)
-        self.window.plainTextTerminal.resize(terminalWidth,terminalHeight)
+        self.window.plainTextTerminal.resize(terminalWidth,terminalHeight-20)
         self.window.plainTextTerminal.update()
         self.window.plainTextTerminal.repaint()
         self.readyStatusBar()
