@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -361,7 +361,7 @@
       <string>omega</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEditOmega_2">
+    <widget class="QLineEdit" name="lineEditEpsilon">
      <property name="geometry">
       <rect>
        <x>320</x>
@@ -389,11 +389,37 @@
     <attribute name="title">
      <string>Heat</string>
     </attribute>
+    <widget class="QLabel" name="label_16">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Not Implemented</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_3">
     <attribute name="title">
      <string>Advanced</string>
     </attribute>
+    <widget class="QLabel" name="label_17">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Not Implemented</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QPushButton" name="pushButtonOK">
@@ -435,7 +461,7 @@
     <string>Apply</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_BCName_Type">
+  <widget class="QLabel" name="labelBC">
    <property name="geometry">
     <rect>
      <x>20</x>

@@ -64,6 +64,7 @@ class mainWindow(QMainWindow):
         self.minx,self.miny,self.minz = 0.0,0.0,0.0
         self.maxx,self.maxy,self.maxz = 0.0,0.0,0.0
         self.nx,self.ny,self.nz = 0,0,0
+        self.lenX,self.lenY,self.lenZ = 1e-3,1e-3,1e-3
         self.current_stl_file = None
         self.colorCounter = 0
         self.listOfColors = ["Pink","Red","Green","Blue","Yellow","Orange","Purple","Cyan","Magenta","Brown",]
@@ -145,7 +146,7 @@ class mainWindow(QMainWindow):
         ui_file.close()
         self.setCentralWidget(self.window)
         self.setGeometry(100, 100, 1400, 880)
-        self.setWindowTitle("Ampersand Input Form")
+        self.setWindowTitle("Case Creator GUI")
         self.prepare_vtk()
         self.prepare_subWindows()
         self.prepare_events()
@@ -233,18 +234,9 @@ class mainWindow(QMainWindow):
         axes.SetTotalLength(0.1, 0.1, 0.1)
         self.ren.AddActor(axes)
         self.iren.Start()
-        """
-        widget = vtkOrientationMarkerWidget()
-        #renderWindowInteractor = vtkRenderWindowInteractor()
-        rgba = [0] * 4
-        colors.GetColor('Carrot', rgba)
-        widget.SetOutlineColor(rgba[0], rgba[1], rgba[2])
-        widget.SetOrientationMarker(axes)
-        widget.SetInteractor(self.iren)
-        widget.SetViewport(0.0, 0.0, 0.4, 0.4)
-        widget.SetEnabled(1)
-        widget.InteractiveOn()
-        """
+
+    
+
         
 
     def render3D(self,actorName=None):  # self.ren and self.iren must be used. other variables are local variables
@@ -266,8 +258,11 @@ class mainWindow(QMainWindow):
         actor.GetProperty().SetColor(colors.GetColor3d(self.listOfColors[self.colorCounter]))
         self.ren.AddActor(actor)
         axes = vtk.vtkAxesActor()
-        charLen = min(self.project.lenX,self.project.lenY,self.project.lenZ)*1.0
-        axes.SetTotalLength(charLen, charLen, charLen)
+        #self.project.update_max_lengths()
+        #charLen = min(self.project.lenX,self.project.lenY,self.project.lenZ)*0.5
+        #maxLen = max(self.project.lenX,self.project.lenY,self.project.lenZ)
+        #charLen = max(charLen,maxLen*0.2,0.01)
+        axes.SetTotalLength(0.2, 0.2, 0.2)
         self.ren.AddActor(axes)
         
         self.colorCounter += 1
@@ -404,7 +399,7 @@ class mainWindow(QMainWindow):
         self.window.radioButtonInternal.clicked.connect(self.chooseInternalFlow)
         self.window.radioButtonExternal.clicked.connect(self.chooseExternalFlow)
         self.window.listWidgetObjList.itemClicked.connect(self.listClicked)
-        self.window.pushButtonDomainAuto.clicked.connect(self.autoDomain)
+        self.window.pushButtonDomainAuto.clicked.connect(self.autoDomainDriver)
         self.window.pushButtonDomainManual.clicked.connect(self.manualDomain)
         self.window.pushButtonSTLProperties.clicked.connect(self.stlPropertiesDialog)
         self.window.pushButtonPhysicalProperties.clicked.connect(self.physicalPropertiesDialog)
@@ -561,11 +556,13 @@ class mainWindow(QMainWindow):
                 return
             
         self.updateStatusBar("Creating New Case")
-
+        # clear terminal
+        self.window.plainTextTerminal.clear()
         # clear vtk renderer
         self.ren.RemoveAllViewProps()
         # clear the list widget
         self.window.listWidgetObjList.clear()
+        self.project = None # clear the project
         self.project = ampersandProject(GUIMode=True,window=self)
         
         self.project.set_project_directory(ampersandPrimitives.ask_for_directory(qt=True))
@@ -596,7 +593,7 @@ class mainWindow(QMainWindow):
         ampersandIO.printMessage(f"Project {project_name} created",GUIMode=True,window=self)
         
         # change window title
-        self.window.setWindowTitle(f"Case Creator: {project_name}")
+        self.setWindowTitle(f"Case Creator: {project_name}")
         self.readyStatusBar()
 
     def openCase(self):
@@ -619,6 +616,10 @@ class mainWindow(QMainWindow):
                 self.readyStatusBar()
                 return
         self.updateStatusBar("Opening Case")
+        # clear terminal
+        self.window.plainTextTerminal.clear()
+        # clear the case
+        self.project = None
         self.project = ampersandProject(GUIMode=True,window=self)
 
         # clear vtk renderer
@@ -642,7 +643,8 @@ class mainWindow(QMainWindow):
         ampersandIO.printMessage("Project loaded successfully",GUIMode=True,window=self)
         self.project.summarize_project()
         self.enableButtons()
-        self.autoDomain()
+        self.autoDomain(analyze=False)
+        #self.vtkUpdateAxes()
         self.update_list()
         stl_file_paths = self.project.list_stl_paths()
         for stl_file in stl_file_paths:
@@ -656,9 +658,8 @@ class mainWindow(QMainWindow):
             self.window.checkBoxOnGround.setChecked(self.project.onGround)
         self.project_opened = True
         ampersandIO.printMessage(f"Project {self.project.project_name} created",GUIMode=True,window=self)
-        self.window.setWindowTitle(f"Case Creator: {self.project.project_name}")
-        # change window title
         self.setWindowTitle(f"Case Creator: {self.project.project_name}")
+        
         self.readyStatusBar()
 
     def generateCase(self):
@@ -692,12 +693,13 @@ class mainWindow(QMainWindow):
         self.updateTerminal("Case saved")
         self.updateTerminal("--------------------")
         self.readyStatusBar()
+
+    def autoDomainDriver(self):
+        self.analyze = True
+        self.autoDomain(self.analyze)
     
-    def autoDomain(self):
-        
-        #internalFlow = self.window.radioButtonInternal.isChecked()
-        #self.project.meshSettings['internalFlow'] = internalFlow
-        #self.project.internalFlow = internalFlow
+    def autoDomain(self,analyze=True):
+       
         if self.project.internalFlow==True:
             onGround = False
         else:
@@ -708,7 +710,8 @@ class mainWindow(QMainWindow):
             self.updateTerminal("No STL files loaded")
             self.readyStatusBar()
             return
-        self.project.analyze_stl_file()
+        if analyze:
+            self.project.analyze_stl_file()
         #print("On Ground: ",onGround)
         minx = self.project.meshSettings['domain']['minx']
         miny = self.project.meshSettings['domain']['miny']
@@ -719,6 +722,7 @@ class mainWindow(QMainWindow):
         nx = self.project.meshSettings['domain']['nx']
         ny = self.project.meshSettings['domain']['ny']
         nz = self.project.meshSettings['domain']['nz']
+        #print("Domain: ",minx,miny,minz,maxx,maxy,maxz,nx,ny,nz)
         self.window.lineEditMinX.setText(f"{minx:.2f}")
         self.window.lineEditMinY.setText(f"{miny:.2f}")
         self.window.lineEditMinZ.setText(f"{minz:.2f}")
@@ -767,11 +771,12 @@ class mainWindow(QMainWindow):
         if stl==None:
             return
         currentStlProperties = self.project.get_stl_properties(stl)
+        #print("Current STL Properties: ",currentStlProperties)
         # open STL properties dialog
         stlProperties = STLDialogDriver(stl,stlProperties=currentStlProperties)
         # The properties are:
         #refMin,refMax,refLevel,nLayers,usage,edgeRefine,ami,None
-        print(stlProperties)
+        #print(stlProperties)
         if stlProperties==None:
             return
         # update the properties
@@ -784,10 +789,29 @@ class mainWindow(QMainWindow):
             self.readyStatusBar()
 
     def physicalPropertiesDialog(self):
-        physicalProperties = physicalPropertiesDialogDriver()
+
+        # assign initial values from read data
+        rho = self.project.physicalProperties['rho']
+        nu = self.project.physicalProperties['nu']
+        cp = self.project.physicalProperties['Cp']
+        turbulence_model = self.project.physicalProperties['turbulenceModel']
+        initialProperties = (rho,nu,cp,turbulence_model)
+        print("Initial Properties: ",initialProperties)
+        physicalProperties = physicalPropertiesDialogDriver(initialProperties)
+        rho,nu,cp,turbulence_model = physicalProperties
+        # update the project physical properties
+        ampersandIO.printMessage("Updating Physical Properties",GUIMode=True)
+        self.project.physicalProperties['rho'] = rho
+        self.project.physicalProperties['nu'] = nu
+        self.project.physicalProperties['Cp'] = cp
+        self.project.physicalProperties['turbulenceModel'] = turbulence_model
 
     def boundaryConditionDialog(self):
-        boundaryConditions = boundaryConditionDialogDriver()
+        stl = self.project.get_stl(self.current_stl_file)
+        if stl==None:
+            ampersandIO.printError("STL not found",GUIMode=True)
+            return
+        boundaryConditions = boundaryConditionDialogDriver(stl)
 
     def numericsDialog(self):
         numerics = numericsDialogDriver()  
@@ -896,6 +920,18 @@ class mainWindow(QMainWindow):
                     actor.GetProperty().SetColor(colors.GetColor3d(self.listOfColors[idx]))
                 idx += 1
         self.vtkWidget.GetRenderWindow().Render()
+
+
+    def vtkUpdateAxes(self):
+        axes = vtk.vtkAxesActor()
+        self.project.update_max_lengths()
+        charLen = min(self.project.lenX,self.project.lenY,self.project.lenZ)*0.5
+        maxLen = max(self.project.lenX,self.project.lenY,self.project.lenZ)
+        charLen = max(charLen,maxLen*0.2,0.01)
+        axes.SetTotalLength(charLen, charLen, charLen)
+        self.ren.AddActor(axes)
+        self.vtkWidget.GetRenderWindow().Render()
+
 #----------------- End of VTK Event Handlers -----------------#
 
 #-------------- End of Event Handlers -------------#

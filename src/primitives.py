@@ -42,7 +42,7 @@ class ampersandPrimitives:
             return 0
         """
         i = 1
-        ampersandIO.show_title("STL Files")
+        ampersandIO.show_title("STL Files",GUIMode=GUIMode,window=window)
         
         ampersandIO.printMessage(f"{'No.':<5}{'Name':<20}{'Purpose':<20}{'RefineMent':<15}{'Property':<15}",GUIMode=GUIMode,window=window)
         for stl_file in stl_files:
