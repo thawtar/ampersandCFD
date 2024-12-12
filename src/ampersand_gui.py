@@ -8,6 +8,7 @@ from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from dialogBoxes import sphereDialogDriver, yesNoDialogDriver, yesNoCancelDialogDriver
 from dialogBoxes import vectorInputDialogDriver, STLDialogDriver, physicalPropertiesDialogDriver
 from dialogBoxes import boundaryConditionDialogDriver, numericsDialogDriver, controlsDialogDriver
+from dialogBoxes import set_src
 # ----------------- VTK Libraries ----------------- #
 import vtk
 import vtkmodules.vtkInteractionStyle
@@ -33,8 +34,12 @@ from time import sleep
 from project import ampersandProject
 from primitives import ampersandPrimitives, ampersandIO
 
-os.chdir(r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src")
+#os.chdir(r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src")
+# get the absolute path of the current directory
+src = os.path.dirname(os.path.abspath(__file__))
 
+# set the source directory for the dialog boxes
+set_src(src)
 
 # This function reads STL file and extracts the surface patch names.
 def readSTL(stlFileName="cylinder.stl"):
@@ -140,7 +145,8 @@ class mainWindow(QMainWindow):
 
     def load_ui(self):
         loader = QUiLoader()
-        ui_file = QFile("ampersandInputForm.ui")
+        ui_path = os.path.join(src, "ampersandInputForm.ui")
+        ui_file = QFile(ui_path)
         ui_file.open(QFile.ReadOnly)
         self.window = loader.load(ui_file, None)
         ui_file.close()

@@ -11,9 +11,15 @@ from PySide6.QtWidgets import QMessageBox
 
 import sys
 from time import sleep
+import os
 
 loader = QUiLoader()
+src = None
 
+# set the path of the src folder
+def set_src(src_path):
+    global src
+    src = src_path
 #---------------------------------------------------------
 main_fluids = {"Air":{"density":1.225,"viscosity":1.7894e-5,"specificHeat":1006.43,"thermalConductivity":0.0257},
                "Water":{"density":1000,"viscosity":1.002e-3,"specificHeat":4186,"thermalConductivity":0.606},
@@ -42,7 +48,8 @@ class sphereDialog(QDialog):
         self.created = False
     
     def load_ui(self):
-        ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\createSphereDialog.ui"
+        #ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\createSphereDialog.ui"
+        ui_path = os.path.join(src, "createSphereDialog.ui")
         ui_file = QFile(ui_path)
         ui_file.open(QFile.ReadOnly)
         self.window = loader.load(ui_file, None)
@@ -87,7 +94,8 @@ class inputDialog(QDialog):
         self.load_ui()
 
     def load_ui(self):
-        ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\inputDialog.ui"
+        #ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\inputDialog.ui"
+        ui_path = os.path.join(src, "inputDialog.ui")
         ui_file = QFile(ui_path)
         #ui_file = QFile("inputDialog.ui")
         ui_file.open(QFile.ReadOnly)
@@ -130,7 +138,8 @@ class vectorInputDialog(QDialog):
         self.load_ui()
 
     def load_ui(self):
-        ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\vectorInputDialog.ui"
+        #ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\vectorInputDialog.ui"
+        ui_path = os.path.join(src, "vectorInputDialog.ui")
         ui_file = QFile(ui_path)
         #ui_file = QFile("inputDialog.ui")
         ui_file.open(QFile.ReadOnly)
@@ -194,7 +203,8 @@ class STLDialog(QDialog):
 
 
     def load_ui(self):
-        ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\stlDialog.ui"
+        #ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\stlDialog.ui"
+        ui_path = os.path.join(src, "stlDialog.ui")
         ui_file = QFile(ui_path)
         #ui_file = QFile("inputDialog.ui")
         ui_file.open(QFile.ReadOnly)
@@ -335,7 +345,8 @@ class physicalPropertiesDialog(QDialog):
     
 
     def load_ui(self):
-        ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\physicalPropertiesDialog.ui"
+        ##ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\physicalPropertiesDialog.ui"
+        ui_path = os.path.join(src, "physicalPropertiesDialog.ui")
         ui_file = QFile(ui_path)
         #ui_file = QFile("inputDialog.ui")
         ui_file.open(QFile.ReadOnly)
@@ -577,7 +588,8 @@ class boundaryConditionDialog(QDialog):
         self.window.lineEditOmega.setEnabled(False)
 
     def load_ui(self):
-        ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\boundaryConditionDialog.ui"
+        #ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\boundaryConditionDialog.ui"
+        ui_path = os.path.join(src, "boundaryConditionDialog.ui")
         ui_file = QFile(ui_path)
         #ui_file = QFile("inputDialog.ui")
         ui_file.open(QFile.ReadOnly)
@@ -641,7 +653,8 @@ class numericalSettingsDialog(QDialog):
         self.OK_clicked = False
     
     def load_ui(self):
-        ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\numericDialog.ui"
+        #ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\numericDialog.ui"
+        ui_path = os.path.join(src, "numericDialog.ui")
         ui_file = QFile(ui_path)
         #ui_file = QFile("inputDialog.ui")
         ui_file.open(QFile.ReadOnly)
