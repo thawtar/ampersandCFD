@@ -22,9 +22,11 @@ import yaml
 import sys
 from tkinter import filedialog, Tk
 from headers import get_ampersand_header
-from PySide6.QtWidgets import QMessageBox
-from dialogBoxes import sphereDialogDriver, inputDialogDriver, vectorInputDialogDriver
-
+try:
+    from PySide6.QtWidgets import QMessageBox
+    from dialogBoxes import sphereDialogDriver, inputDialogDriver, vectorInputDialogDriver
+except:
+    pass
 class ampersandPrimitives:
     def __init__(self):
         pass
@@ -175,28 +177,32 @@ class ampersandPrimitives:
 
     @staticmethod
     def ask_for_directory(qt=False):
-        if qt:
-            from PySide6.QtWidgets import QFileDialog
-            directory = QFileDialog.getExistingDirectory(None, "Select Project Directory")
-            return directory if directory else None
-        else:
-            root = Tk()
-            root.withdraw()  # Hide the main window
-            directory = filedialog.askdirectory(title="Select Project Directory")
-            return directory if directory else None
-    
+        try:
+            if qt:
+                from PySide6.QtWidgets import QFileDialog
+                directory = QFileDialog.getExistingDirectory(None, "Select Project Directory")
+                return directory if directory else None
+            else:
+                root = Tk()
+                root.withdraw()  # Hide the main window
+                directory = filedialog.askdirectory(title="Select Project Directory")
+                return directory if directory else None
+        except:
+            return ampersandIO.get_input("Select Project Directory: ")    
     @staticmethod
     def ask_for_file(filetypes=[("STL Geometry", "*.stl")], qt=False):
-        if qt:
-            from PySide6.QtWidgets import QFileDialog
-            file = QFileDialog.getOpenFileName(None, "Select File", filter="STL Geometry (*.stl)")
-            return file[0] if file[0] else None
-        else:
-            root = Tk()
-            root.withdraw()
-            file = filedialog.askopenfilename(title="Select File", filetypes=filetypes)
-            return file if file else None
-    
+        try:
+            if qt:
+                from PySide6.QtWidgets import QFileDialog
+                file = QFileDialog.getOpenFileName(None, "Select File", filter="STL Geometry (*.stl)")
+                return file[0] if file[0] else None
+            else:
+                root = Tk()
+                root.withdraw()
+                file = filedialog.askopenfilename(title="Select File", filetypes=filetypes)
+                return file if file else None
+        except:
+            return ampersandIO.get_input("Select file: ")    
     @staticmethod
     def check_dict(dict_):
         # check every elements of the dictionary and whether there are tuples
