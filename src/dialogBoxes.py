@@ -174,7 +174,6 @@ class vectorInputDialog(QDialog):
         #print("Push Button Cancel Clicked")
         self.window.close()
 
-
 class STLDialog(QDialog):
     def __init__(self, stl_name="stl_file.stl",stlProperties=None):
         super().__init__()
@@ -192,14 +191,36 @@ class STLDialog(QDialog):
                         "cellZone":"Cell_Zone","baffles":"Baffle","interface":"Interface"}
         if self.stl_properties != None:
             purpose,refMin,refMax,featureEdges,featureLevel,nLayers,property,bounds = self.stl_properties
-            self.window.lineEditRefMin.setText(str(refMin))
-            self.window.lineEditRefMax.setText(str(refMax))
-            self.window.lineEditRefLevel.setText(str(refMax))
-            self.window.lineEditNLayers.setText(str(nLayers))
+            usage = purposeUsage[purpose]
+
+            
             if purpose in purposeUsage.keys():
                 self.window.comboBoxUsage.setCurrentText(purposeUsage[purpose])
+                self.changeUsage()
             else:
                 self.window.comboBoxUsage.setCurrentText("Wall")
+            if usage=="Inlet" or usage=="Outlet":
+                self.window.lineEditRefMin.setText(str(refMin))
+                self.window.lineEditRefMax.setText(str(refMax))
+                self.window.lineEditRefLevel.setText("0")
+                self.window.lineEditNLayers.setText("0")
+            elif usage=="Refinement_Surface" or usage=="Refinement_Region":
+                #self.window.lineEditRefMin.setText(str(refMin))
+                #self.window.lineEditRefMax.setText(str(refMax))
+                self.window.lineEditRefLevel.setText(str(property))
+                #self.window.lineEditNLayers.setText("0")
+            elif usage=="Cell_Zone":
+                self.window.lineEditRefLevel.setText(str(property[0]))
+                self.window.checkBoxAMI.setChecked(property[1])
+            elif usage=="Symmetry":
+                self.window.lineEditRefLevel.setText("0")
+                self.window.lineEditNLayers.setText("0")
+            else: 
+                self.window.lineEditRefMin.setText(str(refMin))
+                self.window.lineEditRefMax.setText(str(refMax))
+                self.window.lineEditRefLevel.setText(str(refMax))
+                self.window.lineEditNLayers.setText(str(nLayers))
+                self.window.checkBoxEdgeRefine.setChecked(featureEdges)
 
 
     def load_ui(self):
@@ -280,6 +301,9 @@ class STLDialog(QDialog):
 
     def changeUsage(self):
         if(self.window.comboBoxUsage.currentText()=="Wall"):
+            self.window.lineEditRefMin.setEnabled(True)
+            self.window.lineEditRefMax.setEnabled(True)
+            
             self.window.lineEditRefLevel.setEnabled(False)
             self.window.checkBoxAMI.setEnabled(False)
             self.window.checkBoxEdgeRefine.setEnabled(True)
@@ -291,22 +315,36 @@ class STLDialog(QDialog):
             self.window.lineEditRefLevel.setEnabled(False)
             self.window.checkBoxAMI.setEnabled(False)
             self.window.checkBoxEdgeRefine.setEnabled(True)
+            self.window.lineEditNLayers.setEnabled(False)
+            self.window.lineEditNLayers.setText("0")
         elif(self.window.comboBoxUsage.currentText()=="Outlet"):
             self.window.lineEditRefLevel.setEnabled(False)
             self.window.checkBoxAMI.setEnabled(False)
             self.window.checkBoxEdgeRefine.setEnabled(True)
+            self.window.lineEditNLayers.setEnabled(False)
+            self.window.lineEditNLayers.setText("0")
         elif(self.window.comboBoxUsage.currentText()=="Symmetry"):
             self.window.lineEditRefLevel.setEnabled(False)
             self.window.checkBoxAMI.setEnabled(False)
-            self.window.checkBoxEdgeRefine.setEnabled(True)
+            self.window.checkBoxEdgeRefine.setEnabled(False)
+            self.window.lineEditRefMin.setEnabled(False)
+            self.window.lineEditRefMax.setEnabled(False)
+            self.window.lineEditNLayers.setEnabled(False)
+            self.window.lineEditReflevel.setEnabled(False)
         elif(self.window.comboBoxUsage.currentText()=="Refinement_Surface"):
             self.window.lineEditRefLevel.setEnabled(True)
             self.window.checkBoxAMI.setEnabled(False)
             self.window.checkBoxEdgeRefine.setEnabled(False)
+            self.window.lineEditRefMin.setEnabled(False)
+            self.window.lineEditRefMax.setEnabled(False)
         elif(self.window.comboBoxUsage.currentText()=="Refinement_Region"):
             self.window.lineEditRefLevel.setEnabled(True)
             self.window.checkBoxAMI.setEnabled(False)
             self.window.checkBoxEdgeRefine.setEnabled(False)
+            self.window.lineEditNLayers.setEnabled(False)
+            self.window.lineEditNLayers.setText("0")
+            self.window.lineEditRefMin.setEnabled(False)
+            self.window.lineEditRefMax.setEnabled(False)
         elif(self.window.comboBoxUsage.currentText()=="Cell_Zone"):
             self.window.lineEditRefLevel.setEnabled(True)
             self.window.checkBoxAMI.setEnabled(True)
@@ -318,7 +356,6 @@ class STLDialog(QDialog):
     
     def __del__(self):
         pass
-
 
 class physicalPropertiesDialog(QDialog):
     def __init__(self,initialProperties=None):
@@ -449,6 +486,7 @@ class boundaryConditionDialog(QDialog):
         self.load_ui()
         self.setNameAndType()
         self.window.setWindowTitle(f"Boundary Condition: {self.boundary['name']} ({self.boundary['purpose']})")
+        self.disable_unnecessary_fields()
         self.fill_input_types()
         self.OK_clicked = False
         self.window.lineEditU.setValidator(QDoubleValidator())
@@ -459,6 +497,41 @@ class boundaryConditionDialog(QDialog):
         self.window.lineEditEpsilon.setValidator(QDoubleValidator())
         self.window.lineEditOmega.setValidator(QDoubleValidator())
         self.prepare_events()
+
+    def disable_unnecessary_fields(self):
+        if(self.purpose=="wall"):
+            self.window.lineEditU.setEnabled(False)
+            self.window.lineEditV.setEnabled(False)
+            self.window.lineEditW.setEnabled(False)
+            self.window.lineEditVelMag.setEnabled(False)
+            self.window.lineEditPressure.setEnabled(False)
+            self.window.lineEditIntensity.setEnabled(False)
+            self.window.lineEditLengthScale.setEnabled(False)
+            self.window.lineEditViscosityRatio.setEnabled(False)
+            self.window.lineEditHydraulicDia.setEnabled(False)
+            self.window.lineEditK.setEnabled(False)
+            self.window.lineEditEpsilon.setEnabled(False)
+            self.window.lineEditOmega.setEnabled(False)
+        elif(self.purpose=="symmetry" or self.purpose=="refinementRegion" or self.purpose=="refinementSurface"):
+            self.window.lineEditU.setEnabled(False)
+            self.window.lineEditV.setEnabled(False)
+            self.window.lineEditW.setEnabled(False)
+            self.window.lineEditVelMag.setEnabled(False)
+            self.window.lineEditPressure.setEnabled(False)
+            self.window.lineEditIntensity.setEnabled(False)
+            self.window.lineEditLengthScale.setEnabled(False)
+            self.window.lineEditViscosityRatio.setEnabled(False)
+            self.window.lineEditHydraulicDia.setEnabled(False)
+            self.window.lineEditK.setEnabled(False)
+            self.window.lineEditEpsilon.setEnabled(False)
+            self.window.lineEditOmega.setEnabled(False)
+        elif(self.purpose=="outlet"):
+            self.window.lineEditK.setEnabled(False)
+            self.window.lineEditEpsilon.setEnabled(False)
+            self.window.lineEditOmega.setEnabled(False)
+        else:
+            pass
+
 
     # to set the default values of the input fields based on the boundary type
     def fill_input_types(self):
@@ -650,6 +723,7 @@ class numericalSettingsDialog(QDialog):
     def __init__(self):
         super().__init__()
         self.load_ui()
+        self.initialize_values()
         self.OK_clicked = False
     
     def load_ui(self):
@@ -660,6 +734,36 @@ class numericalSettingsDialog(QDialog):
         ui_file.open(QFile.ReadOnly)
         self.window = loader.load(ui_file, None)
         ui_file.close()
+
+    def initialize_values(self):
+        self.window.comboBoxBasicMode.addItem("Balanced (Blended 2nd Order schemes)")
+        self.window.comboBoxBasicMode.addItem("Stablity Mode (1st Order schemes)")
+        self.window.comboBoxBasicMode.addItem("Accuracy Mode (2nd Order schemes)")
+        self.window.comboBoxBasicMode.addItem("Advanced Mode")
+        
+        self.window.comboBoxGradScheme.addItem("Gauss Linear")
+        self.window.comboBoxGradScheme.addItem("cellLimited Gauss Linear")
+        self.window.comboBoxGradScheme.addItem("faceLimited Gauss Linear")
+        self.window.comboBoxGradScheme.addItem("Least Squares")
+
+        self.window.comboBoxDivScheme.addItem("Gauss Linear")
+        self.window.comboBoxDivScheme.addItem("Gauss Linear Upwind")
+        self.window.comboBoxDivScheme.addItem("Gauss Upwind")  
+        self.window.comboBoxDivScheme.addItem("Gauss LUST")      
+        self.window.comboBoxDivScheme.addItem("Gauss Linear Limited")
+
+        self.window.comboBoxLaplacian.addItem("Corrected")
+        self.window.comboBoxLaplacian.addItem("Limited 0.333")
+        self.window.comboBoxLaplacian.addItem("Limited 0.666")
+        self.window.comboBoxLaplacian.addItem("Limited 1.0")
+
+        self.window.comboBoxTemporal.addItem("Steady State")
+        self.window.comboBoxTemporal.addItem("Euler (1st Order)")
+        self.window.comboBoxTemporal.addItem("Backward Euler (2nd Order)")
+        self.window.comboBoxTemporal.addItem("Crank-Nicolson (Blended 2nd Order)")
+        self.window.comboBoxTemporal.addItem("Crank-Nicolson (2nd Order)")
+
+        self.window.frame.setVisible(False)
 
     def prepare_events(self):
         self.window.pushButtonOK.clicked.connect(self.on_pushButtonOK_clicked)
@@ -681,7 +785,6 @@ class numericalSettingsDialog(QDialog):
 
     def __del__(self):
         pass
-
 
 
 #---------------------------------------------------------

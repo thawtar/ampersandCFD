@@ -93,6 +93,18 @@ class mainWindow(QMainWindow):
         self.window.pushButtonDomainManual.setEnabled(False)
         self.window.pushButtonSteadyTransient.setEnabled(False)
         self.window.pushButtonSummarize.setEnabled(False)
+        self.window.pushButtonFitAll.setEnabled(False)
+        self.window.pushButtonPlusX.setEnabled(False)
+        self.window.pushButtonPlusY.setEnabled(False)
+        self.window.pushButtonPlusZ.setEnabled(False)
+        self.window.pushButtonMinusX.setEnabled(False)
+        self.window.pushButtonMinusY.setEnabled(False)
+        self.window.pushButtonMinusZ.setEnabled(False)
+        self.window.pushButtonShowWire.setEnabled(False)
+        self.window.pushButtonShowSurface.setEnabled(False)
+        self.window.pushButtonShowEdges.setEnabled(False)
+        self.window.pushButtonAddSTL.setEnabled(False)
+        self.window.pushButtonRemoveSTL.setEnabled(False)
 
         #self.window.pushButtonCreate.setEnabled(False)
         #self.window.pushButtonOpen.setEnabled(False)
@@ -132,6 +144,19 @@ class mainWindow(QMainWindow):
         self.window.pushButtonDomainManual.setEnabled(True)
         self.window.pushButtonSteadyTransient.setEnabled(True)
         self.window.pushButtonSummarize.setEnabled(True)
+        self.window.pushButtonFitAll.setEnabled(True)
+        self.window.pushButtonPlusX.setEnabled(True)
+        self.window.pushButtonPlusY.setEnabled(True)
+        self.window.pushButtonPlusZ.setEnabled(True)
+        self.window.pushButtonMinusX.setEnabled(True)
+        self.window.pushButtonMinusY.setEnabled(True)
+        self.window.pushButtonMinusZ.setEnabled(True)
+        self.window.pushButtonShowWire.setEnabled(True)
+        self.window.pushButtonShowSurface.setEnabled(True)
+        self.window.pushButtonShowEdges.setEnabled(True)
+        self.window.pushButtonAddSTL.setEnabled(True)
+        self.window.pushButtonRemoveSTL.setEnabled(True)
+
 
         self.window.lineEditMinX.setEnabled(True)
         self.window.lineEditMinY.setEnabled(True)
@@ -240,10 +265,7 @@ class mainWindow(QMainWindow):
         axes.SetTotalLength(0.1, 0.1, 0.1)
         self.ren.AddActor(axes)
         self.iren.Start()
-
-    
-
-        
+      
 
     def render3D(self,actorName=None):  # self.ren and self.iren must be used. other variables are local variables
         # Create a mapper
@@ -295,12 +317,12 @@ class mainWindow(QMainWindow):
         self.ren.AddActor(actor)
         self.iren.Start()
 
-    def add_sphere_to_VTK(self):
+    def add_sphere_to_VTK(self,center=(0.0,0.0,0.0),radius=1.0,objectName="sphere",removePrevious=False):
         # Create a sphere
         sphere = vtk.vtkSphereSource()
-        sphere.SetCenter(0.0, 0.0, 0.0)
-        sphere.SetRadius(1.0)
-        self.add_object_to_VTK(sphere,objectName="sphere",removePrevious=True)
+        sphere.SetCenter(center)
+        sphere.SetRadius(radius)
+        self.add_object_to_VTK(sphere,objectName=objectName,removePrevious=removePrevious)
        
 
     def add_box_to_VTK(self,minX=0.0,minY=0.0,minZ=0.0,maxX=1.0,maxY=1.0,maxZ=1.0,boxName="box"):
@@ -414,6 +436,8 @@ class mainWindow(QMainWindow):
         self.window.pushButtonControls.clicked.connect(self.controlsDialog)
         self.window.pushButtonSteadyTransient.clicked.connect(self.toggleSteadyTransient)
         self.window.pushButtonSummarize.clicked.connect(self.summarizeProject)
+        self.window.pushButtonAddSTL.clicked.connect(self.importSTL)
+        self.window.pushButtonRemoveSTL.clicked.connect(self.removeSTL)
         #self.window.checkBoxOnGround.clicked.connect(self.chooseExternalFlow)
         # change view on the VTK widget
         self.window.pushButtonFitAll.clicked.connect(self.vtkFitAll)
@@ -468,7 +492,20 @@ class mainWindow(QMainWindow):
             self.showSTL(stlFile=stl)
         self.update_list()
         self.readyStatusBar()
-    
+
+    def removeSTL(self):
+        # show warning message box
+        #ampersandIO.printWarning("Removing STL file",GUIMode=True,window=self)
+        print("Removing STL file")
+        item = self.window.listWidgetObjList.currentItem()
+        if item==None or item.text()=="":
+            return
+        idx = self.window.listWidgetObjList.row(item)
+        stl = item.text()
+        self.project.remove_stl_file_by_name(stl)
+        self.update_list()
+        self.readyStatusBar()
+
     def createSphere(self):
         #print("Create Sphere")
         ampersandIO.printMessage("Creating Sphere",GUIMode=True,window=self)
@@ -665,7 +702,9 @@ class mainWindow(QMainWindow):
         self.project_opened = True
         ampersandIO.printMessage(f"Project {self.project.project_name} created",GUIMode=True,window=self)
         self.setWindowTitle(f"Case Creator: {self.project.project_name}")
-        
+        # get location in mesh
+        locationInMesh = tuple(self.project.get_location_in_mesh())
+        self.add_sphere_to_VTK(center=locationInMesh,radius=0.02,objectName="LocationInMesh",removePrevious=True)
         self.readyStatusBar()
 
     def generateCase(self):
@@ -739,6 +778,8 @@ class mainWindow(QMainWindow):
         self.window.lineEdit_nY.setText(str(ny))
         self.window.lineEdit_nZ.setText(str(nz))
         self.add_box_to_VTK(minX=minx,minY=miny,minZ=minz,maxX=maxx,maxY=maxy,maxZ=maxz,boxName="Domain")
+        locationInMesh = tuple(self.project.get_location_in_mesh())
+        self.add_sphere_to_VTK(center=locationInMesh,radius=0.02,objectName="LocationInMesh",removePrevious=True)
         
     def manualDomain(self):
         minx = float(self.window.lineEditMinX.text())
@@ -777,7 +818,8 @@ class mainWindow(QMainWindow):
         if stl==None:
             return
         currentStlProperties = self.project.get_stl_properties(stl)
-        #print("Current STL Properties: ",currentStlProperties)
+        #print("Current STL Properties: ")
+        #self.project.show_stl_properties(stl)
         # open STL properties dialog
         stlProperties = STLDialogDriver(stl,stlProperties=currentStlProperties)
         # The properties are:

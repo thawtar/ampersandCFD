@@ -83,8 +83,8 @@ meshSettings = {
                         'multiRegionFeatureSnap': 'false'},
 
     'addLayersControls': {'relativeSizes': 'true',
-                            'expansionRatio': 1.4,
-                            'finalLayerThickness': 0.3,
+                            'expansionRatio': 1.25,
+                            'finalLayerThickness': 0.4,
                             'firstLayerThickness': 0.001,
                             'minThickness': 1e-7,
                             'nGrow': 0,
@@ -102,7 +102,7 @@ meshSettings = {
                             },
 
     'meshQualityControls': {'maxNonOrtho': 70,
-                            'maxBoundarySkewness': 4,
+                            'maxBoundarySkewness': 20,
                             'maxInternalSkewness': 4,
                             'maxConcave': 80,
                             'minTetQuality': 1.0e-30,
