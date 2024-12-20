@@ -38,6 +38,7 @@ from surfaceExtractor import create_surfaceFeatureExtractDict
 from transportAndTurbulence import create_transportPropertiesDict, create_turbulencePropertiesDict
 #from transportAndTurbulence import write_transportPropertiesDict, write_turbulencePropertiesDict
 from boundaryConditionsGenerator import create_boundary_conditions
+#from boundaryConditions import create_boundary_conditions
 from controlDictGenerator import createControlDict
 from numericalSettingsGenerator import create_fvSchemesDict, create_fvSolutionDict
 from scriptGenerator import ScriptGenerator
@@ -763,6 +764,17 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                 else:
                     stl['property'] = property
                 return 0
+        return -1
+    
+    def set_boundary_condition(self,stl_file_name,boundary_condition):
+        for stl in self.meshSettings['geometry']:
+            if stl['name'] == stl_file_name:
+                if stl['purpose'] == 'inlet':
+                    # set the inlet values
+                    stl['property'] = list(boundary_condition[0])
+                return 0
+            
+        print("Failed setting boundary condition. STL file not found")
         return -1
 
     def add_stl_to_project(self):

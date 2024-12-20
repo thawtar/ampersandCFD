@@ -229,7 +229,7 @@ class mainWindow(QMainWindow):
             self.reader = vtk.vtkSTLReader()
             self.reader.SetFileName(stlFile)
             stl_name = os.path.basename(stlFile)
-            print("STL Name: ",stl_name)
+            #print("STL Name: ",stl_name)
             self.render3D(actorName=stl_name)
         except:
             print("Reading STL not successful. Try again")
@@ -859,7 +859,13 @@ class mainWindow(QMainWindow):
         if stl==None:
             ampersandIO.printError("STL not found",GUIMode=True)
             return
+        #print("STL: ",stl)
         boundaryConditions = boundaryConditionDialogDriver(stl)
+        if boundaryConditions==None:
+            return
+        # update the boundary conditions
+        print("Boundary Conditions: ",boundaryConditions)
+        self.project.set_boundary_condition(self.current_stl_file,boundaryConditions)
 
     def numericsDialog(self):
         numerics = numericsDialogDriver()  
