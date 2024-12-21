@@ -168,7 +168,7 @@ divSchemes
     div(phi,k) {numericalSettings['divSchemes']['div(phi,k)']};
     div(phi,omega) {numericalSettings['divSchemes']['div(phi,omega)']};
     div(phi,epsilon) {numericalSettings['divSchemes']['div(phi,epsilon)']};
-    div(phi,nuTilda) {numericalSettings['divSchemes']['div(phi,nuTiida)']};
+    div(phi,nuTilda) {numericalSettings['divSchemes']['div(phi,nuTilda)']};
     div(phi,nut) {numericalSettings['divSchemes']['div(phi,nut)']};
     div(nuEff*dev(T(grad(U)))) {numericalSettings['divSchemes']['div(nuEff*dev(T(grad(U))))']};
 }}

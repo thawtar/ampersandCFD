@@ -739,6 +739,10 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def get_location_in_mesh(self):
         return self.meshSettings["castellatedMeshControls"]["locationInMesh"]
     
+    def set_location_in_mesh(self,locationInMesh):
+        print(locationInMesh)
+        self.meshSettings["castellatedMeshControls"]["locationInMesh"] = locationInMesh
+    
     def set_stl_properties(self,stl_file_name,stl_properties):
         refMin,refMax,refLevel,nLayers,usage,edgeRefine,ami,property = stl_properties
         #refMin,refMax,featureLevel,nLayers,property,bounds = stl_properties

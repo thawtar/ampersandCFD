@@ -126,11 +126,17 @@ class inputDialog(QDialog):
         self.window.close()
 
 class vectorInputDialog(QDialog):
-    def __init__(self, prompt="Enter Input",input_type="float"):
+    def __init__(self, prompt="Enter Input",input_type="float",initial_values=[0.0,0.0,0.0]):
         super().__init__()
-        self.xx = 0.0
-        self.yy = 0.0
-        self.zz = 0.0
+        if initial_values != None:
+            self.xx = initial_values[0]
+            self.yy = initial_values[1]
+            self.zz = initial_values[2]
+        else:
+            self.xx = 0
+            self.yy = 0
+            self.zz = 0
+        self.OK_clicked = False
         
         self.created = False
         self.prompt = prompt
@@ -151,12 +157,21 @@ class vectorInputDialog(QDialog):
             self.window.lineEditX.setValidator(QIntValidator())
             self.window.lineEditY.setValidator(QIntValidator())
             self.window.lineEditZ.setValidator(QIntValidator())
+            # show initial values
+            self.window.lineEditX.setText(str(self.xx))
+            self.window.lineEditY.setText(str(self.yy))
+            self.window.lineEditZ.setText(str(self.zz))
         elif(self.input_type=="float"):
             self.window.lineEditX.setValidator(QDoubleValidator())
             self.window.lineEditY.setValidator(QDoubleValidator())
             self.window.lineEditZ.setValidator(QDoubleValidator())
+            # show initial values
+            self.window.lineEditX.setText(f"{self.xx:.3f}")
+            self.window.lineEditY.setText(f"{self.yy:.3f}")
+            self.window.lineEditZ.setText(f"{self.zz:.3f}")
         else:
             pass
+        
         self.prepare_events()
         
 
@@ -168,6 +183,7 @@ class vectorInputDialog(QDialog):
         self.xx = float(self.window.lineEditX.text())
         self.yy = float(self.window.lineEditY.text())
         self.zz = float(self.window.lineEditZ.text())
+        self.OK_clicked = True
         self.window.close()
 
     def on_pushButtonCancel_clicked(self):
@@ -829,11 +845,13 @@ def inputDialogDriver(prompt="Enter Input",input_type="string"):
         return None
     return input
 
-def vectorInputDialogDriver(prompt="Enter Input",input_type="float"):
-    dialog = vectorInputDialog(prompt=prompt,input_type=input_type)
+def vectorInputDialogDriver(prompt="Enter Input",input_type="float",initial_values=[0.0,0.0,0.0]):
+    dialog = vectorInputDialog(prompt=prompt,input_type=input_type,initial_values=initial_values)
     dialog.window.exec()
     dialog.window.show()
     xx,yy,zz = dialog.xx,dialog.yy,dialog.zz
+    if dialog.OK_clicked==False:
+        return None
     return (xx,yy,zz)
     
 
@@ -898,6 +916,13 @@ def numericsDialogDriver():
 
 def controlsDialogDriver():
     pass
+
+def meshPointDialogDriver(locationInMesh=None):
+    meshPoint = vectorInputDialogDriver(prompt="Enter mesh point",input_type="float",initial_values=locationInMesh)
+    if(meshPoint==None):
+        return None
+    x,y,z = meshPoint
+    return [x,y,z]
 
 def main():
     pass

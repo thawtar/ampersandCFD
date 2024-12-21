@@ -8,7 +8,7 @@ from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from dialogBoxes import sphereDialogDriver, yesNoDialogDriver, yesNoCancelDialogDriver
 from dialogBoxes import vectorInputDialogDriver, STLDialogDriver, physicalPropertiesDialogDriver
 from dialogBoxes import boundaryConditionDialogDriver, numericsDialogDriver, controlsDialogDriver
-from dialogBoxes import set_src
+from dialogBoxes import set_src, meshPointDialogDriver
 # ----------------- VTK Libraries ----------------- #
 import vtk
 import vtkmodules.vtkInteractionStyle
@@ -105,6 +105,7 @@ class mainWindow(QMainWindow):
         self.window.pushButtonShowEdges.setEnabled(False)
         self.window.pushButtonAddSTL.setEnabled(False)
         self.window.pushButtonRemoveSTL.setEnabled(False)
+        self.window.pushButtonMeshPoint.setEnabled(False)
 
         #self.window.pushButtonCreate.setEnabled(False)
         #self.window.pushButtonOpen.setEnabled(False)
@@ -156,6 +157,7 @@ class mainWindow(QMainWindow):
         self.window.pushButtonShowEdges.setEnabled(True)
         self.window.pushButtonAddSTL.setEnabled(True)
         self.window.pushButtonRemoveSTL.setEnabled(True)
+        self.window.pushButtonMeshPoint.setEnabled(True)
 
 
         self.window.lineEditMinX.setEnabled(True)
@@ -297,14 +299,18 @@ class mainWindow(QMainWindow):
         
         #self.iren.Start()
 
-    def add_object_to_VTK(self,object,objectName="sphere",opacity=0.5,removePrevious=False):
+    def add_object_to_VTK(self,object,objectName="sphere",opacity=0.5,removePrevious=False,color=(0.5,0.5,0.5)):
         # Create a mapper
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInputConnection(object.GetOutputPort())
+        
         # Create an actor
         actor = vtk.vtkActor()
         actor.GetProperty().SetOpacity(opacity)
-        actor.GetProperty().SetColor(0.5,0.5,0.5)
+        if color:
+            actor.GetProperty().SetColor(color)
+        else:
+            actor.GetProperty().SetColor(0.5,0.5,0.5)
         actor.GetProperty().SetObjectName(objectName)
         actor.GetProperty().EdgeVisibilityOn()
         actor.SetMapper(mapper)
@@ -438,6 +444,7 @@ class mainWindow(QMainWindow):
         self.window.pushButtonSummarize.clicked.connect(self.summarizeProject)
         self.window.pushButtonAddSTL.clicked.connect(self.importSTL)
         self.window.pushButtonRemoveSTL.clicked.connect(self.removeSTL)
+        self.window.pushButtonMeshPoint.clicked.connect(self.setMeshPoint)
         #self.window.checkBoxOnGround.clicked.connect(self.chooseExternalFlow)
         # change view on the VTK widget
         self.window.pushButtonFitAll.clicked.connect(self.vtkFitAll)
@@ -781,7 +788,7 @@ class mainWindow(QMainWindow):
         self.window.lineEdit_nZ.setText(str(nz))
         self.add_box_to_VTK(minX=minx,minY=miny,minZ=minz,maxX=maxx,maxY=maxy,maxZ=maxz,boxName="Domain")
         #locationInMesh = tuple(self.project.get_location_in_mesh())
-        #self.add_sphere_to_VTK(center=locationInMesh,radius=0.02,objectName="LocationInMesh",removePrevious=True)
+        
         self.vtkDrawMeshPoint()
         self.readyStatusBar()
         
@@ -883,6 +890,16 @@ class mainWindow(QMainWindow):
     def summarizeProject(self):
         self.project.summarize_project()
         self.readyStatusBar()
+
+    def setMeshPoint(self):
+        # open the mesh point dialog
+        meshPoint = meshPointDialogDriver(self.project.get_location_in_mesh())
+        print("Mesh Point: ",meshPoint)
+        if meshPoint==None:
+            return
+        
+        self.project.set_location_in_mesh(meshPoint)
+        self.vtkDrawMeshPoint()
 
 # VTK Event Handlers
 #----------------- VTK Event Handlers -----------------#
@@ -996,9 +1013,10 @@ class mainWindow(QMainWindow):
     def vtkDrawMeshPoint(self):
         # estimate size of the mesh point
         lx,ly,lz = self.project.lenX,self.project.lenY,self.project.lenZ
-        maxLen = max(lx,ly,lz,0.01)
+        maxLen = max(lx,ly,lz,0.02)
         locationInMesh = tuple(self.project.get_location_in_mesh())
-        self.add_sphere_to_VTK(center=locationInMesh,radius=0.01*maxLen,objectName="MeshPoint",removePrevious=False)
+        #print("Location in Mesh: ",locationInMesh)
+        self.add_sphere_to_VTK(center=locationInMesh,radius=0.02*maxLen,objectName="MeshPoint",removePrevious=True)
 
 #----------------- End of VTK Event Handlers -----------------#
 
