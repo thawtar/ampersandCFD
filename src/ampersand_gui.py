@@ -231,7 +231,7 @@ class mainWindow(QMainWindow):
             self.reader = vtk.vtkSTLReader()
             self.reader.SetFileName(stlFile)
             stl_name = os.path.basename(stlFile)
-            #print("STL Name: ",stl_name)
+            print("STL Name: ",stl_name)
             self.render3D(actorName=stl_name)
         except:
             print("Reading STL not successful. Try again")
@@ -377,8 +377,6 @@ class mainWindow(QMainWindow):
         for i in range(len(self.project.stl_files)):
             self.window.listWidgetObjList.insertItem(i,self.project.stl_files[i]['name'])
 
-    
-
     def listClicked(self):
         # find the selected item in the list
         item = self.window.listWidgetObjList.currentItem()
@@ -478,7 +476,10 @@ class mainWindow(QMainWindow):
             return
         #self.project.analyze_stl_file()
         self.project.add_stl_to_project()
-        self.showSTL(stlFile=self.project.current_stl_file)
+        #self.showSTL(stlFile=self.project.current_stl_file)
+        stl_file_paths = self.project.list_stl_paths()
+        for stl_file in stl_file_paths:
+            self.showSTL(stlFile=stl_file)
         self.update_list()
         #self.project.list_stl_files()
 
@@ -710,6 +711,7 @@ class mainWindow(QMainWindow):
         self.project_opened = True
         ampersandIO.printMessage(f"Project {self.project.project_name} created",GUIMode=True,window=self)
         self.setWindowTitle(f"Case Creator: {self.project.project_name}")
+        self.vtkDrawMeshPoint()
         self.readyStatusBar()
 
     
@@ -982,11 +984,17 @@ class mainWindow(QMainWindow):
     def vtkHilightSTL(self,stlFile):
         idx = 0
         actors = self.ren.GetActors()
+        
         colors = vtk.vtkNamedColors()
         actor_found = None
+        stl_names = [] #self.project.stl_files
+        for stl in self.project.stl_files:
+            stl_names.append(stl['name'])
         for actor in actors:
-            if actor.GetObjectName() in self.project.stl_names:
-                
+            #print("Actor Name: ",actor.GetObjectName())
+            #print("STL File: ",stlFile)
+            
+            if actor.GetObjectName() in stl_names:  
                 if actor.GetObjectName() == stlFile:
                     #print("Actor Found: ",actor.GetObjectName())
                     actor_found = actor
