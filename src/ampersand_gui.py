@@ -319,11 +319,12 @@ class mainWindow(QMainWindow):
             currentActors = self.ren.GetActors()
             for act in currentActors:
                 if(act.GetProperty().GetObjectName()==objectName):
+                    print("Removing previous object: ",objectName)
                     self.ren.RemoveActor(act)
         self.ren.AddActor(actor)
         self.iren.Start()
 
-    def add_sphere_to_VTK(self,center=(0.0,0.0,0.0),radius=1.0,objectName="sphere",removePrevious=False):
+    def add_sphere_to_VTK(self,center=(0.0,0.0,0.0),radius=1.0,objectName="sphere",removePrevious=True):
         # Create a sphere
         sphere = vtk.vtkSphereSource()
         sphere.SetCenter(center)
@@ -709,9 +710,6 @@ class mainWindow(QMainWindow):
         self.project_opened = True
         ampersandIO.printMessage(f"Project {self.project.project_name} created",GUIMode=True,window=self)
         self.setWindowTitle(f"Case Creator: {self.project.project_name}")
-        # get location in mesh
-        locationInMesh = tuple(self.project.get_location_in_mesh())
-        self.add_sphere_to_VTK(center=locationInMesh,radius=0.02,objectName="LocationInMesh",removePrevious=True)
         self.readyStatusBar()
 
     
@@ -1015,7 +1013,9 @@ class mainWindow(QMainWindow):
         lx,ly,lz = self.project.lenX,self.project.lenY,self.project.lenZ
         maxLen = max(lx,ly,lz,0.02)
         locationInMesh = tuple(self.project.get_location_in_mesh())
-        #print("Location in Mesh: ",locationInMesh)
+
+        print("Location in Mesh: ",locationInMesh)
+        print("Drawing Mesh Point")
         self.add_sphere_to_VTK(center=locationInMesh,radius=0.02*maxLen,objectName="MeshPoint",removePrevious=True)
 
 #----------------- End of VTK Event Handlers -----------------#
