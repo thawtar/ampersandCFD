@@ -66,18 +66,17 @@ class sphereDialog(QDialog):
         self.window.pushButtonCancel.clicked.connect(self.on_pushButtonCancel_clicked)
     
     def on_pushButtonOK_clicked(self):
-        #print("Push Button OK Clicked")
+        
         self.centerX = float(self.window.lineEditSphereX.text())
         self.centerY = float(self.window.lineEditSphereY.text())
         self.centerZ = float(self.window.lineEditSphereZ.text())
         self.radius = float(self.window.lineEditSphereRadius.text())
         self.created = True
-        #print("Center: ",self.centerX,self.centerY,self.centerZ)
-        #print("Radius: ",self.radius)
+        
         self.window.close()
 
     def on_pushButtonCancel_clicked(self):
-        print("Push Button Cancel Clicked")
+        
         self.window.close()
         
     def __del__(self):
@@ -117,7 +116,7 @@ class inputDialog(QDialog):
         self.window.pushButtonCancel.clicked.connect(self.on_pushButtonCancel_clicked)
     
     def on_pushButtonOK_clicked(self):
-        #print("Push Button OK Clicked")
+        
         self.input = self.window.input.text()
         self.window.close()
 
@@ -289,7 +288,8 @@ class STLDialog(QDialog):
         #self.window.closeEvent = self.show_closed
 
     def show_closed(self):
-        print("STL Dialog Closed")
+        
+        pass
 
     def on_pushButtonOK_clicked(self):
         #print("Push Button OK Clicked")
@@ -300,14 +300,7 @@ class STLDialog(QDialog):
         self.usage = self.window.comboBoxUsage.currentText()
         self.edgeRefine = self.window.checkBoxEdgeRefine.isChecked()
         self.ami = self.window.checkBoxAMI.isChecked()
-        """
-        if(self.usage=="Inlet"):
-            xx,yy,zz = vectorInputDialogDriver(prompt="Enter Inlet Velocity Vector",input_type="float")
-            print("Inlet Velocity: ",xx,yy,zz)
-            self.xx = xx
-            self.yy = yy
-            self.zz = zz
-        """
+        
         self.OK_clicked = True
         self.window.close()
 

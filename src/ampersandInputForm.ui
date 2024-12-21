@@ -645,13 +645,20 @@
     <property name="geometry">
      <rect>
       <x>550</x>
-      <y>700</y>
+      <y>620</y>
       <width>831</width>
-      <height>121</height>
+      <height>201</height>
      </rect>
     </property>
-    <property name="mouseTracking">
-     <bool>true</bool>
+    <property name="font">
+     <font>
+      <family>Calibri</family>
+      <pointsize>14</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="sizeAdjustPolicy">
+     <enum>QAbstractScrollArea::AdjustToContents</enum>
     </property>
     <property name="readOnly">
      <bool>true</bool>
@@ -663,7 +670,7 @@
       <x>550</x>
       <y>40</y>
       <width>831</width>
-      <height>651</height>
+      <height>571</height>
      </rect>
     </property>
    </widget>
