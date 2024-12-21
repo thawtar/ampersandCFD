@@ -707,6 +707,8 @@ class mainWindow(QMainWindow):
         self.add_sphere_to_VTK(center=locationInMesh,radius=0.02,objectName="LocationInMesh",removePrevious=True)
         self.readyStatusBar()
 
+    
+
     def generateCase(self):
         self.updateStatusBar("Analyzing Case")
         #if(len(self.project.stl_files)>0):
@@ -778,8 +780,10 @@ class mainWindow(QMainWindow):
         self.window.lineEdit_nY.setText(str(ny))
         self.window.lineEdit_nZ.setText(str(nz))
         self.add_box_to_VTK(minX=minx,minY=miny,minZ=minz,maxX=maxx,maxY=maxy,maxZ=maxz,boxName="Domain")
-        locationInMesh = tuple(self.project.get_location_in_mesh())
-        self.add_sphere_to_VTK(center=locationInMesh,radius=0.02,objectName="LocationInMesh",removePrevious=True)
+        #locationInMesh = tuple(self.project.get_location_in_mesh())
+        #self.add_sphere_to_VTK(center=locationInMesh,radius=0.02,objectName="LocationInMesh",removePrevious=True)
+        self.vtkDrawMeshPoint()
+        self.readyStatusBar()
         
     def manualDomain(self):
         minx = float(self.window.lineEditMinX.text())
@@ -843,12 +847,15 @@ class mainWindow(QMainWindow):
         nu = self.project.physicalProperties['nu']
         cp = self.project.physicalProperties['Cp']
         turbulence_model = self.project.physicalProperties['turbulenceModel']
-        initialProperties = (rho,nu,cp,turbulence_model)
+        fluid = self.project.physicalProperties['fluid']
+        initialProperties = (fluid,rho,nu,cp,turbulence_model)
         print("Initial Properties: ",initialProperties)
         physicalProperties = physicalPropertiesDialogDriver(initialProperties)
-        rho,nu,cp,turbulence_model = physicalProperties
+        fluid,rho,nu,cp,turbulence_model = physicalProperties
         # update the project physical properties
         ampersandIO.printMessage("Updating Physical Properties",GUIMode=True)
+        print("Updated Properties: ",physicalProperties)
+        self.project.physicalProperties['fluid'] = fluid
         self.project.physicalProperties['rho'] = rho
         self.project.physicalProperties['nu'] = nu
         self.project.physicalProperties['Cp'] = cp
@@ -985,6 +992,13 @@ class mainWindow(QMainWindow):
         axes.SetTotalLength(charLen, charLen, charLen)
         self.ren.AddActor(axes)
         self.vtkWidget.GetRenderWindow().Render()
+
+    def vtkDrawMeshPoint(self):
+        # estimate size of the mesh point
+        lx,ly,lz = self.project.lenX,self.project.lenY,self.project.lenZ
+        maxLen = max(lx,ly,lz,0.01)
+        locationInMesh = tuple(self.project.get_location_in_mesh())
+        self.add_sphere_to_VTK(center=locationInMesh,radius=0.01*maxLen,objectName="MeshPoint",removePrevious=False)
 
 #----------------- End of VTK Event Handlers -----------------#
 

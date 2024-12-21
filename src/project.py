@@ -984,6 +984,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         nz = self.meshSettings['domain']['nz']
         return minx,maxx,miny,maxy,minz,maxz,nx,ny,nz
     
+    
     def update_max_lengths(self):
         minx,maxx,miny,maxy,minz,maxz,nx,ny,nz = self.get_domain_size()
         self.lenX = maxx - minx
