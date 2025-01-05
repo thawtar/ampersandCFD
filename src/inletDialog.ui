@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>boundaryConditionDialog</class>
- <widget class="QDialog" name="boundaryConditionDialog">
+ <class>inletDialog</class>
+ <widget class="QDialog" name="inletDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>521</width>
-    <height>312</height>
+    <width>486</width>
+    <height>328</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Boundary Condition</string>
+   <string>Dialog</string>
   </property>
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
@@ -29,10 +29,10 @@
     <attribute name="title">
      <string>Velocity</string>
     </attribute>
-    <widget class="QComboBox" name="comboBoxVelocityStyle">
+    <widget class="QComboBox" name="comboBox">
      <property name="geometry">
       <rect>
-       <x>190</x>
+       <x>200</x>
        <y>10</y>
        <width>261</width>
        <height>22</height>
@@ -52,10 +52,10 @@
       <string>Specification Style</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEditVelMag">
+    <widget class="QLineEdit" name="lineEdit">
      <property name="geometry">
       <rect>
-       <x>190</x>
+       <x>200</x>
        <y>40</y>
        <width>261</width>
        <height>22</height>
@@ -65,7 +65,7 @@
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>20</x>
        <y>40</y>
        <width>171</width>
        <height>20</height>
@@ -75,10 +75,10 @@
       <string>Velocity Magnitude (m/s)</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEditU">
+    <widget class="QLineEdit" name="lineEdit_2">
      <property name="geometry">
       <rect>
-       <x>190</x>
+       <x>200</x>
        <y>70</y>
        <width>261</width>
        <height>22</height>
@@ -111,10 +111,10 @@
       <string>Y-velocity (m/s)</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEditV">
+    <widget class="QLineEdit" name="lineEdit_3">
      <property name="geometry">
       <rect>
-       <x>190</x>
+       <x>200</x>
        <y>100</y>
        <width>261</width>
        <height>22</height>
@@ -134,62 +134,11 @@
       <string>Z-velocity (m/s)</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEditW">
+    <widget class="QLineEdit" name="lineEdit_4">
      <property name="geometry">
       <rect>
-       <x>190</x>
+       <x>200</x>
        <y>130</y>
-       <width>261</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="tab_Pressure">
-    <attribute name="title">
-     <string>Pressure</string>
-    </attribute>
-    <widget class="QLabel" name="label_11">
-     <property name="geometry">
-      <rect>
-       <x>50</x>
-       <y>10</y>
-       <width>131</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Specification Style</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="comboBoxPressure">
-     <property name="geometry">
-      <rect>
-       <x>190</x>
-       <y>10</y>
-       <width>261</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_12">
-     <property name="geometry">
-      <rect>
-       <x>50</x>
-       <y>40</y>
-       <width>141</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Pressure Value (Pa)</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lineEditPressure">
-     <property name="geometry">
-      <rect>
-       <x>190</x>
-       <y>40</y>
        <width>261</width>
        <height>22</height>
       </rect>
@@ -204,9 +153,9 @@
      <property name="geometry">
       <rect>
        <x>60</x>
-       <y>40</y>
+       <y>10</y>
        <width>121</width>
-       <height>21</height>
+       <height>16</height>
       </rect>
      </property>
      <property name="text">
@@ -216,9 +165,9 @@
     <widget class="QComboBox" name="comboBoxTurbulence">
      <property name="geometry">
       <rect>
-       <x>180</x>
-       <y>40</y>
-       <width>241</width>
+       <x>200</x>
+       <y>10</y>
+       <width>251</width>
        <height>22</height>
       </rect>
      </property>
@@ -226,44 +175,44 @@
     <widget class="QLabel" name="label_7">
      <property name="geometry">
       <rect>
-       <x>50</x>
-       <y>70</y>
+       <x>70</x>
+       <y>40</y>
        <width>161</width>
        <height>20</height>
       </rect>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Turbulent Intensity (%)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>Turbulent Intensity (%)</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_8">
      <property name="geometry">
       <rect>
-       <x>40</x>
-       <y>100</y>
+       <x>60</x>
+       <y>70</y>
        <width>171</width>
        <height>20</height>
       </rect>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Turbulent Viscosity Ratio&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>Turbulent Viscosity Ratio</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEditIntensity">
+    <widget class="QLineEdit" name="lineEdit_5">
      <property name="geometry">
       <rect>
-       <x>220</x>
-       <y>70</y>
+       <x>250</x>
+       <y>40</y>
        <width>201</width>
        <height>22</height>
       </rect>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEditViscosityRatio">
+    <widget class="QLineEdit" name="lineEdit_6">
      <property name="geometry">
       <rect>
-       <x>220</x>
-       <y>100</y>
+       <x>250</x>
+       <y>70</y>
        <width>201</width>
        <height>22</height>
       </rect>
@@ -273,20 +222,20 @@
      <property name="geometry">
       <rect>
        <x>100</x>
-       <y>130</y>
-       <width>111</width>
+       <y>100</y>
+       <width>121</width>
        <height>20</height>
       </rect>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Length Scale (m)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>Length Scale (m)</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEditLengthScale">
+    <widget class="QLineEdit" name="lineEdit_7">
      <property name="geometry">
       <rect>
-       <x>220</x>
-       <y>130</y>
+       <x>250</x>
+       <y>100</y>
        <width>201</width>
        <height>22</height>
       </rect>
@@ -295,93 +244,24 @@
     <widget class="QLabel" name="label_10">
      <property name="geometry">
       <rect>
-       <x>60</x>
-       <y>160</y>
+       <x>70</x>
+       <y>130</y>
        <width>161</width>
        <height>20</height>
       </rect>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Hydraulic Diameter (m)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>Hydraulic Diameter (m)</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEditHydraulicDia">
-     <property name="geometry">
-      <rect>
-       <x>220</x>
-       <y>160</y>
-       <width>201</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lineEditK">
-     <property name="geometry">
-      <rect>
-       <x>130</x>
-       <y>10</y>
-       <width>51</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_13">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>10</y>
-       <width>16</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;k&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lineEditOmega">
+    <widget class="QLineEdit" name="lineEdit_8">
      <property name="geometry">
       <rect>
        <x>250</x>
-       <y>10</y>
-       <width>51</width>
+       <y>130</y>
+       <width>201</width>
        <height>22</height>
       </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_14">
-     <property name="geometry">
-      <rect>
-       <x>190</x>
-       <y>10</y>
-       <width>51</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;omega&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lineEditEpsilon">
-     <property name="geometry">
-      <rect>
-       <x>370</x>
-       <y>10</y>
-       <width>51</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_15">
-     <property name="geometry">
-      <rect>
-       <x>310</x>
-       <y>10</y>
-       <width>51</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;epsilon&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </widget>
@@ -389,43 +269,17 @@
     <attribute name="title">
      <string>Heat</string>
     </attribute>
-    <widget class="QLabel" name="label_16">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>0</y>
-       <width>121</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Not Implemented</string>
-     </property>
-    </widget>
    </widget>
    <widget class="QWidget" name="tab_3">
     <attribute name="title">
      <string>Advanced</string>
     </attribute>
-    <widget class="QLabel" name="label_17">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>0</y>
-       <width>121</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Not Implemented</string>
-     </property>
-    </widget>
    </widget>
   </widget>
-  <widget class="QPushButton" name="pushButtonOK">
+  <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>70</x>
      <y>270</y>
      <width>75</width>
      <height>24</height>
@@ -435,10 +289,10 @@
     <string>OK</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButtonCancel">
+  <widget class="QPushButton" name="pushButton_2">
    <property name="geometry">
     <rect>
-     <x>220</x>
+     <x>160</x>
      <y>270</y>
      <width>75</width>
      <height>24</height>
@@ -451,7 +305,7 @@
   <widget class="QPushButton" name="pushButtonApply">
    <property name="geometry">
     <rect>
-     <x>310</x>
+     <x>250</x>
      <y>270</y>
      <width>75</width>
      <height>24</height>
@@ -459,19 +313,6 @@
    </property>
    <property name="text">
     <string>Apply</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="labelBC">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>10</y>
-     <width>261</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Name_Type</string>
    </property>
   </widget>
  </widget>
