@@ -1061,11 +1061,13 @@ class mainWindow(QMainWindow):
         self.project.set_boundary_condition(self.current_stl_file,boundaryConditions)
 
     def numericsDialog(self):
-        self.current_mode,self.project.numericalSettings,turbulence_model = numericsDialogDriver(self.current_mode,self.project.numericalSettings,self.project.physicalProperties['turbulenceModel'])  
+        self.current_mode,self.project.numericalSettings,turbulence_model = numericsDialogDriver(self.current_mode,self.project.numericalSettings,
+                                                                                                 self.project.physicalProperties['turbulenceModel'],
+                                                                                                 transient=self.project.transient)  
         self.project.physicalProperties['turbulenceModel'] = turbulence_model
 
     def controlsDialog(self):
-        controls = controlsDialogDriver()
+        self.project.simulationSettings,self.project.parallelSettings = controlsDialogDriver(self.project.simulationSettings,self.project.parallelSettings,self.project.transient)
 
     
     def postProcessDialog(self):

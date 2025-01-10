@@ -733,9 +733,10 @@ class boundaryConditionDialog(QDialog):
         pass
 
 class numericalSettingsDialog(QDialog):
-    def __init__(self,current_mode=0,numericalSettings=None,turbulenceModel="kOmegaSST"):
+    def __init__(self,current_mode=0,numericalSettings=None,turbulenceModel="kOmegaSST",transient=False):
         super().__init__()
         self.turbulenceOn = True
+        self.transient = transient
         self.turbulence_model = turbulenceModel
         self.modes = ["Balanced (Blended 2nd Order schemes)","Stablity Mode (1st Order schemes)","Accuracy Mode (2nd Order schemes)","Advanced Mode"]
         self.temporal_schemes = {"Steady State":"steadyState","Euler":"Euler","Backward Euler (2nd Order)":"backward","Crank-Nicolson (Blended 2nd Order)":"crankNicolson 0.5","Crank-Nicolson (2nd Order)":"crankNicolson 1.0"}
@@ -776,19 +777,12 @@ class numericalSettingsDialog(QDialog):
         for mode in self.modes:
             self.window.comboBoxMode.addItem(mode)
         self.window.comboBoxMode.setCurrentIndex(self.current_mode)
-        #self.window.comboBoxMode.addItem("Balanced (Blended 2nd Order schemes)")
-        #self.window.comboBoxMode.addItem("Stablity Mode (1st Order schemes)")
-        #self.window.comboBoxMode.addItem("Accuracy Mode (2nd Order schemes)")
-        #self.window.comboBoxMode.addItem("Advanced Mode")
-        
         self.window.comboBoxGradScheme.addItem("Gauss linear")
         self.window.comboBoxGradScheme.addItem("Gauss Linear (Cell Limited)")
         self.window.comboBoxGradScheme.addItem("Gauss Linear (Cell MD Limited)")
         self.window.comboBoxGradScheme.addItem("Gauss Linear (Face Limited)")
         self.window.comboBoxGradScheme.addItem("Gauss Linear (Face MD Limited)")
         self.window.comboBoxGradScheme.addItem("Least Squares")
-
-       
 
         self.window.comboBoxDivScheme.addItem("Gauss Linear")
         self.window.comboBoxDivScheme.addItem("Gauss Linear Upwind")
@@ -809,11 +803,13 @@ class numericalSettingsDialog(QDialog):
         self.window.comboBoxLaplacian.addItem("limited 0.666")
         self.window.comboBoxLaplacian.addItem("limited 1.0")
 
-        self.window.comboBoxTemporal.addItem("Steady State")
-        self.window.comboBoxTemporal.addItem("Euler")
-        self.window.comboBoxTemporal.addItem("Backward Euler (2nd Order)")
-        self.window.comboBoxTemporal.addItem("Crank-Nicolson (Blended 2nd Order)")
-        self.window.comboBoxTemporal.addItem("Crank-Nicolson (2nd Order)")
+        if self.transient==False:
+            self.window.comboBoxTemporal.addItem("Steady State")
+        else:
+            self.window.comboBoxTemporal.addItem("Euler")
+            self.window.comboBoxTemporal.addItem("Backward Euler (2nd Order)")
+            self.window.comboBoxTemporal.addItem("Crank-Nicolson (Blended 2nd Order)")
+            self.window.comboBoxTemporal.addItem("Crank-Nicolson (2nd Order)")
         if self.current_mode==0 or self.current_mode==1 or self.current_mode==2:
             self.setBasicMode()
             self.window.frame.setVisible(False)
@@ -822,7 +818,7 @@ class numericalSettingsDialog(QDialog):
             self.window.frame.setVisible(True)
         
     def fill_turbulence_models(self):
-        turbulence_models = ["laminar","k-epsilon","kOmegaSST","SpalartAllmaras","RNG_kEpsilon"
+        turbulence_models = ["laminar","kEpsilon","kOmegaSST","SpalartAllmaras","RNGkEpsilon"
                              ,"realizableKE",]
         for model in turbulence_models:
             self.window.comboBoxTurbulenceModels.addItem(model)
@@ -882,32 +878,55 @@ class numericalSettingsDialog(QDialog):
             #print("Balanced Mode")
             #self.print_numerical_settings()
             self.numericalSettings['ddtSchemes']['default'] = "Euler"
-            self.numericalSettings['gradSchemes']['default'] = "Gauss linear"
+            self.numericalSettings['gradSchemes']['default'] = "cellLimited Gauss linear 1"
             self.numericalSettings['gradSchemes']['grad(U)'] = "cellLimited Gauss linear 1"
             self.numericalSettings['divSchemes']['default'] = "Gauss linear"
             self.numericalSettings['divSchemes']['div(phi,U)'] = "Gauss linearUpwind grad(U)"
-            self.numericalSettings['laplacianSchemes']['default'] = "Gauss linear limited 0.666"
-            self.numericalSettings['snGradSchemes']['default'] = "limited 0.666"
-            pass
+            self.numericalSettings['divSchemes']['div(phi,k)'] = "Gauss upwind"
+            self.numericalSettings['divSchemes']['div(phi,epsilon)'] = "Gauss upwind"
+            self.numericalSettings['divSchemes']['div(phi,omega)'] = "Gauss upwind"
+            self.numericalSettings['divSchemes']['div(phi,nuTilda)'] = "Gauss upwind"
+
+            self.numericalSettings['laplacianSchemes']['default'] = "Gauss linear limited corrected 0.5"
+            self.numericalSettings['snGradSchemes']['default'] = "limited corrected 0.5"
+            if self.transient==False:
+                self.numericalSettings['ddtSchemes']['default'] = "steadyState"
+                self.numericalSettings['divSchemes']['div(phi,U)'] = "bounded Gauss linearUpwind grad(U)"
+                self.numericalSettings['divSchemes']['div(phi,k)'] = "bounded Gauss upwind"
+                self.numericalSettings['divSchemes']['div(phi,epsilon)'] = "bounded Gauss upwind"
+                self.numericalSettings['divSchemes']['div(phi,omega)'] = "bounded Gauss upwind"
+                self.numericalSettings['divSchemes']['div(phi,nuTilda)'] = "bounded Gauss upwind"
         elif(self.window.comboBoxMode.currentText()=="Accuracy Mode (2nd Order schemes)"):
-            self.numericalSettings['ddtSchemes']['default'] = "Euler"
+            self.numericalSettings['ddtSchemes']['default'] = "CrankNicolson 0.5"
             self.numericalSettings['gradSchemes']['default'] = "Gauss linear"
             self.numericalSettings['divSchemes']['default'] = "Gauss linear"
             self.numericalSettings['divSchemes']['div(phi,U)'] = "Gauss linear"
+            self.numericalSettings['divSchemes']['div(phi,k)'] = "Gauss limitedLinear 1"
+            self.numericalSettings['divSchemes']['div(phi,epsilon)'] = "Gauss limitedLinear 1"
+            self.numericalSettings['divSchemes']['div(phi,omega)'] = "Gauss limitedLinear 1"
+            self.numericalSettings['divSchemes']['div(phi,nuTilda)'] = "Gauss limitedLinear 1"
+
             self.numericalSettings['laplacianSchemes']['default'] = "Gauss linear corrected"
             self.numericalSettings['snGradSchemes']['default'] = "corrected"
-            #print("Accuracy Mode")
-            #self.print_numerical_settings() 
+            if self.transient==False:
+                self.numericalSettings['ddtSchemes']['default'] = "steadyState"
+             
         elif(self.window.comboBoxMode.currentText()=="Stablity Mode (1st Order schemes)"):
             self.numericalSettings['ddtSchemes']['default'] = "Euler"
-            self.numericalSettings['gradSchemes']['default'] = "Gauss linear"
+            self.numericalSettings['gradSchemes']['default'] = "cellLimited Gauss linear 1"
             self.numericalSettings['gradSchemes']['grad(U)'] = "cellLimited Gauss linear 1"
             self.numericalSettings['divSchemes']['default'] = "Gauss upwind"
             self.numericalSettings['divSchemes']['div(phi,U)'] = "Gauss upwind"
-            self.numericalSettings['laplacianSchemes']['default'] = "Gauss linear limited 0.333"
-            self.numericalSettings['snGradSchemes']['default'] = "limited 0.333"
-            #print("Stability Mode")
-            #self.print_numerical_settings()
+            self.numericalSettings['laplacianSchemes']['default'] = "Gauss linear limited corrected 0.333"
+            self.numericalSettings['snGradSchemes']['default'] = "limited corrected 0.333"
+            if self.transient==False:
+                self.numericalSettings['ddtSchemes']['default'] = "steadyState"
+                self.numericalSettings['divSchemes']['div(phi,U)'] = "bounded Gauss upwind"
+                self.numericalSettings['divSchemes']['div(phi,k)'] = "bounded Gauss upwind"
+                self.numericalSettings['divSchemes']['div(phi,epsilon)'] = "bounded Gauss upwind"
+                self.numericalSettings['divSchemes']['div(phi,omega)'] = "bounded Gauss upwind"
+                self.numericalSettings['divSchemes']['div(phi,nuTilda)'] = "bounded Gauss upwind"
+
         else:
             self.setAdvancedMode()
             #print("Advanced Mode")
@@ -930,7 +949,7 @@ class numericalSettingsDialog(QDialog):
         else:
             self.numericalSettings['divSchemes']['default'] = "Gauss linear"
         
-        self.numericalSettings['gradSchemes']['div(phi,U)'] = self.window.comboBoxDivScheme.currentText()
+        self.numericalSettings['divSchemes']['div(phi,U)'] = self.window.comboBoxDivScheme.currentText()
         self.numericalSettings['laplacianSchemes']['default'] = "Gauss linear "+ self.window.comboBoxLaplacian.currentText()
         self.numericalSettings['snGradSchemes']['default'] = self.window.comboBoxLaplacian.currentText()
         #self.print_numerical_settings()
@@ -949,13 +968,100 @@ class numericalSettingsDialog(QDialog):
         pass
 
 class controlsDialog(QDialog):
-    def __init__(self):
+    def __init__(self,simulationSettings=None,parallelSettings=None,transient=False):
         super().__init__()
         self.OK_clicked = False
+        self.transient = transient
+        self.simulationSettings = simulationSettings
+        self.parallelSettings = parallelSettings
+        #print(self.simulationSettings)
+        #print(self.parallelSettings)
         self.load_ui()
+        self.set_input_types()
+        self.fill_initial_values()
+        self.fill_parallel_settings()
         global global_darkmode
         apply_theme_dialog_boxes(self.window, global_darkmode)
         self.prepare_events()
+
+    def set_input_types(self):
+        self.window.lineEditStartTime.setValidator(QDoubleValidator())
+        self.window.lineEditEndTime.setValidator(QDoubleValidator())
+        self.window.lineEditTimeStep.setValidator(QDoubleValidator())
+        self.window.lineEditOutputInterval.setValidator(QDoubleValidator())
+        self.window.lineEditWritePrecision.setValidator(QIntValidator())
+        self.window.lineEdit_nProcs.setValidator(QIntValidator())
+        self.window.lineEditX.setValidator(QIntValidator())
+        self.window.lineEditY.setValidator(QIntValidator())
+        self.window.lineEditZ.setValidator(QIntValidator())
+
+
+    def change_parallel_settings(self):
+        if(self.window.checkBoxParallel.isChecked()):
+            self.window.lineEdit_nProcs.setEnabled(True)
+            self.window.comboBoxDecompositionMethod.setEnabled(True)
+            if(self.window.comboBoxDecompositionMethod.currentText()=="simple"):
+                self.window.lineEditX.setEnabled(True)
+                self.window.lineEditY.setEnabled(True)
+                self.window.lineEditZ.setEnabled(True)
+            else:
+                self.window.lineEditX.setEnabled(False)
+                self.window.lineEditY.setEnabled(False)
+                self.window.lineEditZ.setEnabled(False)
+        else:
+            self.window.lineEdit_nProcs.setEnabled(False)
+            self.window.comboBoxDecompositionMethod.setEnabled(False)
+            self.window.lineEditX.setEnabled(False)
+            self.window.lineEditY.setEnabled(False)
+            self.window.lineEditZ.setEnabled(False)
+
+    def fill_initial_values(self):
+        self.window.comboBoxStartFrom.addItem("startTime")
+        self.window.comboBoxStartFrom.addItem("latestTime")
+        self.window.comboBoxStartFrom.addItem("firstTime")
+        self.window.lineEditStartTime.setText(str(self.simulationSettings["startTime"]))
+        self.window.lineEditEndTime.setText(str(self.simulationSettings["endTime"]))
+        self.window.lineEditTimeStep.setText(str(self.simulationSettings["deltaT"]))
+        self.window.lineEditOutputInterval.setText(str(self.simulationSettings["writeInterval"]))
+        self.window.comboBoxWriteControl.addItem("timeStep")
+        self.window.comboBoxWriteControl.addItem("runTime")
+        self.window.comboBoxWriteControl.addItem("adjustableRunTime")
+        self.window.comboBoxWriteControl.addItem("cpuTime")
+        self.window.comboBoxWriteFormat.addItem("binary")
+        self.window.comboBoxWriteFormat.addItem("ascii")
+        self.window.comboBoxWriteControl.setCurrentText(self.simulationSettings["writeControl"])
+        self.window.comboBoxWriteFormat.setCurrentText(self.simulationSettings["writeFormat"])
+        self.window.lineEditWritePrecision.setText(str(self.simulationSettings["writePrecision"]))
+
+    def fill_parallel_settings(self):
+        if self.parallelSettings['parallel']==True:
+            self.window.checkBoxParallel.setChecked(True)
+        else:
+            self.window.checkBoxParallel.setChecked(False)
+        self.window.lineEdit_nProcs.setText(str(self.parallelSettings['numberOfSubdomains']))
+        self.window.comboBoxDecompositionMethod.addItem("simple")
+        self.window.comboBoxDecompositionMethod.addItem("hierarchical")
+        self.window.comboBoxDecompositionMethod.addItem("scotch")
+
+        if(self.parallelSettings['parallel']==False):
+            self.window.lineEdit_nProcs.setEnabled(False)
+            self.window.comboBoxDecompositionMethod.setEnabled(False)
+            self.window.lineEditX.setEnabled(False)
+            self.window.lineEditY.setEnabled(False)
+            self.window.lineEditZ.setEnabled(False)
+        else:
+            self.window.lineEdit_nProcs.setEnabled(True)
+            self.window.comboBoxDecompositionMethod.setEnabled(True)
+            self.window.comboBoxDecompositionMethod.setCurrentText(self.parallelSettings['method'])
+        
+        if(self.parallelSettings['method']=="simple"):
+            self.window.lineEditX.setEnabled(True)
+            self.window.lineEditY.setEnabled(True)
+            self.window.lineEditZ.setEnabled(True)
+        else:
+            self.window.lineEditX.setEnabled(False)
+            self.window.lineEditY.setEnabled(False)
+            self.window.lineEditZ.setEnabled(False)
 
     def load_ui(self):
         #ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\controlsDialog.ui"
@@ -971,7 +1077,9 @@ class controlsDialog(QDialog):
         self.window.pushButtonCancel.clicked.connect(self.on_pushButtonCancel_clicked)
         self.window.pushButtonApply.clicked.connect(self.on_pushButtonApply_clicked)
         self.window.pushButtonDefault.clicked.connect(self.on_pushButtonDefault_clicked)
-
+        self.window.checkBoxParallel.stateChanged.connect(self.change_parallel_settings)
+        self.window.comboBoxDecompositionMethod.currentIndexChanged.connect(self.change_parallel_settings)
+    
     def on_pushButtonOK_clicked(self):
         self.on_pushButtonApply_clicked()
         self.window.close()
@@ -981,10 +1089,68 @@ class controlsDialog(QDialog):
 
     def on_pushButtonApply_clicked(self):
         self.OK_clicked = True
-        self.window.close()
+        self.simulationSettings["startTime"] = self.window.lineEditStartTime.text()
+        self.simulationSettings["endTime"] = self.window.lineEditEndTime.text()
+        self.simulationSettings["deltaT"] = self.window.lineEditTimeStep.text()
+        self.simulationSettings["writeInterval"] = self.window.lineEditOutputInterval.text()
+        self.simulationSettings["writeControl"] = self.window.comboBoxWriteControl.currentText()
+        self.simulationSettings["writePrecision"] = self.window.lineEditWritePrecision.text()
+        self.simulationSettings["writeFormat"] = self.window.comboBoxWriteFormat.currentText()
+        self.parallelSettings["parallel"] = self.window.checkBoxParallel.isChecked()
+        self.parallelSettings["numberOfSubdomains"] = int(self.window.lineEdit_nProcs.text())
+        self.parallelSettings["method"] = self.window.comboBoxDecompositionMethod.currentText()
+        x = self.window.lineEditX.text()
+        y = self.window.lineEditY.text()
+        z = self.window.lineEditZ.text()
+        
+        
+        if(self.parallelSettings["method"]=="simple"):
+            x = int(x)
+            y = int(y)
+            z = int(z)
+            if x*y*z!=self.parallelSettings["numberOfSubdomains"]:
+                # show a warning message
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Warning)
+                msg.setText("Number of subdomains should be equal to x*y*z")
+                msg.setWindowTitle("Warning")
+                msg.exec_()
+            
+                return
+            self.parallelSettings["x"] = x
+            self.parallelSettings["y"] = y
+            self.parallelSettings["z"] = z
+        else:
+            # Just dummy values. 
+            self.parallelSettings["x"] = 1
+            self.parallelSettings["y"] = 1
+            self.parallelSettings["z"] = 1
+        
+        #self.window.close()
 
     def on_pushButtonDefault_clicked(self):
-        self.window.close()
+        self.set_to_default()
+
+    def set_to_default(self):
+        self.window.comboBoxWriteControl.setCurrentText("runTime")
+        self.window.comboBoxWriteFormat.setCurrentText("binary")
+        self.window.lineEditWritePrecision.setText("8")
+        self.window.lineEditStartTime.setText("0")
+        if self.transient==False:
+            self.window.lineEditEndTime.setText("1000")
+        
+            self.window.lineEditTimeStep.setText("1")
+            self.window.lineEditOutputInterval.setText("100")
+        else:
+            self.window.lineEditEndTime.setText("10")
+            self.window.lineEditTimeStep.setText("0.005")
+            self.window.lineEditOutputInterval.setText("0.1")
+        self.window.checkBoxParallel.setChecked(True)
+        self.window.lineEdit_nProcs.setText("4")
+        self.window.comboBoxDecompositionMethod.setCurrentText("scotch")
+        self.window.lineEditX.setText("2")
+        self.window.lineEditY.setText("2")
+        self.window.lineEditZ.setText("1")
 
     def __del__(self):
         pass
@@ -1091,7 +1257,7 @@ def boundaryConditionDialogDriver(boundary=None):
     turbulenceBC = dialog.turbulenceBC
     return (velocityBC,pressureBC,turbulenceBC)
 
-def numericsDialogDriver(current_mode=0,numericalSettings=None,turbulenceModel=None):
+def numericsDialogDriver(current_mode=0,numericalSettings=None,turbulenceModel=None,transient=False):
     print("Turbulence Model",turbulenceModel)
     dialog = numericalSettingsDialog(current_mode=current_mode,numericalSettings=numericalSettings,turbulenceModel=turbulenceModel)
     dialog.window.exec()
@@ -1101,11 +1267,11 @@ def numericsDialogDriver(current_mode=0,numericalSettings=None,turbulenceModel=N
     
     return dialog.current_mode,dialog.numericalSettings,dialog.turbulence_model
 
-def controlsDialogDriver():
-    dialog = controlsDialog()
+def controlsDialogDriver(simulationSettings=None,parallelSettings=None,transient=False):
+    dialog = controlsDialog(simulationSettings,parallelSettings,transient=transient)
     dialog.window.exec()
     dialog.window.show()
-    return 
+    return dialog.simulationSettings,dialog.parallelSettings
 
 def meshPointDialogDriver(locationInMesh=None):
     meshPoint = vectorInputDialogDriver(prompt="Enter mesh point",input_type="float",initial_values=locationInMesh)

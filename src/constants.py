@@ -148,9 +148,9 @@ numericalSettings = {
                    'div(phi,nut)': 'Gauss upwind',
                    'div(nuEff*dev(T(grad(U))))': 'Gauss linear',
                    },
-    'laplacianSchemes': {'default': 'Gauss linear limited 0.667',},
+    'laplacianSchemes': {'default': 'Gauss linear limited corrected 0.5',},
     'interpolationSchemes': {'default': 'linear'},
-    'snGradSchemes': {'default': 'limited 0.667',},
+    'snGradSchemes': {'default': 'limited corrected 0.5',},
     'fluxRequired': {'default': 'no'},
     'wallDist': 'meshWave',
     'pimpleDict': {'nOuterCorrectors': 20, 'nCorrectors': 1, 
@@ -163,7 +163,7 @@ numericalSettings = {
                    },
 
     'relaxationFactors': {'U': 0.7, 'k': 0.7, 'omega': 0.7, 'epsilon': 0.7, 'nut': 0.7, 'nuTilda':0.7, 'p': 0.3}, 
-    'simpleDict':{'nNonOrthogonalCorrectors': 2, 'consistent': 'false', 'residualControl': {'U': 1e-4, 'p': 1e-4, 'k': 1e-4, 'omega': 1e-4, 'epsilon': 1e-4, 'nut': 1e-4, 'nuTilda': 1e-4}},
+    'simpleDict':{'nNonOrthogonalCorrectors': 2, 'consistent': 'false', 'residualControl': {'U': 1e-4, 'p': 1e-3, 'k': 1e-4, 'omega': 1e-4, 'epsilon': 1e-4, 'nut': 1e-4, 'nuTilda': 1e-4}},
     'potentialFlowDict':{'nonOrthogonalCorrectors': 10},
 }
 
@@ -278,10 +278,10 @@ simulationSettings = {
     'writeInterval': 100,
     'purgeWrite': 0,
     'writeFormat': 'binary',
-    'writePrecision': 6,
+    'writePrecision': 8,
     'writeCompression': 'off',
     'timeFormat': 'general',
-    'timePrecision': 6,
+    'timePrecision': 8,
     'runTimeModifiable': 'true',
     'adjustTimeStep': 'no',
     'maxCo': 0.5,
@@ -295,6 +295,9 @@ parallelSettings = {
     'parallel': True,
     'numberOfSubdomains': 4,
     'method': 'scotch',
+    'x': 2,
+    'y': 2,
+    'z': 1,
     
 }
 
