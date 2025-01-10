@@ -382,7 +382,7 @@ class STLDialog(QDialog):
     def __del__(self):
         pass
 
-class physicalPropertiesDialog(QDialog):
+class physicalModelsDialog(QDialog):
     def __init__(self,initialProperties=None):
         super().__init__()
         
@@ -392,26 +392,25 @@ class physicalPropertiesDialog(QDialog):
         self.mu = 1.7894e-5
         self.cp = 1006.43
         self.nu = self.mu/self.rho
-        self.turbulenceOn = True
-        self.turbulence_model = "kOmegaSST"
+        
         self.initialProperties = None
         if initialProperties!=None:
             self.initialProperties = initialProperties
-            self.fluid,self.rho,self.nu,self.cp,self.turbulence_model = initialProperties
+            self.fluid,self.rho,self.nu,self.cp = initialProperties
             self.mu = self.rho*self.nu
         self.load_ui()
         global global_darkmode
         apply_theme_dialog_boxes(self.window, global_darkmode)
         self.disable_advanced_physics()
         self.fill_fluid_types()
-        self.fill_turbulence_models()
+        
         self.prepare_events()
         self.OK_clicked = False
     
 
     def load_ui(self):
         ##ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\physicalPropertiesDialog.ui"
-        ui_path = os.path.join(src, "physicalPropertiesDialog.ui")
+        ui_path = os.path.join(src, "physicalModelsDialog.ui")
         ui_file = QFile(ui_path)
         #ui_file = QFile("inputDialog.ui")
         ui_file.open(QFile.ReadOnly)
@@ -422,6 +421,8 @@ class physicalPropertiesDialog(QDialog):
         self.window.checkBoxDynamicMesh.setEnabled(False)
         self.window.checkBoxMultiphase.setEnabled(False)
         self.window.checkBoxCompressibleFluid.setEnabled(False)
+        self.window.checkBoxBoussinesqHeat.setEnabled(False)
+        self.window.checkBoxCHT.setEnabled(False)
 
     def fill_fluid_types(self):
         fluid_names = list(self.fluids.keys())
@@ -440,21 +441,6 @@ class physicalPropertiesDialog(QDialog):
             self.window.lineEditCp.setText(str(1006.43))
         
 
-    def fill_turbulence_models(self):
-        turbulence_models = ["laminar","k-epsilon","kOmegaSST","SpalartAllmaras","RNG_kEpsilon"
-                             ,"realizableKE",]
-        for model in turbulence_models:
-            self.window.comboBoxTurbulenceModels.addItem(model)
-        if self.initialProperties!=None:
-            self.window.comboBoxTurbulenceModels.setCurrentText(self.turbulence_model)
-        else:
-            self.window.comboBoxTurbulenceModels.setCurrentText("kOmegaSST")
-
-    def changeTurbulenceModel(self):
-        self.turbulence_model = self.window.comboBoxTurbulenceModels.currentText()
-
-    
-
     def changeFluidProperties(self):
         fluid = self.window.comboBoxFluids.currentText()
         if fluid not in self.fluids.keys():
@@ -471,9 +457,7 @@ class physicalPropertiesDialog(QDialog):
         self.window.pushButtonCancel.clicked.connect(self.on_pushButtonCancel_clicked)
         self.window.pushButtonApply.clicked.connect(self.on_pushButtonApply_clicked) 
         self.window.comboBoxFluids.currentIndexChanged.connect(self.changeFluidProperties)
-        self.window.comboBoxTurbulenceModels.currentIndexChanged.connect(self.changeTurbulenceModel)
-        #self.window.checkBoxTurbulenceOn.stateChanged.connect(self.turbulenceOnOff)
-
+       
 
     def on_pushButtonOK_clicked(self):
         #print("Push Button OK Clicked")
@@ -492,7 +476,7 @@ class physicalPropertiesDialog(QDialog):
         self.nu = self.mu/self.rho
         #self.turbulenceOn = self.window.checkBoxTurbulenceOn.isChecked()
         #if self.turbulenceOn:
-        self.turbulence_model = self.window.comboBoxTurbulenceModels.currentText()
+        #self.turbulence_model = self.window.comboBoxTurbulenceModels.currentText()
         #else:
         #    self.turbulence_model = "laminar"
         self.OK_clicked = True
@@ -749,8 +733,10 @@ class boundaryConditionDialog(QDialog):
         pass
 
 class numericalSettingsDialog(QDialog):
-    def __init__(self,current_mode=0,numericalSettings=None):
+    def __init__(self,current_mode=0,numericalSettings=None,turbulenceModel="kOmegaSST"):
         super().__init__()
+        self.turbulenceOn = True
+        self.turbulence_model = turbulenceModel
         self.modes = ["Balanced (Blended 2nd Order schemes)","Stablity Mode (1st Order schemes)","Accuracy Mode (2nd Order schemes)","Advanced Mode"]
         self.temporal_schemes = {"Steady State":"steadyState","Euler":"Euler","Backward Euler (2nd Order)":"backward","Crank-Nicolson (Blended 2nd Order)":"crankNicolson 0.5","Crank-Nicolson (2nd Order)":"crankNicolson 1.0"}
         self.grad_schemes = grad_schemes
@@ -766,6 +752,7 @@ class numericalSettingsDialog(QDialog):
         global global_darkmode
         apply_theme_dialog_boxes(self.window, global_darkmode)
         self.fill_comboBox_values()
+        self.fill_turbulence_models()
         self.prepare_events()
 
     def prepare_events(self):
@@ -774,7 +761,8 @@ class numericalSettingsDialog(QDialog):
         self.window.pushButtonApply.clicked.connect(self.on_pushButtonApply_clicked)
         self.window.pushButtonDefault.clicked.connect(self.on_pushButtonDefault_clicked)
         self.window.comboBoxMode.currentIndexChanged.connect(self.changeMode)
-       
+        self.window.comboBoxTurbulenceModels.currentIndexChanged.connect(self.changeTurbulenceModel)
+
     def load_ui(self):
         #ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\numericDialog.ui"
         ui_path = os.path.join(src, "numericDialog.ui")
@@ -793,7 +781,7 @@ class numericalSettingsDialog(QDialog):
         #self.window.comboBoxMode.addItem("Accuracy Mode (2nd Order schemes)")
         #self.window.comboBoxMode.addItem("Advanced Mode")
         
-        self.window.comboBoxGradScheme.addItem("Gauss Linear")
+        self.window.comboBoxGradScheme.addItem("Gauss linear")
         self.window.comboBoxGradScheme.addItem("Gauss Linear (Cell Limited)")
         self.window.comboBoxGradScheme.addItem("Gauss Linear (Cell MD Limited)")
         self.window.comboBoxGradScheme.addItem("Gauss Linear (Face Limited)")
@@ -833,6 +821,19 @@ class numericalSettingsDialog(QDialog):
             self.setAdvancedMode()
             self.window.frame.setVisible(True)
         
+    def fill_turbulence_models(self):
+        turbulence_models = ["laminar","k-epsilon","kOmegaSST","SpalartAllmaras","RNG_kEpsilon"
+                             ,"realizableKE",]
+        for model in turbulence_models:
+            self.window.comboBoxTurbulenceModels.addItem(model)
+        if self.turbulence_model!=None:
+            self.window.comboBoxTurbulenceModels.setCurrentText(self.turbulence_model)
+        else:
+            self.window.comboBoxTurbulenceModels.setCurrentIndex(2)
+
+    def changeTurbulenceModel(self):
+        self.turbulence_model = self.window.comboBoxTurbulenceModels.currentText()
+
 
     def prepare_events(self):
         self.window.pushButtonOK.clicked.connect(self.on_pushButtonOK_clicked)
@@ -853,12 +854,14 @@ class numericalSettingsDialog(QDialog):
         #self.window.close()
         #print("Default Settings Choosen")
         self.window.comboBoxMode.setCurrentText("Balanced (Blended 2nd Order schemes)")
+        self.window.comboBoxTurbulenceModels.setCurrentText("kOmegaSST")
         self.setBasicMode()
 
 
     def on_pushButtonApply_clicked(self):
         self.OK_clicked = True
         self.current_mode = self.window.comboBoxMode.currentIndex()
+        self.turbulence_model = self.window.comboBoxTurbulenceModels.currentText()
     
     def print_numerical_settings(self):
         print("ddtScheme",self.numericalSettings['ddtSchemes']['default'])
@@ -910,12 +913,23 @@ class numericalSettingsDialog(QDialog):
             #print("Advanced Mode")
             
         
-
     def setAdvancedMode(self):
         self.basicMode = False
         self.numericalSettings['ddtSchemes']['default'] = self.temporal_schemes[self.window.comboBoxTemporal.currentText()]
-        self.numericalSettings['gradSchemes']['default'] = self.window.comboBoxGradScheme.currentText()
-        self.numericalSettings['gradSchemes']['grad(U)'] = self.window.comboBoxGradScheme.currentText()
+        grad_sch = self.window.comboBoxGradScheme.currentText()
+        # check whether the selected scheme is available in the grad_schemes dictionary
+        if grad_sch in self.grad_schemes.keys():
+            self.numericalSettings['gradSchemes']['default'] = self.grad_schemes[grad_sch]
+            self.numericalSettings['gradSchemes']['grad(U)'] = self.grad_schemes[grad_sch]
+        else:
+            self.numericalSettings['gradSchemes']['default'] = "Gauss linear"
+            self.numericalSettings['gradSchemes']['grad(U)'] = "cellLimited Gauss linear 1"
+        div_sch = self.window.comboBoxDivScheme.currentText()
+        if div_sch in self.div_schemes.keys():
+            self.numericalSettings['divSchemes']['default'] = self.div_schemes[div_sch]
+        else:
+            self.numericalSettings['divSchemes']['default'] = "Gauss linear"
+        
         self.numericalSettings['gradSchemes']['div(phi,U)'] = self.window.comboBoxDivScheme.currentText()
         self.numericalSettings['laplacianSchemes']['default'] = "Gauss linear "+ self.window.comboBoxLaplacian.currentText()
         self.numericalSettings['snGradSchemes']['default'] = self.window.comboBoxLaplacian.currentText()
@@ -1049,12 +1063,10 @@ def STLDialogDriver(stl_name="stl_file.stl",stlProperties=None):
         return (refMin,refMax,refLevel,nLayers,usage,edgeRefine,ami,U)
     return (refMin,refMax,refLevel,nLayers,usage,edgeRefine,ami,None)
 
-def physicalPropertiesDialogDriver(initialProperties=None):
-    dialog = physicalPropertiesDialog(initialProperties)
+def physicalModelsDialogDriver(initialProperties=None):
+    dialog = physicalModelsDialog(initialProperties)
     dialog.window.exec()
     dialog.window.show()
-    turbulence_models = {"laminar":"laminar","k-epsilon":"kEpsilon","kOmegaSST":"kOmegaSST","SpalartAllmaras":"SpalartAllmaras",
-                         "RNG_kEpsilon":"RNGkEpsilon","realizableKE":"realizableKE"}
     OK_clicked = dialog.OK_clicked
     if(OK_clicked==False):
         return None
@@ -1063,10 +1075,8 @@ def physicalPropertiesDialogDriver(initialProperties=None):
     cp = dialog.cp
     nu = dialog.nu
     fluid = dialog.window.comboBoxFluids.currentText()
-    turbulenceOn = dialog.turbulenceOn
-    turbulence_model = turbulence_models[dialog.turbulence_model]
-    #print(rho,nu,cp,turbulence_model)
-    return (fluid,rho,nu,cp,turbulence_model)
+    
+    return (fluid,rho,nu,cp,)
 
 def boundaryConditionDialogDriver(boundary=None):
     #print(boundary)
@@ -1081,11 +1091,15 @@ def boundaryConditionDialogDriver(boundary=None):
     turbulenceBC = dialog.turbulenceBC
     return (velocityBC,pressureBC,turbulenceBC)
 
-def numericsDialogDriver(current_mode=0,numericalSettings=None):
-    dialog = numericalSettingsDialog(current_mode=current_mode,numericalSettings=numericalSettings)
+def numericsDialogDriver(current_mode=0,numericalSettings=None,turbulenceModel=None):
+    print("Turbulence Model",turbulenceModel)
+    dialog = numericalSettingsDialog(current_mode=current_mode,numericalSettings=numericalSettings,turbulenceModel=turbulenceModel)
     dialog.window.exec()
     dialog.window.show()
-    return dialog.current_mode,dialog.numericalSettings
+    turbulence_models = {"laminar":"laminar","k-epsilon":"kEpsilon","kOmegaSST":"kOmegaSST","SpalartAllmaras":"SpalartAllmaras",
+                         "RNG_kEpsilon":"RNGkEpsilon","realizableKE":"realizableKE"}
+    
+    return dialog.current_mode,dialog.numericalSettings,dialog.turbulence_model
 
 def controlsDialogDriver():
     dialog = controlsDialog()

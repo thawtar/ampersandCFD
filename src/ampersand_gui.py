@@ -24,7 +24,7 @@ from PySide6.QtCore import Qt
 from PySide6 import QtWidgets
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from dialogBoxes import sphereDialogDriver, yesNoDialogDriver, yesNoCancelDialogDriver
-from dialogBoxes import vectorInputDialogDriver, STLDialogDriver, physicalPropertiesDialogDriver
+from dialogBoxes import vectorInputDialogDriver, STLDialogDriver, physicalModelsDialogDriver
 from dialogBoxes import boundaryConditionDialogDriver, numericsDialogDriver, controlsDialogDriver
 from dialogBoxes import set_src, meshPointDialogDriver
 from dialogBoxes import global_darkmode, set_global_darkmode
@@ -218,6 +218,9 @@ class mainWindow(QMainWindow):
         
         # Initialize VTKManager
         self.vtk_manager = VTKManager(self.ren, self.vtkWidget)
+
+        # Change Steady/Transient button into toggle button
+        self.window.pushButtonSteadyTransient.setCheckable(True)
         
         # Prepare sub-windows and event connections
         self.prepare_subWindows()
@@ -264,13 +267,17 @@ class mainWindow(QMainWindow):
         Toggles between light and dark themes, applying the appropriate stylesheet
         and updating the VTK background via VTKManager.
         """
-        #global global_darkmode
         dark_mode = self.window.themeToggle.isChecked()
-        #global_darkmode = dark_mode
         set_global_darkmode(dark_mode)
-        #print(f"Dark Mode: {dark_mode}")
-        #print(f"Global Dark Mode: {global_darkmode}")
         apply_theme(self.window, self.vtk_manager, dark_mode)
+        
+        # Update color for property table
+        if dark_mode:
+            print("Dark mode selected")
+            self.window.tableViewProperties.horizontalHeader().setStyleSheet("color: black")
+        else:
+            print("Light mode selected")
+            self.window.tableViewProperties.horizontalHeader().setStyleSheet("color: black")
         
 
     # FLAG! For that purpose is this?    
@@ -679,7 +686,6 @@ class mainWindow(QMainWindow):
         self.vtkWidget.GetRenderWindow().Render()
 
         # Resize the terminal, progress bar and properties table
-
         self.window.plainTextTerminal.move(terminalX, terminalY)
         self.window.plainTextTerminal.resize(vtkWidgetWidth, TERMINAL_HEIGHT - 70)
         self.window.plainTextTerminal.update()
@@ -688,10 +694,6 @@ class mainWindow(QMainWindow):
         self.window.progressBar.resize(vtkWidgetWidth, PROGRESS_BAR_HEIGHT)
         self.window.progressBar.update()
         self.window.progressBar.repaint()
-
-        #self.window.tableViewProperties.move(terminalX, terminalY + TERMINAL_HEIGHT + PROGRESS_BAR_HEIGHT + 2)
-        
-        print(f"Table Height: {table_height}")
         self.window.frame_3.resize(self.window.frame_3.width(), frame3_height)
         self.window.tableViewProperties.resize(TABLE_WIDTH, table_height)
         self.readyStatusBar()
@@ -1031,12 +1033,12 @@ class mainWindow(QMainWindow):
         cp = self.project.physicalProperties['Cp']
         turbulence_model = self.project.physicalProperties['turbulenceModel']
         fluid = self.project.physicalProperties['fluid']
-        initialProperties = (fluid,rho,nu,cp,turbulence_model)
+        initialProperties = (fluid,rho,nu,cp)
         
-        physicalProperties = physicalPropertiesDialogDriver(initialProperties)
+        physicalProperties = physicalModelsDialogDriver(initialProperties)
         if physicalProperties==None:
             return 
-        fluid,rho,nu,cp,turbulence_model = physicalProperties
+        fluid,rho,nu,cp = physicalProperties
         # update the project physical properties
         ampersandIO.printMessage("Updating Physical Properties",GUIMode=True)
         ampersandIO.printMessage(f"Updated Properties: {physicalProperties}",GUIMode=True,window=self)
@@ -1044,7 +1046,7 @@ class mainWindow(QMainWindow):
         self.project.physicalProperties['rho'] = rho
         self.project.physicalProperties['nu'] = nu
         self.project.physicalProperties['Cp'] = cp
-        self.project.physicalProperties['turbulenceModel'] = turbulence_model
+        #self.project.physicalProperties['turbulenceModel'] = turbulence_model
 
     def boundaryConditionDialog(self):
         stl = self.project.get_stl(self.current_stl_file)
@@ -1059,7 +1061,8 @@ class mainWindow(QMainWindow):
         self.project.set_boundary_condition(self.current_stl_file,boundaryConditions)
 
     def numericsDialog(self):
-        self.current_mode,self.project.numericalSettings = numericsDialogDriver(self.current_mode,self.project.numericalSettings)  
+        self.current_mode,self.project.numericalSettings,turbulence_model = numericsDialogDriver(self.current_mode,self.project.numericalSettings,self.project.physicalProperties['turbulenceModel'])  
+        self.project.physicalProperties['turbulenceModel'] = turbulence_model
 
     def controlsDialog(self):
         controls = controlsDialogDriver()

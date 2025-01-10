@@ -93,7 +93,7 @@
      <string>Multiphase (VOF)</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="checkBoxMultiphase_2">
+   <widget class="QCheckBox" name="checkBoxBoussinesqHeat">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -106,7 +106,7 @@
      <string>Heat Transfer (Boussinesq)</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="checkBoxMultiphase_3">
+   <widget class="QCheckBox" name="checkBoxCHT">
     <property name="geometry">
      <rect>
       <x>10</x>
