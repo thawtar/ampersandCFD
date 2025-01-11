@@ -627,6 +627,7 @@ class mainWindow(QMainWindow):
         idx = self.window.listWidgetObjList.row(item)
         stl = item.text()
         self.project.remove_stl_file_by_name(stl)
+        self.vtk_manager.remove_stl(stl)
         self.update_list()
         self.readyStatusBar()
 

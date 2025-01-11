@@ -1326,8 +1326,8 @@ def numericsDialogDriver(current_mode=0,numericalSettings=None,turbulenceModel=N
     dialog = numericalSettingsDialog(current_mode=current_mode,numericalSettings=numericalSettings,turbulenceModel=turbulenceModel)
     dialog.window.exec()
     dialog.window.show()
-    turbulence_models = {"laminar":"laminar","k-epsilon":"kEpsilon","kOmegaSST":"kOmegaSST","SpalartAllmaras":"SpalartAllmaras",
-                         "RNG_kEpsilon":"RNGkEpsilon","realizableKE":"realizableKE"}
+    #turbulence_models = {"laminar":"laminar","k-epsilon":"kEpsilon","kOmegaSST":"kOmegaSST","SpalartAllmaras":"SpalartAllmaras",
+    #                     "RNG_kEpsilon":"RNGkEpsilon","realizableKE":"realizableKE"}
     
     return dialog.current_mode,dialog.numericalSettings,dialog.turbulence_model
 
