@@ -12,7 +12,8 @@ from PySide6.QtWidgets import QMessageBox
 import sys
 from time import sleep
 import os
-from gui_text_to_foam_dict import grad_schemes,div_schemes,temporal_schemes
+from gui_text_to_foam_dict import grad_schemes,div_schemes,temporal_schemes,laplacian_schemes
+from gui_text_to_foam_dict import value_to_key
 
 # to keep theme consistent
 from theme_switcher import apply_theme_dialog_boxes
@@ -742,13 +743,18 @@ class numericalSettingsDialog(QDialog):
         self.temporal_schemes = {"Steady State":"steadyState","Euler":"Euler","Backward Euler (2nd Order)":"backward","Crank-Nicolson (Blended 2nd Order)":"crankNicolson 0.5","Crank-Nicolson (2nd Order)":"crankNicolson 1.0"}
         self.grad_schemes = grad_schemes
         self.div_schemes = div_schemes
+        self.laplacian_schemes = laplacian_schemes
         self.current_mode = current_mode
         
         self.OK_clicked = False
         
         # default values for numerical settings. 
         self.numericalSettings = numericalSettings
-        self.basicMode = True
+        if numericalSettings!=None:
+            if "basicMode" in numericalSettings.keys():
+                self.basicMode = numericalSettings["basicMode"]
+            else:
+                self.basicMode = True
         self.load_ui()
         global global_darkmode
         apply_theme_dialog_boxes(self.window, global_darkmode)
@@ -763,6 +769,14 @@ class numericalSettingsDialog(QDialog):
         self.window.pushButtonDefault.clicked.connect(self.on_pushButtonDefault_clicked)
         self.window.comboBoxMode.currentIndexChanged.connect(self.changeMode)
         self.window.comboBoxTurbulenceModels.currentIndexChanged.connect(self.changeTurbulenceModel)
+        
+        # These correspond to the changes in advanced mode
+        self.window.comboBoxTemporal.currentIndexChanged.connect(self.setAdvancedMode)
+        self.window.comboBoxGradScheme.currentIndexChanged.connect(self.setAdvancedMode)
+        self.window.comboBoxDivScheme.currentIndexChanged.connect(self.setAdvancedMode)
+        self.window.comboBoxDivTurb.currentIndexChanged.connect(self.setAdvancedMode)
+        self.window.comboBoxLaplacian.currentIndexChanged.connect(self.setAdvancedMode)
+  
 
     def load_ui(self):
         #ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\numericDialog.ui"
@@ -777,31 +791,38 @@ class numericalSettingsDialog(QDialog):
         for mode in self.modes:
             self.window.comboBoxMode.addItem(mode)
         self.window.comboBoxMode.setCurrentIndex(self.current_mode)
-        self.window.comboBoxGradScheme.addItem("Gauss linear")
-        self.window.comboBoxGradScheme.addItem("Gauss Linear (Cell Limited)")
-        self.window.comboBoxGradScheme.addItem("Gauss Linear (Cell MD Limited)")
-        self.window.comboBoxGradScheme.addItem("Gauss Linear (Face Limited)")
-        self.window.comboBoxGradScheme.addItem("Gauss Linear (Face MD Limited)")
-        self.window.comboBoxGradScheme.addItem("Least Squares")
 
-        self.window.comboBoxDivScheme.addItem("Gauss Linear")
-        self.window.comboBoxDivScheme.addItem("Gauss Linear Upwind")
-        self.window.comboBoxDivScheme.addItem("Gauss Upwind")  
-        self.window.comboBoxDivScheme.addItem("Gauss LUST")      
-        self.window.comboBoxDivScheme.addItem("Gauss Linear Limited")
-        self.window.comboBoxDivScheme.addItem("Gauss Linear LimitedV")
+        for scheme in self.grad_schemes.keys():
+            self.window.comboBoxGradScheme.addItem(scheme)
+        #self.window.comboBoxGradScheme.addItem("Gauss linear")
+        #self.window.comboBoxGradScheme.addItem("Gauss Linear (Cell Limited)")
+        #self.window.comboBoxGradScheme.addItem("Gauss Linear (Cell MD Limited)")
+        #self.window.comboBoxGradScheme.addItem("Gauss Linear (Face Limited)")
+        #self.window.comboBoxGradScheme.addItem("Gauss Linear (Face MD Limited)")
+        #self.window.comboBoxGradScheme.addItem("Least Squares")
+
+        for scheme in self.div_schemes.keys():
+            self.window.comboBoxDivScheme.addItem(scheme)
+
+        #self.window.comboBoxDivScheme.addItem("Gauss Linear")
+        #self.window.comboBoxDivScheme.addItem("Gauss Linear Upwind")
+        #self.window.comboBoxDivScheme.addItem("Gauss Upwind")  
+        #self.window.comboBoxDivScheme.addItem("Gauss LUST")      
+        #self.window.comboBoxDivScheme.addItem("Gauss Linear Limited")
+        #self.window.comboBoxDivScheme.addItem("Gauss Linear LimitedV")
 
         #self.window.comboBoxGradScheme.addItem("grad(U)")
 
         self.window.comboBoxDivTurb.addItem("Gauss Upwind") 
-        self.window.comboBoxDivTurb.addItem("Gauss Linear Limited")
+        self.window.comboBoxDivTurb.addItem("Gauss Limited Linear")
 
-
-        self.window.comboBoxLaplacian.addItem("corrected")
+        for scheme in self.laplacian_schemes.keys():
+            self.window.comboBoxLaplacian.addItem(scheme)
+        #self.window.comboBoxLaplacian.addItem("corrected")
         
-        self.window.comboBoxLaplacian.addItem("limited 0.333")
-        self.window.comboBoxLaplacian.addItem("limited 0.666")
-        self.window.comboBoxLaplacian.addItem("limited 1.0")
+        #self.window.comboBoxLaplacian.addItem("limited 0.333")
+        #self.window.comboBoxLaplacian.addItem("limited 0.666")
+        #self.window.comboBoxLaplacian.addItem("limited 1.0")
 
         if self.transient==False:
             self.window.comboBoxTemporal.addItem("Steady State")
@@ -858,22 +879,30 @@ class numericalSettingsDialog(QDialog):
         self.OK_clicked = True
         self.current_mode = self.window.comboBoxMode.currentIndex()
         self.turbulence_model = self.window.comboBoxTurbulenceModels.currentText()
+        # if advanced mode is selected, then we need to set the numerical schemes
+        if self.current_mode==3:
+            #print("Advanced Mode Settings Used")
+            self.setAdvancedMode()
+        #self.print_numerical_settings()
     
     def print_numerical_settings(self):
+        print("\n----------------------Numerical Settings----------------------")
         print("ddtScheme",self.numericalSettings['ddtSchemes']['default'])
         print("grad",self.numericalSettings['gradSchemes']['default'])
         print("gradU",self.numericalSettings['gradSchemes']['grad(U)'])
         print("div",self.numericalSettings['divSchemes']['default'])
         print("div, convection",self.numericalSettings['divSchemes']['div(phi,U)'])
+        print("div, k",self.numericalSettings['divSchemes']['div(phi,k)'])
         print("laplacian",self.numericalSettings['laplacianSchemes']['default'])
         print("snGrad",self.numericalSettings['snGradSchemes']['default'])
-    
+        print("----------------------------------------------------------------")
     """
     We have 3 basic modes: Balanced, Stability, Accuracy.
     This function will set the numerical schemes based on the mode selected.
     """
     def setBasicMode(self):
         self.basicMode = True
+        self.numericalSettings['basicMode'] = True
         if(self.window.comboBoxMode.currentText()=="Balanced (Blended 2nd Order schemes)"):
             #print("Balanced Mode")
             #self.print_numerical_settings()
@@ -930,33 +959,68 @@ class numericalSettingsDialog(QDialog):
         else:
             self.setAdvancedMode()
             #print("Advanced Mode")
-            
+
+    """
+    Advanced Mode will allow the user to select the numerical schemes manually.
+    This function will set the initial numerical schemes.
+    """
+    def initAdvancedMode(self):
+        self.window.comboBoxTemporal.setCurrentText(value_to_key(self.temporal_schemes,self.numericalSettings['ddtSchemes']['default']))
+        self.window.comboBoxGradScheme.setCurrentText(value_to_key(self.grad_schemes,self.numericalSettings['gradSchemes']['default']))
+        self.window.comboBoxDivScheme.setCurrentText(value_to_key(self.div_schemes,self.numericalSettings['divSchemes']['default']))
+        self.window.comboBoxLaplacian.setCurrentText(value_to_key(self.laplacian_schemes,self.numericalSettings['laplacianSchemes']['default']))
+        if(self.numericalSettings['divSchemes']['div(phi,k)']=="Gauss Linear Limited"):
+            self.window.comboBoxDivTurb.setCurrentText("Gauss Linear Limited")
+        else:
+            self.window.comboBoxDivTurb.setCurrentText("Gauss Upwind")
+        #self.window.comboBoxDivTurb.setCurrentText("Gauss upwind")
         
     def setAdvancedMode(self):
+
         self.basicMode = False
+        self.numericalSettings['basicMode'] = False
+        #self.initAdvancedMode() # show current numerical schemes
         self.numericalSettings['ddtSchemes']['default'] = self.temporal_schemes[self.window.comboBoxTemporal.currentText()]
         grad_sch = self.window.comboBoxGradScheme.currentText()
+        div_sch = self.window.comboBoxDivScheme.currentText()
+        lap_sch = self.window.comboBoxLaplacian.currentText()
+        div_turb = self.window.comboBoxDivTurb.currentText()
+        #print("Current Mode: ",self.window.comboBoxMode.currentText())
+        #print(grad_sch,div_sch,lap_sch,div_turb)
         # check whether the selected scheme is available in the grad_schemes dictionary
+        """
         if grad_sch in self.grad_schemes.keys():
             self.numericalSettings['gradSchemes']['default'] = self.grad_schemes[grad_sch]
             self.numericalSettings['gradSchemes']['grad(U)'] = self.grad_schemes[grad_sch]
         else:
             self.numericalSettings['gradSchemes']['default'] = "Gauss linear"
             self.numericalSettings['gradSchemes']['grad(U)'] = "cellLimited Gauss linear 1"
-        div_sch = self.window.comboBoxDivScheme.currentText()
+       
         if div_sch in self.div_schemes.keys():
             self.numericalSettings['divSchemes']['default'] = self.div_schemes[div_sch]
         else:
             self.numericalSettings['divSchemes']['default'] = "Gauss linear"
-        
-        self.numericalSettings['divSchemes']['div(phi,U)'] = self.window.comboBoxDivScheme.currentText()
-        self.numericalSettings['laplacianSchemes']['default'] = "Gauss linear "+ self.window.comboBoxLaplacian.currentText()
+        """
+        self.numericalSettings['gradSchemes']['default'] = self.grad_schemes[grad_sch]
+        self.numericalSettings['divSchemes']['default'] = self.div_schemes[div_sch]
+        if div_sch == "Gauss Linear" or div_sch == "Gauss Upwind":
+            self.numericalSettings['divSchemes']['div(phi,U)'] = self.div_schemes[div_sch]
+        else:
+            self.numericalSettings['divSchemes']['div(phi,U)'] = self.div_schemes[div_sch]+" grad(U)"
+        #self.numericalSettings['divSchemes']['div(phi,U)'] = self.div_schemes[div_sch]
+        self.numericalSettings['divSchemes']['div(phi,k)'] = self.div_schemes[div_turb]
+        self.numericalSettings['divSchemes']['div(phi,epsilon)'] = self.div_schemes[div_turb]
+        self.numericalSettings['divSchemes']['div(phi,omega)'] = self.div_schemes[div_turb]
+        self.numericalSettings['divSchemes']['div(phi,nuTilda)'] = self.div_schemes[div_turb]
+        self.numericalSettings['laplacianSchemes']['default'] = self.laplacian_schemes[lap_sch] #"Gauss linear "+ self.window.comboBoxLaplacian.currentText()
         self.numericalSettings['snGradSchemes']['default'] = self.window.comboBoxLaplacian.currentText()
         #self.print_numerical_settings()
     
     def changeMode(self):
         if(self.window.comboBoxMode.currentText()=="Advanced Mode"):
             self.window.frame.setVisible(True)
+            self.initAdvancedMode()
+            self.setAdvancedMode()
         else:
             self.window.frame.setVisible(False) 
             self.setBasicMode()

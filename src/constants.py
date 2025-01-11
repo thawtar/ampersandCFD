@@ -135,6 +135,7 @@ physicalProperties = {
 }
 
 numericalSettings = {
+    'basicMode': True,
     'ddtSchemes': {'default': 'steadyState',},
     'gradSchemes': {'default': 'Gauss linear',
                     'grad(p)': 'Gauss linear',
