@@ -30,6 +30,12 @@ except:
 class ampersandPrimitives:
     def __init__(self):
         pass
+
+    @staticmethod
+    def bounds_to_str(bounds):
+        bounds_str = f"({bounds[0]:.2f} {bounds[1]:.2f} {bounds[2]:.2f})"
+        bounds_str += f"\n({bounds[3]:.2f} {bounds[4]:.2f} {bounds[5]:.2f})"
+        return bounds_str
     
     @staticmethod
     def list_stl_files(stl_files, GUIMode=False, window=None):

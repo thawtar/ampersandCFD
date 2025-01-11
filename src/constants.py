@@ -137,9 +137,9 @@ physicalProperties = {
 numericalSettings = {
     'basicMode': True,
     'ddtSchemes': {'default': 'steadyState',},
-    'gradSchemes': {'default': 'Gauss linear',
+    'gradSchemes': {'default': 'cellLimited Gauss linear 0.5',
                     'grad(p)': 'Gauss linear',
-                    'grad(U)': 'cellLimited Gauss linear 1',},
+                    'grad(U)': 'cellLimited Gauss linear 0.5',},
     'divSchemes': {'default': 'Gauss linear',
                    'div(phi,U)': 'Gauss linearUpwind grad(U)',
                    'div(phi,k)': 'Gauss upwind',

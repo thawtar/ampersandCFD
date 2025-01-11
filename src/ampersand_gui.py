@@ -351,10 +351,10 @@ class mainWindow(QMainWindow):
 
             # Unpack STL properties
             purpose, refMin, refMax, featureEdges, featureLevel, nLayers, property, bounds = stl_properties
-            print(f"STL Properties for {self.current_stl_file}:")
-            print(f"Purpose: {purpose}, RefMin: {refMin}, RefMax: {refMax}")
-            print(f"FeatureEdges: {featureEdges}, FeatureLevel: {featureLevel}")
-            print(f"nLayers: {nLayers}, Property: {property}, Bounds: {bounds}")
+            #print(f"STL Properties for {self.current_stl_file}:")
+            #print(f"Purpose: {purpose}, RefMin: {refMin}, RefMax: {refMax}")
+            #print(f"FeatureEdges: {featureEdges}, FeatureLevel: {featureLevel}")
+            #print(f"nLayers: {nLayers}, Property: {property}, Bounds: {bounds}")
             
             # Update the property box with the retrieved properties
             self.window.tableViewProperties.clearContents()
@@ -375,11 +375,22 @@ class mainWindow(QMainWindow):
             
             # Additional rows for other properties
             additional_row = 4
-            self.window.tableViewProperties.setRowCount(additional_row + 2)
+            self.window.tableViewProperties.setRowCount(additional_row + 8)
             self.window.tableViewProperties.setItem(additional_row, 0, QtWidgets.QTableWidgetItem("Number of Layers"))
             self.window.tableViewProperties.setItem(additional_row, 1, QtWidgets.QTableWidgetItem(str(nLayers)))
-            self.window.tableViewProperties.setItem(additional_row + 1, 0, QtWidgets.QTableWidgetItem("Bounds"))
-            self.window.tableViewProperties.setItem(additional_row + 1, 1, QtWidgets.QTableWidgetItem(str(bounds)))
+            self.window.tableViewProperties.setItem(additional_row + 1, 0, QtWidgets.QTableWidgetItem("Min X"))
+            self.window.tableViewProperties.setItem(additional_row + 1, 1, QtWidgets.QTableWidgetItem(f"{bounds[0]:.2f}"))
+            self.window.tableViewProperties.setItem(additional_row + 2, 0, QtWidgets.QTableWidgetItem("Max X"))
+            self.window.tableViewProperties.setItem(additional_row + 2, 1, QtWidgets.QTableWidgetItem(f"{bounds[1]:.2f}"))
+            self.window.tableViewProperties.setItem(additional_row + 3, 0, QtWidgets.QTableWidgetItem("Min Y")) 
+            self.window.tableViewProperties.setItem(additional_row + 3, 1, QtWidgets.QTableWidgetItem(f"{bounds[2]:.2f}")) 
+            self.window.tableViewProperties.setItem(additional_row + 4, 0, QtWidgets.QTableWidgetItem("Max Y")) 
+            self.window.tableViewProperties.setItem(additional_row + 4, 1, QtWidgets.QTableWidgetItem(f"{bounds[3]:.2f}")) 
+            self.window.tableViewProperties.setItem(additional_row + 5, 0, QtWidgets.QTableWidgetItem("Min Z")) 
+            self.window.tableViewProperties.setItem(additional_row + 5, 1, QtWidgets.QTableWidgetItem(f"{bounds[4]:.2f}"))
+            self.window.tableViewProperties.setItem(additional_row + 6, 0, QtWidgets.QTableWidgetItem("Max Z")) 
+            self.window.tableViewProperties.setItem(additional_row + 6, 1, QtWidgets.QTableWidgetItem(f"{bounds[5]:.2f}"))
+
 
         except Exception as e:
             print(f"Error in listClicked: {e}")
