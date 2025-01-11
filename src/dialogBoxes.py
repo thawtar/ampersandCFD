@@ -823,7 +823,7 @@ class numericalSettingsDialog(QDialog):
         #self.window.comboBoxLaplacian.addItem("limited 0.333")
         #self.window.comboBoxLaplacian.addItem("limited 0.666")
         #self.window.comboBoxLaplacian.addItem("limited 1.0")
-
+        print("Transient",self.transient)
         if self.transient==False:
             self.window.comboBoxTemporal.addItem("Steady State")
         else:
@@ -1219,6 +1219,31 @@ class controlsDialog(QDialog):
     def __del__(self):
         pass
 
+class postProcessDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.OK_clicked = False
+        
+        self.load_ui()
+        self.fill_initial_values()
+        global global_darkmode
+        apply_theme_dialog_boxes(self.window, global_darkmode)
+
+    def load_ui(self):
+        #ui_path = r"C:\Users\Ridwa\Desktop\CFD\01_CFD_Software_Development\ampersandCFD\src\controlsDialog.ui"
+        ui_path = os.path.join(src, "postProcessDialog.ui")
+        ui_file = QFile(ui_path)
+        #ui_file = QFile("inputDialog.ui")
+        ui_file.open(QFile.ReadOnly)
+        self.window = loader.load(ui_file, None)
+        ui_file.close()
+
+    def fill_initial_values(self):
+        self.window.comboBoxFOType.addItem("Forces")
+        self.window.comboBoxFOType.addItem("Force Coefficients")
+        self.window.comboBoxFOType.addItem("Mass Flow")
+        self.window.comboBoxFOType.addItem("Probes")
+
 #---------------------------------------------------------
 # Driver function for different dialog boxes
 #---------------------------------------------------------
@@ -1322,8 +1347,8 @@ def boundaryConditionDialogDriver(boundary=None):
     return (velocityBC,pressureBC,turbulenceBC)
 
 def numericsDialogDriver(current_mode=0,numericalSettings=None,turbulenceModel=None,transient=False):
-    print("Turbulence Model",turbulenceModel)
-    dialog = numericalSettingsDialog(current_mode=current_mode,numericalSettings=numericalSettings,turbulenceModel=turbulenceModel)
+    #print("Turbulence Model",turbulenceModel)
+    dialog = numericalSettingsDialog(current_mode=current_mode,numericalSettings=numericalSettings,turbulenceModel=turbulenceModel,transient=transient)
     dialog.window.exec()
     dialog.window.show()
     #turbulence_models = {"laminar":"laminar","k-epsilon":"kEpsilon","kOmegaSST":"kOmegaSST","SpalartAllmaras":"SpalartAllmaras",
@@ -1343,6 +1368,11 @@ def meshPointDialogDriver(locationInMesh=None):
         return None
     x,y,z = meshPoint
     return [x,y,z]
+
+def postProcessDialogDriver():
+    dialog = postProcessDialog()
+    dialog.window.exec()
+    dialog.window.show()
 
 def main():
     pass

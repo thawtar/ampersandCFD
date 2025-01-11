@@ -26,7 +26,7 @@ from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from dialogBoxes import sphereDialogDriver, yesNoDialogDriver, yesNoCancelDialogDriver
 from dialogBoxes import vectorInputDialogDriver, STLDialogDriver, physicalModelsDialogDriver
 from dialogBoxes import boundaryConditionDialogDriver, numericsDialogDriver, controlsDialogDriver
-from dialogBoxes import set_src, meshPointDialogDriver
+from dialogBoxes import set_src, meshPointDialogDriver,postProcessDialogDriver
 from dialogBoxes import global_darkmode, set_global_darkmode
 
 # VTK Libraries
@@ -652,28 +652,7 @@ class mainWindow(QMainWindow):
             x,y,z,r = sphereData
             print("Center: ",x,y,z)
             print("Radius: ",r)
-        self.readyStatusBar()
-
-##    def resizeEvent(self, event):
-##        terminalHeight = 302
-##        vtkWidgetWidth = self.window.width()-560
-##        vtkWidgetHeight = self.window.height()-terminalHeight-20
-##        terminalX = self.window.widget.pos().x()
-##        terminalY = self.window.widget.pos().y()+vtkWidgetHeight+10
-##        terminalWidth = vtkWidgetWidth
-##        
-##        self.window.widget.resize(vtkWidgetWidth,vtkWidgetHeight)
-##        self.vtkWidget.resize(vtkWidgetWidth,vtkWidgetHeight)
-##        self.vtkWidget.GetRenderWindow().Render()
-##        self.window.plainTextTerminal.resize(self.window.width()-560,self.window.plainTextTerminal.height())
-##       
-##        self.window.plainTextTerminal.move(terminalX,terminalY)
-##        self.window.plainTextTerminal.resize(terminalWidth,terminalHeight-20)
-##        self.window.plainTextTerminal.update()
-##        self.window.plainTextTerminal.repaint()
-##        self.readyStatusBar()
-
-    
+        self.readyStatusBar()   
 
     def resizeEvent(self, event):
         """
@@ -719,10 +698,16 @@ class mainWindow(QMainWindow):
             self.window.pushButtonSteadyTransient.setText("Transient")
             ampersandIO.printMessage("Transient Flow Selected",GUIMode=True,window=self)
             self.project.transient = True
+            # this is to ensure that the ddtSchemes is set to Euler if the current value is steadyState
+            if self.project.numericalSettings['ddtSchemes']['default'] == "steadyState":
+                self.project.numericalSettings['ddtSchemes'] = "Euler"
         else:
             self.window.pushButtonSteadyTransient.setText("Steady-State")
             ampersandIO.printMessage("Steady-State Flow Selected",GUIMode=True,window=self)
             self.project.transient = False
+            # this is to ensure that the ddtSchemes is set to steadyState if the current value is not steadyState
+            if self.project.numericalSettings['ddtSchemes']['default'] != "steadyState":
+                self.project.numericalSettings['ddtSchemes'] = "steadyState"
         self.project.set_transient_settings()
         self.readyStatusBar()
 
@@ -906,7 +891,6 @@ class mainWindow(QMainWindow):
         ampersandIO.printMessage(f"Project {self.project.project_name} opened", GUIMode=True, window=self)
         self.readyStatusBar()
     
-
     # Generate a case of the current config. 
     def generateCase(self):
         self.updateStatusBar("Analyzing Case")
@@ -1083,8 +1067,7 @@ class mainWindow(QMainWindow):
 
     
     def postProcessDialog(self):
-        print("Post Process Dialog")
-        pass
+        postProcessDialogDriver()
         
 
     def summarizeProject(self):
