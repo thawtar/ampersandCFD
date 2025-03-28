@@ -5,11 +5,11 @@ RUN apt-get update -y && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# # Install OpenFoam
-# RUN sh -c "wget -O - https://dl.openfoam.org/gpg.key > /etc/apt/trusted.gpg.d/openfoam.asc" && \
-#     add-apt-repository http://dl.openfoam.org/ubuntu && \
-#     apt-get update -y && \
-#     apt -y install openfoam11
+# Install OpenFoam
+RUN curl https://dl.openfoam.com/add-debian-repo.sh | sudo bash && \
+    apt-get update -y && \
+    apt-get -y install openfoam2406-default
+
 
 
 # Determine architecture and download appropriate Miniconda installer
@@ -34,9 +34,12 @@ RUN ARCH=$(uname -m) && \
 # Initialize conda and run package installs
 RUN CONDA_PATH=/home/vscode/miniconda3/bin/conda && \
   $CONDA_PATH init && \
-  $CONDA_PATH install -n base ipykernel --update-deps --force-reinstall -y && \
-  $CONDA_PATH install -n base -c conda-forge -c cadquery cadquery=master -y
+  $CONDA_PATH install -n base ipykernel --update-deps --force-reinstall -y
+  # $CONDA_PATH install -n base -c conda-forge -c cadquery cadquery=master -y
   
 RUN . /home/vscode/miniconda3/etc/profile.d/conda.sh && \
-    conda activate base && \
-    pip install ezdxf --upgrade
+    conda activate base
+    # pip install ezdxf --upgrade
+
+
+RUN echo "source /usr/lib/openfoam/openfoam2406/etc/bashrc" >> /home/vscode/.bashrc

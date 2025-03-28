@@ -1,72 +1,76 @@
-# ampersandCFD
-A streamlined OpenFOAM generation tool 
+# AmpersandCFD
+A user-friendly OpenFOAM case generation tool
 
-![alt text](https://github.com/thawtar/ampersandCFD/blob/main/images/ampersand_ss.jpg)
+![Ampersand Interface](https://github.com/thawtar/ampersandCFD/blob/main/images/ampersand_ss.jpg)
 
-### Overview
-Ampersand is designed to provide users a simple and streamlined workflow for generating their OpenFOAM case files.
+## Overview
+Ampersand streamlines the OpenFOAM case file generation process through an intuitive interface. It handles both external and internal incompressible flows with minimal user input, automatically managing mesh parameters, boundary conditions, and numerical schemes.
 
-You can use Ampersand for external and internal incompressible flows. The case file generation procedure is very simple. You need to locate your STL file and answer a few YES/NO and multiple choice questions. Ampersand will take care of the rest including mesh size and y+, boundary conditions and numerical schemes.
+## Installation
 
-### Installation
-1. **Requirements**: OpenFOAM (ESI version), Python 3.x, additional dependencies (list here).
-2. **Installation**: Clone the repository and install dependencies.
+### Prerequisites
+- OpenFOAM (ESI version)
+- Python 3.x
+- Git
 
-3. **OpenFOAM Version**: Currently Ampersand only supports OpenFOAM ESI versions (OpenFOAM.com) such as v2206, v2212 and later. Earlier versions such as v1912 or v2006 should work too, although these versions were not tested yet.
-
+### Quick Install
 ```bash
-   git clone https://github.com/thawtar/ampersandCFD.git
-   cd ampersandCFD
-   pip install -r requirements.txt
+pip install git+https://github.com/thawtar/ampersandCFD#egg=ampersandCFD
 ```
 
-3. **Setup**: Configure paths as needed, then verify with a test case.
-
-
-### Quick Start
-1. **Case generation**: Go inside ampersandCFD/src directory and run:
+### Development Setup
 ```bash
-   python main.py --create
+git clone https://github.com/thawtar/ampersandCFD.git
+cd ampersandCFD
+pip install -r requirements.txt
 ```
 
-2. **Modifying generated case**: Go inside ampersandCFD/src directory and run:
+### Compatibility
+- Supports OpenFOAM ESI versions (v2206, v2212, and newer)
+- Should work with v1912, v2006 (untested)
+
+## Usage
+
+### Create New Case
 ```bash
-   python main.py --open
+cd ampersandCFD/src
+ampersandcfd --create
 ```
 
-### Features
-1. **Streamlined workflow for external and internal flows**
-An easy to follow series of prompts and questions to create your OpenFOAM casefiles and meshes. You can choose whether external aerodynamics or internal flows inside various machinery and Ampersand will help you generate a suitable case directory for you.
+### Modify Existing Case
+```bash
+cd ampersandCFD/src
+ampersandcfd --open
+```
 
-2. **Boundary conditions and simulation settings**
-Easily configure boundaries, geometry and physics. Stable and accurate discretization schemes and linear solvers are chosen for your simulations!
+## Key Features
 
-### User Guide
-The user guide and related documentations are under construction. We will provide more detailed guides later.
+### Automated Workflow
+- Simple question-based interface
+- Automatic mesh sizing and y+ calculation
+- Optimized boundary conditions
+- Pre-configured numerical schemes
 
-### Contributing 
-Contributions are welcome! Please see our contribution guide for details.
+### Supported Applications
+- External aerodynamics
+- Internal flow machinery
+- Multi-region simulations
 
-### Support
-For questions or support, contact Thaw Tar (mr.thaw.tar1990@gmail.com) or open an issue.
+## Example Applications
 
+### Internal Flow: Multi-region Tank Mesh
+![Tank Mesh](https://github.com/thawtar/ampersandCFD/blob/main/images/ampersand_mixer_total.png)
 
-### Demonstration 
-You can see the demonstration of this code in this following YouTube video:
-https://www.youtube.com/watch?v=KoiBxDwSiP0&t=248s
+### External Flow: DrivAer Simulation
+![DrivAer](https://github.com/thawtar/ampersandCFD/blob/main/images/drivAer_steady_state_defects.png)
 
+### External Flow: Formula One
+![F1 Car](https://github.com/thawtar/ampersandCFD/blob/main/images/1729773467507.jpg)
 
-## Gallery 
-The OpenFOAM case files for the following meshes and CFD simulations are created using Ampersand.
+## Resources
+- [Video Tutorial](https://www.youtube.com/watch?v=KoiBxDwSiP0&t=248s)
+- [Support Contact](mailto:mr.thaw.tar1990@gmail.com)
+- [Submit Issues](https://github.com/thawtar/ampersandCFD/issues)
 
-![alt text](https://github.com/thawtar/ampersandCFD/blob/main/images/ampersand_mixer_total.png)
-
-Multi-region mesh of a tank (Internal flow problem)
-
-![alt text](https://github.com/thawtar/ampersandCFD/blob/main/images/drivAer_steady_state_defects.png)
-DrivAer simulation (External flow)
-
-![alt text](https://github.com/thawtar/ampersandCFD/blob/main/images/1729773467507.jpg)
-Formula One car (External flow)
-
-
+## Contributing
+Contributions are welcome! Please check our contribution guidelines before submitting pull requests.

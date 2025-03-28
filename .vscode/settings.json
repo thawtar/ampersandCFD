@@ -6,5 +6,6 @@
         "massBalanceModules.C": "cpp",
         "snappyLayerDriverSinglePass.C": "cpp",
         "snappyLayerDriver.C": "cpp"
-    }
+    },
+    "python.analysis.typeCheckingMode": "basic"
 }
