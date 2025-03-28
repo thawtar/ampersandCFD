@@ -5,6 +5,7 @@
         "sedModules.C": "cpp",
         "massBalanceModules.C": "cpp",
         "snappyLayerDriverSinglePass.C": "cpp",
-        "snappyLayerDriver.C": "cpp"
+        "snappyLayerDriver.C": "cpp",
+        "tabulated6DoFAcceleration.C": "cpp"
     }
 }

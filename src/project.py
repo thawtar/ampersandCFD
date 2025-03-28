@@ -38,6 +38,7 @@ from surfaceExtractor import create_surfaceFeatureExtractDict
 from transportAndTurbulence import create_transportPropertiesDict, create_turbulencePropertiesDict
 #from transportAndTurbulence import write_transportPropertiesDict, write_turbulencePropertiesDict
 from boundaryConditionsGenerator import create_boundary_conditions
+#from boundaryConditions import create_boundary_conditions
 from controlDictGenerator import createControlDict
 from numericalSettingsGenerator import create_fvSchemesDict, create_fvSolutionDict
 from scriptGenerator import ScriptGenerator
@@ -92,6 +93,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.mod_options = ["Background Mesh","Add Geometry","Refinement Levels","Mesh Point","Boundary Conditions","Fluid Properties", "Numerical Settings", 
                    "Simulation Control Settings","Turbulence Model","Post Processing Settings"]
         self.minX, self.maxX, self.minY, self.maxY, self.minZ, self.maxZ = -1e-3, 1e-3, -1e-3, 1e-3, -1e-3, 1e-3
+        self.lenX, self.lenY, self.lenZ = 2e-3, 2e-3, 2e-3
     #--------------------------------------------------------------------
     # Methods to handle the project summary and changes
     #--------------------------------------------------------------------
@@ -112,7 +114,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
 
     def summarize_project(self):
         trueFalse = {True: 'Yes', False: 'No'}
-        ampersandIO.show_title("Project Summary")
+        ampersandIO.show_title("Project Summary",GUIMode=self.GUIMode,window=self.window)
         #ampersandIO.printMessage(f"Project directory: {self.project_directory_path}")
         ampersandIO.printFormat("Project name", self.project_name, GUIMode=self.GUIMode,window=self.window)
         ampersandIO.printFormat("Project path", self.project_path, GUIMode=self.GUIMode,window=self.window)
@@ -136,11 +138,11 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         nx = self.meshSettings['domain']['nx']
         ny = self.meshSettings['domain']['ny']
         nz = self.meshSettings['domain']['nz']
-        ampersandIO.printMessage(f"Domain size:{'X':>10}{'Y':>10}{'Z':>10}")
-        ampersandIO.printMessage(f"Min         {minX:>10.3f}{minY:>10.3f}{minZ:>10.3f}")
-        ampersandIO.printMessage(f"Max         {maxX:>10.3f}{maxY:>10.3f}{maxZ:>10.3f}")
-        ampersandIO.printMessage(f"Background mesh size: {nx}x{ny}x{nz} cells")
-        ampersandIO.printMessage(f"Background cell size: {self.meshSettings['maxCellSize']} m")
+        ampersandIO.printMessage(f"Domain size:{'X':>10}{'Y':>10}{'Z':>10}",GUIMode=self.GUIMode,window=self.window)
+        ampersandIO.printMessage(f"Min         {minX:>10.3f}{minY:>10.3f}{minZ:>10.3f}",GUIMode=self.GUIMode,window=self.window)
+        ampersandIO.printMessage(f"Max         {maxX:>10.3f}{maxY:>10.3f}{maxZ:>10.3f}",GUIMode=self.GUIMode,window=self.window)
+        ampersandIO.printMessage(f"Background mesh size: {nx}x{ny}x{nz} cells",GUIMode=self.GUIMode,window=self.window)
+        ampersandIO.printMessage(f"Background cell size: {self.meshSettings['maxCellSize']} m",GUIMode=self.GUIMode,window=self.window)
     
       
     def change_boundary_condition(self,bcName,newBC):
@@ -457,6 +459,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
 
     # write current settings to the project_settings.yaml file inside the project directory
     def write_settings(self):
+        self.meshSettings['onGround'] = self.onGround
         settings = {
             'meshSettings': self.meshSettings,
             'physicalProperties': self.physicalProperties,
@@ -470,6 +473,10 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             'postProcessSettings': self.postProcessSettings
         }
         #print(self.meshSettings)
+        #print(self.physicalProperties)
+        #print(self.numericalSettings)
+        #print(self.inletValues)
+        #print(self.boundaryConditions)
         ampersandIO.printMessage("Writing settings to project_settings.yaml",GUIMode=self.GUIMode,window=self.window)
         ampersandPrimitives.dict_to_yaml(settings, 'project_settings.yaml')
 
@@ -531,6 +538,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         ampersandIO.print_dict(self.simulationFlowSettings)
         ampersandIO.printMessage("Post Process Settings")
         ampersandIO.print_dict(self.postProcessSettings)
+
+    
 
     # If the project is not existing, load the default settings
     def load_default_settings(self):
@@ -596,6 +605,16 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.stl_files[idx] = stl_
             return 1 # flag to indicate that the stl file is replaced
         return 0
+    
+    def remove_stl_from_mesh_settings(self,stl_name):
+        idx = 0
+        for stl in self.meshSettings['geometry']:
+            if stl['name'] == stl_name:
+                self.meshSettings['geometry'].pop(idx)
+                return 0
+            idx += 1
+        return -1
+             
 
     
 
@@ -631,6 +650,28 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             property = None
         return property
     
+    def set_numerical_settings(self,numericalSettings):
+        self.numericalSettings = numericalSettings
+    
+    def set_property_gui(self,purpose='wall'):
+        if purpose == 'inlet':
+            U = ampersandDataInput.get_inlet_values(GUIMode=self.GUIMode,window=self.window)
+            property = tuple(U)
+            ampersandIO.printMessage(f"Setting property of {purpose} to {property}")
+        elif purpose == 'refinementRegion' :
+            refLevel = ampersandIO.get_input_int("Enter refinement level: ")
+            property = refLevel
+        elif purpose == 'cellZone':
+            refLevel = ampersandIO.get_input_int("Enter refinement level: ")
+            createPatches = ampersandIO.get_input_bool("Create patches for this cellZone? (y/N): ")
+            property = (refLevel, createPatches,0) # 0 is just a placeholder for listing the patches
+        elif purpose == 'refinementSurface':
+            refLevel = ampersandIO.get_input_int("Enter refinement level: ")
+            property = refLevel
+        else:
+            property = None
+        return property
+    
    
     def ask_stl_settings(self,stl_file):
         ampersandIO.printMessage(f"Settings of the {stl_file['name']} file")
@@ -644,6 +685,102 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         stl_file['featureLevel'] = ampersandIO.get_input("Feature Level: ")
         stl_file['nLayers'] = ampersandIO.get_input("Number of Layers: ")
 
+    def change_stl_property(self,stl_file_name,property):
+        for stl in self.meshSettings['geometry']:
+            if stl['name'] == stl_file_name: 
+                stl['property'] = property
+        
+    def get_stl_properties(self,stl_file_name):
+        #print(stl_file_name)
+        
+        for stl in self.stl_files:
+            #print(stl)
+            if stl['name'] == stl_file_name:
+                #print("Found")
+                purpose = stl['purpose']
+                refMin = stl['refineMin']
+                refMax = stl['refineMax']
+                featureEdges = stl['featureEdges']
+                featureLevel = stl['featureLevel']
+                
+                if isinstance(stl['nLayers'],int):
+                    nLayers = stl['nLayers']
+                else:
+                    nLayers = 0
+                property = stl['property']
+                bounds = stl['bounds']
+                return purpose,refMin,refMax,featureEdges,featureLevel,nLayers,property,bounds
+        return None
+    
+    def show_stl_properties(self,stl_file_name):
+        purpose,refMin,refMax,featureEdges,featureLevel,nLayers,property,bounds = self.get_stl_properties(stl_file_name)
+        ampersandIO.printMessage(f"STL file: {stl_file_name}")
+        ampersandIO.printMessage(f"Purpose: {purpose}")
+        ampersandIO.printMessage(f"Refinement Min: {refMin}")
+        ampersandIO.printMessage(f"Refinement Max: {refMax}")
+        ampersandIO.printMessage(f"Feature Edges: {featureEdges}")
+        ampersandIO.printMessage(f"Feature Level: {featureLevel}")
+        ampersandIO.printMessage(f"Number of Layers: {nLayers}")
+        ampersandIO.printMessage(f"Property: {property}")
+        ampersandIO.printMessage(f"Bounds: {bounds}")
+    
+    def get_stl(self,stl_file_name):
+        for stl in self.stl_files:
+            if stl['name'] == stl_file_name:
+                return stl
+        return None
+    
+    def get_stl_index(self,stl_file_name):
+        for idx,stl in enumerate(self.stl_files):
+            if stl['name'] == stl_file_name:
+                return idx
+        return -1
+    
+    def get_location_in_mesh(self):
+        return self.meshSettings["castellatedMeshControls"]["locationInMesh"]
+    
+    def set_location_in_mesh(self,locationInMesh):
+        print(locationInMesh)
+        self.meshSettings["castellatedMeshControls"]["locationInMesh"] = locationInMesh
+    
+    def set_stl_properties(self,stl_file_name,stl_properties):
+        refMin,refMax,refLevel,nLayers,usage,edgeRefine,ami,property = stl_properties
+        #refMin,refMax,featureLevel,nLayers,property,bounds = stl_properties
+        usageToPurpose = {'Wall':'wall', 'Inlet':'inlet','Outlet':'outlet','Refinement_Region':'refinementRegion',
+                          'Refinement_Surface':'refinementSurface','Cell_Zone':'cellZone','Baffles':'baffles',
+                          'Symmetry':'symmetry','Cyclic':'cyclic','Empty':'empty'}
+        for stl in self.meshSettings['geometry']:
+            if stl['name'] == stl_file_name:
+                stl['purpose'] = usageToPurpose[usage]
+                stl['refineMin'] = refMin
+                stl['refineMax'] = refMax
+                stl['featureEdges'] = edgeRefine
+                stl['featureLevel'] = refMin
+                stl['nLayers'] = nLayers
+                
+                #stl['bounds'] = bounds
+                if usage == 'Cell_Zone':
+                    stl['property'] = (refLevel,ami)
+                elif usage == 'Refinement_Region':
+                    stl['property'] = refLevel
+                elif usage == 'Refinement_Surface':
+                    stl['property'] = refLevel
+                else:
+                    stl['property'] = property
+                return 0
+        return -1
+    
+    def set_boundary_condition(self,stl_file_name,boundary_condition):
+        for stl in self.meshSettings['geometry']:
+            if stl['name'] == stl_file_name:
+                if stl['purpose'] == 'inlet':
+                    # set the inlet values
+                    stl['property'] = list(boundary_condition[0])
+                return 0
+            
+        print("Failed setting boundary condition. STL file not found")
+        return -1
+
     def add_stl_to_project(self):
         for stl_file in self.stl_files:
             #self.ask_stl_settings(stl_file)
@@ -653,7 +790,8 @@ class ampersandProject: # ampersandProject class to handle the project creation 
     def add_stl_file(self): # to only copy the STL file to the project directory and add it to the STL list
         stl_file = ampersandPrimitives.ask_for_file([("STL Geometry", "*.stl"), ("OBJ Geometry", "*.obj")],self.GUIMode)
         if stl_file is None:
-            ampersandIO.printWarning("No file selected. Please select STL file if necessary.",GUIMode=self.GUIMode)
+            #ampersandIO.printWarning("No file selected. Please select STL file if necessary.",GUIMode=self.GUIMode)
+            ampersandIO.printMessage("No file selected. Please select STL file if necessary.",GUIMode=self.GUIMode,window=self.window)
             return -1
         if os.path.exists(stl_file):
             # add the stl file to the project
@@ -662,7 +800,58 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             file_path_to_token = stl_file.split("/")
             stl_name = file_path_to_token[-1]
             if stl_name in self.stl_names:
-                ampersandIO.printWarning(f"STL file {stl_name} already exists in the project",GUIMode=self.GUIMode)
+                #ampersandIO.printWarning(f"STL file {stl_name} already exists in the project",GUIMode=self.GUIMode)
+                ampersandIO.printMessage(f"STL file {stl_name} already exists in the project",GUIMode=self.GUIMode,window=self.window)
+                return -1
+            else: # this is to prevent the bug of having the same file added multiple times
+                if self.GUIMode:
+                    purpose = "wall"
+                    property = None
+                else:
+                    purpose = self.ask_purpose()
+                    property = self.set_property(purpose)
+                bounds = stlAnalysis.compute_bounding_box(stl_file)
+                bounds = tuple(bounds)
+                ampersandIO.printMessage(f"Bounds of the geometry: {bounds}",GUIMode=self.GUIMode,window=self.window)
+                if purpose == 'refinementRegion' or purpose == 'refinementSurface':
+                    featureEdges = False
+                else:  
+                    featureEdges = True
+                self.add_stl_to_mesh_settings(stl_name,purpose=purpose,property=property,featureEdges=featureEdges,bounds=bounds)
+            # this is the path to the constant/triSurface inside project directory where STL will be copied
+            stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
+            try:
+                ampersandIO.printMessage(f"Copying {stl_name} to the project directory",GUIMode=self.GUIMode,window=self.window)
+                shutil.copy(stl_file, stl_path)
+            except OSError as error:
+                ampersandIO.printError(error,GUIMode=self.GUIMode)
+                return -1
+            try:
+                stlAnalysis.set_stl_solid_name(stl_path)
+            except Exception as error:
+                ampersandIO.printError(error,GUIMode=self.GUIMode)
+                return -1
+        else:
+            ampersandIO.printError("File does not exist. Aborting project creation.",GUIMode=self.GUIMode)
+            return -1
+        self.current_stl_file = stl_path
+        return 0
+    
+    def add_one_stl_file(self,stl_file): # to only copy the STL file to the project directory and add it to the STL list
+        #stl_file = ampersandPrimitives.ask_for_file([("STL Geometry", "*.stl"), ("OBJ Geometry", "*.obj")],self.GUIMode)
+        if stl_file is None:
+            #ampersandIO.printWarning("No file selected. Please select STL file if necessary.",GUIMode=self.GUIMode)
+            ampersandIO.printMessage("No file selected. Please select STL file if necessary.",GUIMode=self.GUIMode,window=self.window)
+            return -1
+        if os.path.exists(stl_file):
+            # add the stl file to the project
+            # This is a bit confusing. 
+            # stl_name is the name of the file, stl_file is the path to the file
+            file_path_to_token = stl_file.split("/")
+            stl_name = file_path_to_token[-1]
+            if stl_name in self.stl_names:
+                #ampersandIO.printWarning(f"STL file {stl_name} already exists in the project",GUIMode=self.GUIMode)
+                ampersandIO.printMessage(f"STL file {stl_name} already exists in the project",GUIMode=self.GUIMode,window=self.window)
                 return -1
             else: # this is to prevent the bug of having the same file added multiple times
                 if self.GUIMode:
@@ -709,11 +898,33 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             #ampersandIO.printMessage(stl_path)
             stl_paths.append(stl_path)
         return stl_paths
+    
+    def remove_stl_file_by_name(self,stl_name):
+        print("Before removing")
+        self.list_stl_files()
+        for stl in self.stl_files:
+            if stl['name'] == stl_name:
+                self.stl_files.remove(stl)
+                self.remove_stl_from_mesh_settings(stl_name)
+                if stl_name in self.stl_names:
+                    self.stl_names.remove(stl_name)
+                #stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
+                #try:
+                #    os.remove(stl_path)
+                #except OSError as error:
+                #    ampersandIO.printError(error)
+                #    return -1
+                print(f"STL file {stl_name} removed from the project")
+                self.list_stl_files()
+                print(self.stl_files)
+                return 0
+        self.list_stl_files()
+        return -1
 
 
     def remove_stl_file(self,stl_file_number=0):
         #self.list_stl_files()
-        stl_file_number = ampersandIO.get_input("Enter the number of the file to remove: ")
+        #stl_file_number = ampersandIO.get_input("Enter the number of the file to remove: ")
         try:
             stl_file_number = int(stl_file_number)
         except ValueError:
@@ -765,6 +976,25 @@ class ampersandProject: # ampersandProject class to handle the project creation 
             self.halfModel = False
             self.meshSettings['halfModel'] = False
 
+    def get_domain_size(self):
+        minx = self.meshSettings['domain']['minx']
+        maxx = self.meshSettings['domain']['maxx']
+        miny = self.meshSettings['domain']['miny']
+        maxy = self.meshSettings['domain']['maxy']
+        minz = self.meshSettings['domain']['minz']
+        maxz = self.meshSettings['domain']['maxz']
+        nx = self.meshSettings['domain']['nx']
+        ny = self.meshSettings['domain']['ny']
+        nz = self.meshSettings['domain']['nz']
+        return minx,maxx,miny,maxy,minz,maxz,nx,ny,nz
+    
+    
+    def update_max_lengths(self):
+        minx,maxx,miny,maxy,minz,maxz,nx,ny,nz = self.get_domain_size()
+        self.lenX = maxx - minx
+        self.lenY = maxy - miny
+        self.lenZ = maxz - minz
+
     def set_max_domain_size(self,domain_size,nx,ny,nz):
         self.minX = min(domain_size[0],self.minX)
         self.maxX = max(domain_size[1],self.maxX)
@@ -776,6 +1006,32 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         self.meshSettings['domain']['nx'] = nx
         self.meshSettings['domain']['ny'] = ny
         self.meshSettings['domain']['nz'] = nz
+
+    def update_max_stl_length(self,bounds):
+        # update the characteristic length based on the bounding box of the stl files
+        # the characteristic length is the maximum dimension of the bounding box
+        xmin, xmax, ymin, ymax, zmin, zmax = bounds
+        dx = xmax - xmin
+        dy = ymax - ymin
+        dz = zmax - zmin
+        self.lenX = max(dx,self.lenX)
+        self.lenY = max(dy,self.lenY)
+        self.lenZ = max(dz,self.lenZ)
+        
+    def set_domain_size(self,stl_name):
+        if stl_name is None:
+            ampersandIO.printError("No stl file selected. Aborting operation",GUIMode=self.GUIMode)
+            return -1
+        
+        stl_idx = self.get_stl_index(stl_name)
+        if stl_idx == -1:
+            ampersandIO.printError("STL file not found. Aborting operation",GUIMode=self.GUIMode)
+            return -1
+        stl_file = self.stl_files[stl_idx]
+        stl_path = os.path.join(self.project_path, "constant", "triSurface", stl_name)
+        stlBoundingBox = stlAnalysis.compute_bounding_box(stl_path)
+
+        
 
     def analyze_stl_file(self,stl_file_number=0):
         rho = self.physicalProperties['rho']
@@ -799,6 +1055,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
                                                                            onGround=self.onGround,internalFlow=self.internalFlow,
                                                                            refinement=self.refinement,halfModel=self.halfModel,
                                                                            GUI=self.GUIMode,window=self.window)
+        self.update_max_stl_length(stlBoundingBox)
         featureLevel = max(refLevel,1)
         self.meshSettings = stlAnalysis.set_mesh_settings(self.meshSettings, domain_size, nx, ny, nz, refLevel, featureLevel,nLayers=nLayers) 
         self.set_max_domain_size(domain_size,nx,ny,nz)
@@ -890,17 +1147,25 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         turbulence_model = ampersandDataInput.choose_turbulence_model()
         self.solverSettings['turbulenceModel'] = turbulence_model
     
+    def ask_transient_settings(self):
+        self.simulationSettings['endTime'] = ampersandIO.get_input_float("End time: ")
+        self.simulationSettings['writeInterval'] = ampersandIO.get_input_float("Write interval: ")
+        self.simulationSettings['deltaT'] = ampersandIO.get_input_float("Time step: ")
     
     def set_transient_settings(self):
-        self.ask_transient()
+        #self.ask_transient()
         if self.transient:
             ampersandIO.printMessage("Transient simulation settings")
             self.simulationSettings['transient'] = True
             self.simulationSettings['application'] = 'pimpleFoam'
             self.simulationFlowSettings['solver'] = 'pimpleFoam'
-            self.simulationSettings['endTime'] = ampersandIO.get_input_float("End time: ")
-            self.simulationSettings['writeInterval'] = ampersandIO.get_input_float("Write interval: ")
-            self.simulationSettings['deltaT'] = ampersandIO.get_input_float("Time step: ")
+            if not self.GUIMode:
+                self.ask_transient_settings()
+            else:
+                pass
+                #self.simulationSettings['endTime'] = ampersandIO.get_input_float("End time: ")
+                #self.simulationSettings['writeInterval'] = ampersandIO.get_input_float("Write interval: ")
+                #self.simulationSettings['deltaT'] = ampersandIO.get_input_float("Time step: ")
             self.simulationSettings['adjustTimeStep'] = 'no'
             self.simulationSettings['maxCo'] = 0.9
             self.numericalSettings['ddtSchemes']['default'] = 'Euler'
@@ -961,7 +1226,7 @@ class ampersandProject: # ampersandProject class to handle the project creation 
         if os.path.exists("0.orig"):
             shutil.rmtree("0.orig")
         # create the initial conditions file
-        ampersandIO.printMessage("Creating boundary conditions")
+        ampersandIO.printMessage("Creating boundary conditions",GUIMode=self.GUIMode,window=self.window)
         # check if the 0 directory exists
         if not os.path.exists("0"):
             # create the 0 directory
